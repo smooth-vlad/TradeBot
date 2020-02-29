@@ -1,23 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 using LiveCharts;
-using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
@@ -32,9 +19,20 @@ namespace TradeBot
         private Context context;
         private MarketInstrument stock;
 
+        private System.Timers.Timer candlesTimer = new System.Timers.Timer();
+
         public TradeBotWindow()
         {
             InitializeComponent();
+            candlesTimer.AutoReset = true;
+            candlesTimer.Elapsed += CandlesTimer_Elapsed;
+            candlesTimer.Interval = TimeSpan.FromMinutes(1).TotalMilliseconds;
+            candlesTimer.Start();
+        }
+
+        private void CandlesTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            CalculateSeries();
         }
 
         // Check if it is possible to build chart using user input.
@@ -93,7 +91,7 @@ namespace TradeBot
         {
             // Caclulates closures for the previous segment.
             List<decimal> previousClosures = await getCandlesClosures(
-                DateTime.Today.AddYears(-2), DateTime.Today.AddYears(-1), CandleInterval.Day);
+                DateTime.Today.AddHours(-2), DateTime.Today.AddHours(-1), CandleInterval.Minute);
 
             Queue<decimal> queue = new Queue<decimal>(previousClosures.Skip(previousClosures.Count - step));
             List<decimal> SMA = new List<decimal>(closures.Count + 1) { queue.Average() };
@@ -105,14 +103,20 @@ namespace TradeBot
 
         private async void FindButton_Click(object sender, RoutedEventArgs e)
         {
+            await CalculateSeries();
+        }
+
+        private async Task CalculateSeries()
+        {
             bool isInputCorrect = await CheckInput();
             if (!isInputCorrect) return;
 
             List<decimal> closePrices = await getCandlesClosures(
-                DateTime.Today.AddYears(-1), DateTime.Today.AddDays(-1), CandleInterval.Day);
+                DateTime.Today.AddHours(-1), DateTime.Today, CandleInterval.Minute);
 
             chart.Series = new SeriesCollection();
-            chart.AxisX.AddRange(new List<Axis> { new Axis(), new Axis(), new Axis() });
+            while (chart.AxisX.Count < 3)
+            chart.AxisX.Add(new Axis());
 
             // Stock close price.
             chart.Series.Add(new LineSeries { Values = new ChartValues<decimal>(closePrices) });
