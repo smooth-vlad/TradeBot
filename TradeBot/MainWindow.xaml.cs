@@ -18,7 +18,7 @@ namespace TradeBot
     {
         private Context context;
         private MarketInstrument stock;
-
+        
         private System.Timers.Timer candlesTimer = new System.Timers.Timer();
 
         public TradeBotWindow()
@@ -27,16 +27,15 @@ namespace TradeBot
             candlesTimer.AutoReset = true;
             candlesTimer.Elapsed += CandlesTimer_Elapsed;
             candlesTimer.Interval = TimeSpan.FromMinutes(1).TotalMilliseconds;
-            candlesTimer.Start();
         }
 
         private void CandlesTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            CalculateSeries();
+            _ = CalculateSeries();
         }
 
         // Check if it is possible to build chart using user input.
-        private async Task<bool> CheckInput()
+        private bool CheckInput()
         {
             // Set default values.
             tokenTextBlock.Text = "Token";
@@ -48,7 +47,7 @@ namespace TradeBot
                 // Connect using token.
                 SandboxConnection connection = ConnectionFactory.GetSandboxConnection(tokenTextBox.Text);
                 context = connection.Context;
-                MarketInstrumentList allegedStocks = await context.MarketStocksAsync();
+                MarketInstrumentList allegedStocks = context.MarketStocksAsync().Result;
 
                 // Check if there is any ticker.
                 stock = allegedStocks.Instruments.Find(x => x.Ticker == tickerTextBox.Text);
@@ -87,43 +86,54 @@ namespace TradeBot
         }
 
         // Calculates SMA for every calndle provided and returns them as a list.
-        private async Task<List<decimal>> CalculateSMA(List<decimal> closures, int step)
+        private List<decimal> CalculateSMA(List<decimal> closures, int step)
         {
-            // Caclulates closures for the previous segment.
-            List<decimal> previousClosures = await getCandlesClosures(
-                DateTime.Today.AddHours(-2), DateTime.Today.AddHours(-1), CandleInterval.Minute);
-
-            Queue<decimal> queue = new Queue<decimal>(previousClosures.Skip(previousClosures.Count - step));
-            List<decimal> SMA = new List<decimal>(closures.Count + 1) { queue.Average() };
-            closures.ForEach(x => { queue.Dequeue(); queue.Enqueue(x); SMA.Add(queue.Average()); });
-
-            //Excludes a value that only considers data from the previous segment.
-            return SMA.Skip(1).ToList();
+            var SMA = new List<decimal>(closures.Count);
+            for (int i = 0; i < closures.Count; ++i)
+            {
+                decimal sum = 0;
+                int j;
+                for (j = 0; j < step && i - j >= 0; ++j)
+                    sum += closures[i - j];
+                SMA.Add(sum / j);
+            }
+            return SMA;
         }
 
         private async void FindButton_Click(object sender, RoutedEventArgs e)
         {
+            candlesTimer.Start();
             await CalculateSeries();
         }
 
         private async Task CalculateSeries()
         {
-            bool isInputCorrect = await CheckInput();
+            bool isInputCorrect = CheckInput();
             if (!isInputCorrect) return;
 
             List<decimal> closePrices = await getCandlesClosures(
-                DateTime.Today.AddHours(-1), DateTime.Today, CandleInterval.Minute);
+                DateTime.Today.AddYears(-1).AddDays(1), DateTime.Today, CandleInterval.Day);
 
             chart.Series = new SeriesCollection();
-            while (chart.AxisX.Count < 3)
+            chart.AxisX = new AxesCollection();
             chart.AxisX.Add(new Axis());
 
             // Stock close price.
-            chart.Series.Add(new LineSeries { Values = new ChartValues<decimal>(closePrices) });
+            chart.Series.Add(new LineSeries { Values = new ChartValues<decimal>(closePrices), StrokeThickness = 3 });
             // SMA 50
-            chart.Series.Add(new LineSeries { Values = new ChartValues<decimal>(await CalculateSMA(closePrices, 50)) });
+            chart.Series.Add(new LineSeries
+            {
+                Values = new ChartValues<decimal>(CalculateSMA(closePrices, 50)),
+                Fill = Brushes.Transparent,
+                //Stroke = Brushes.GreenYellow,
+            });
             // SMA 200
-            chart.Series.Add(new LineSeries { Values = new ChartValues<decimal>(await CalculateSMA(closePrices, 200)) });
+            chart.Series.Add(new LineSeries
+            {
+                Values = new ChartValues<decimal>(CalculateSMA(closePrices, 200)),
+                Fill = Brushes.Transparent,
+                //Stroke = Brushes.MidnightBlue,
+            });
         }
     }
 }

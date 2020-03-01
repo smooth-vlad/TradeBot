@@ -8,12 +8,12 @@
         mc:Ignorable="d"
         Title="TradeBot" Height="500" Width="800"
         MinHeight="500" MinWidth="680"
-        Background="#E9E9E9">
-    <Grid Height="500" Width="650">
+        Background="#F9F9F9">
+    <Grid Height="Auto" Width="Auto">
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Grid Margin="15, -60, 15, 15" MaxHeight="350">
+        <Grid Margin="30, 30, 30, 30">
             <Grid.Effect>
                 <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1"/>
             </Grid.Effect>
@@ -22,11 +22,11 @@
             </Grid.OpacityMask>
             <Grid.Resources>
                 <Style TargetType="lvc:LineSeries">
-                    <Setter Property="StrokeThickness" Value="3"></Setter>
-                    <Setter Property="Stroke" Value="White"></Setter>
-                    <Setter Property="Fill" Value="#4EFFFFFF"></Setter>
+                    <Setter Property="StrokeThickness" Value="2"></Setter>
                     <Setter Property="PointGeometrySize" Value="0"></Setter>
                     <Setter Property="LineSmoothness" Value="0"></Setter>
+                    <!--<Setter Property="Stroke" Value="White"/>-->
+                    <Setter Property="Fill" Value="Transparent"/>
                 </Style>
                 <Style TargetType="lvc:Axis">
                     <Setter Property="ShowLabels" Value="False"></Setter>
@@ -35,20 +35,14 @@
             </Grid.Resources>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="45*"></RowDefinition>
+                <RowDefinition Height="60*"></RowDefinition>
                 <RowDefinition Height="5*"/>
-                <RowDefinition Height="50*"></RowDefinition>
+                <RowDefinition Height="35*"></RowDefinition>
             </Grid.RowDefinitions>
             <Border x:Name="CardBorder" Grid.Row="0" Grid.RowSpan="4" CornerRadius="5" Background="White" />
             <Border Grid.Row="0" Grid.RowSpan="3" Background="#81D4FA" ></Border>
             <TextBlock Grid.Row="0" TextAlignment="Center" Padding="0, 0, 0, 20" Foreground="White" FontSize="18">The Current Chart</TextBlock>
-            <lvc:CartesianChart x:Name="chart" Grid.Row="1" Margin="0, 0, 0, 0" Hoverable="False" DataTooltip="{x:Null}" Grid.RowSpan="2">
-                <!--<lvc:CartesianChart.AxisX>
-                    -->
-                <!--a small visual improvement, lets hide the first points (x = 0, x=1) to get better animations-->
-                <!--
-                    <lvc:Axis MinValue="2"></lvc:Axis>
-                </lvc:CartesianChart.AxisX>-->
+            <lvc:CartesianChart x:Name="chart" Grid.Row="1" Margin="0, 0, 0, 0" Hoverable="False" DataTooltip="{x:Null}" Grid.RowSpan="2" Background="White">
             </lvc:CartesianChart>
             <StackPanel Grid.Row="3" VerticalAlignment="Center" Margin="25,3,25,4">
                 <TextBlock x:Name="tokenTextBlock" Opacity=".4" FontSize="13">Token</TextBlock>
