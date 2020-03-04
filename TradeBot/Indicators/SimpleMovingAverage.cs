@@ -11,6 +11,10 @@ namespace TradeBot
         private int period;
         public int Period => period;
 
+        public List<decimal> closures;
+
+        public List<decimal> SMA;
+
         public SimpleMovingAverage(int period)
         {
             if (period < 1)
@@ -30,10 +34,10 @@ namespace TradeBot
 
         public void UpdateState()
         {
-            throw new NotImplementedException();
+            Calculate();
         }
 
-        public List<decimal> Calculate(List<decimal> closures)
+        private void Calculate()
         {
             var SMA = new List<decimal>(closures.Count - period);
             for (int i = period; i < closures.Count; ++i)
@@ -43,7 +47,7 @@ namespace TradeBot
                     sum += closures[i - j];
                 SMA.Add(sum / period);
             }
-            return SMA;
+            this.SMA = SMA;
         }
     }
 }

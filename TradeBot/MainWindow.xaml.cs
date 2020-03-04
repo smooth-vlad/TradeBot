@@ -144,11 +144,10 @@ namespace TradeBot
             for (int i = 0; i < indicators.Count; ++i)
             {
                 var indicator = (SimpleMovingAverage)indicators[i];
-                UpdateLineSeries(indicator.Calculate(await GetCandlesClosures(
-                    activeStock.Figi,
-                    candlesSpan + indicator.Period,
-                    candleInterval,
-                    TimeSpan.FromHours(1))), 1 + i);
+                indicator.closures = await GetCandlesClosures(activeStock.Figi, candlesSpan + indicator.Period,
+                    candleInterval, TimeSpan.FromHours(1));
+                indicator.UpdateState();
+                UpdateLineSeries(indicator.SMA, 1 + i);
             }
         }
 
@@ -184,12 +183,12 @@ namespace TradeBot
             }
 
             var newIndicator = new SimpleMovingAverage(smaStep);
+            newIndicator.closures = await GetCandlesClosures(activeStock.Figi, candlesSpan + newIndicator.Period,
+                candleInterval, TimeSpan.FromHours(1));
+            newIndicator.UpdateState();
+
             indicators.Add(newIndicator);
-            AddLineSeries(newIndicator.Calculate(await GetCandlesClosures(
-                activeStock.Figi,
-                candlesSpan + newIndicator.Period,
-                candleInterval,
-                TimeSpan.FromHours(1))), 2);
+            AddLineSeries(newIndicator.SMA, 2);
         }
     }
 }
