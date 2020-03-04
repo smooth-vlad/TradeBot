@@ -25,15 +25,16 @@ namespace TradeBot
         private int candlesSpan = 100;
         private CandleInterval candleInterval = CandleInterval.Minute;
         
-        private System.Timers.Timer candlesTimer = new System.Timers.Timer();
+        private System.Threading.Timer candlesTimer;
 
         public MainWindow()
         {
             InitializeComponent();
-            candlesTimer.AutoReset = true;
-            candlesTimer.Elapsed += CandlesTimer_Elapsed;
-            candlesTimer.Interval = TimeSpan.FromMinutes(1).TotalMilliseconds;
-            candlesTimer.Start();
+
+            candlesTimer = new System.Threading.Timer((e) => CandlesTimer_Elapsed(),
+                null,
+                TimeSpan.FromMinutes(1) - TimeSpan.FromSeconds(DateTime.Now.Second - 5),
+                TimeSpan.FromMinutes(1));
         }
 
         // Check if it is possible to build chart using user input.
@@ -146,14 +147,13 @@ namespace TradeBot
             {
                 var candles = await context.MarketCandlesAsync(figi, to - queryOffset, to, interval);
 
-                foreach (var candle in candles.Candles)
+                for (int i = candles.Candles.Count - 1; i >= 0 && result.Count < amount; --i)
                 {
-                    if (result.Count >= amount)
-                        return result;
-                    result.Add(candle.Close);
+                    result.Add(candles.Candles[i].Close);
                 }
                 to = to - queryOffset;
             }
+            result.Reverse();
             return result;
         }
 
@@ -161,7 +161,7 @@ namespace TradeBot
         // events
         // ==================================================
 
-        private void CandlesTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void CandlesTimer_Elapsed()
         {
             if (activeStock == null)
                 return;
