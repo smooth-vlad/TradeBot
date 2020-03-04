@@ -19,7 +19,11 @@ namespace TradeBot
     public partial class MainWindow : Window
     {
         private Context context;
-        private MarketInstrument stock;
+        private MarketInstrument activeStock;
+        private List<IIndicator> indicators = new List<IIndicator>();
+
+        private int candlesSpan = 100;
+        private CandleInterval candleInterval = CandleInterval.Minute;
         
         private System.Timers.Timer candlesTimer = new System.Timers.Timer();
 
@@ -29,11 +33,6 @@ namespace TradeBot
             candlesTimer.AutoReset = true;
             candlesTimer.Elapsed += CandlesTimer_Elapsed;
             candlesTimer.Interval = TimeSpan.FromMinutes(1).TotalMilliseconds;
-        }
-
-        private void CandlesTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            _ = CalculateSeries();
         }
 
         // Check if it is possible to build chart using user input.
@@ -47,18 +46,18 @@ namespace TradeBot
             try
             {
                 // Connect using token.
-                SandboxConnection connection = ConnectionFactory.GetSandboxConnection(tokenTextBox.Text);
+                SandboxConnection connection = ConnectionFactory.GetSandboxConnection(tokenTextBox.Text.Trim());
                 context = connection.Context;
                 MarketInstrumentList allegedStocks = context.MarketStocksAsync().Result;
 
                 // Check if there is any ticker.
-                stock = allegedStocks.Instruments.Find(x => x.Ticker == tickerTextBox.Text);
-                if (stock == null) throw new NullReferenceException();
+                activeStock = allegedStocks.Instruments.Find(x => x.Ticker == tickerTextBox.Text);
+                if (activeStock == null) throw new NullReferenceException();
             }
             catch (OpenApiException)
             {
                 // Prompt the tocken.
-                tokenTextBlock.Text += "* Unable to use this token.";
+                tokenTextBlock.Text += "* ERROR * Unable to use this token.";
                 tokenTextBlock.Foreground = new SolidColorBrush(Colors.Red);
                 tokenTextBox.Text = "";
                 tokenTextBox.Focus();
@@ -67,10 +66,15 @@ namespace TradeBot
             catch (NullReferenceException)
             {
                 // Prompt the ticker.
-                tickerTextBlock.Text += "* Unknown ticker.";
+                tickerTextBlock.Text += "* ERROR * Unknown ticker.";
                 tickerTextBlock.Foreground = new SolidColorBrush(Colors.Red);
                 tickerTextBox.Text = "";
                 tickerTextBox.Focus();
+                return false;
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Something went wrong...");
                 return false;
             }
             return true;
@@ -90,35 +94,37 @@ namespace TradeBot
             return SMA;
         }
 
-        private async void FindButton_Click(object sender, RoutedEventArgs e)
+        private async Task DisplayClosures()
         {
-            candlesTimer.Start();
-            await CalculateSeries();
-        }
+            if (activeStock == null)
+            {
+                MessageBox.Show("Pick a stock first");
+                return;
+            }
 
-        private async Task CalculateSeries()
-        {
-            bool isInputCorrect = CheckInput();
-            if (!isInputCorrect) return;
+            List<Price> closePrices = await GetCandlesClosures(activeStock.Figi, candlesSpan, candleInterval, TimeSpan.FromHours(1));
 
-            List<Price> closePrices = await GetCandlesClosures(stock.Figi, 100, CandleInterval.Hour, TimeSpan.FromDays(1));
-
-            chart.Series = new SeriesCollection();
-            chart.AxisX = new AxesCollection();
-            chart.AxisX.Add(new Axis());
-
-            int step = 12;
-
-            // Stock close price.
             chart.Series.Add(new LineSeries
             {
-                Values = new ChartValues<Price>(closePrices.GetRange(step, closePrices.Count - step)),
+                Values = new ChartValues<Price>(closePrices),
                 StrokeThickness = 3
             });
-            // SMA 50
+        }
+        
+        private async Task DisplaySMA()
+        {
+            if (activeStock == null)
+            {
+                MessageBox.Show("Pick a stock first");
+                return;
+            }
+
+            int step = int.Parse(smaStepTextBox.Text.Trim());
+
             chart.Series.Add(new LineSeries
             {
-                Values = new ChartValues<Price>(CalculateSMA(closePrices, step)),
+                Values = new ChartValues<Price>(
+                    CalculateSMA(await GetCandlesClosures(activeStock.Figi, candlesSpan + step, candleInterval, TimeSpan.FromHours(1)), step)),
                 Fill = Brushes.Transparent,
             });
         }
@@ -141,6 +147,31 @@ namespace TradeBot
                 to = to - queryOffset;
             }
             return result;
+        }
+
+        // ==================================================
+        // events
+        // ==================================================
+
+        private void CandlesTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            DisplayClosures();
+        }
+
+        private async void FindButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!CheckInput())
+                return;
+
+            chart.Series = new SeriesCollection();
+
+            candlesTimer.Start();
+            await DisplayClosures();
+        }
+
+        private async void smaButton_Click(object sender, RoutedEventArgs e)
+        {
+            await DisplaySMA();
         }
     }
 }
