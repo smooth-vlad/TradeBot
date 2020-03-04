@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:TradeBot"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
-        Title="TradeBot" Height="550" Width="800"
-        MinHeight="550" MinWidth="680"
+        Title="TradeBot" Height="785" Width="800"
+        MinHeight="785" MinWidth="680"
         Background="#F9F9F9">
     <Grid Height="Auto" Width="Auto">
         <Grid.ColumnDefinitions>

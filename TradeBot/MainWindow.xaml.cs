@@ -9,8 +9,6 @@ using LiveCharts.Wpf;
 using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
 
-using Price = System.Decimal;
-
 namespace TradeBot
 {
     /// <summary>
@@ -20,12 +18,12 @@ namespace TradeBot
     {
         private Context context;
         private MarketInstrument activeStock;
-        private List<IIndicator> indicators = new List<IIndicator>();
+        private List<IIndicator> indicators = new List<IIndicator>(); 
 
         private int candlesSpan = 100;
         private CandleInterval candleInterval = CandleInterval.Minute;
 
-        private List<Price> previousPrices;
+        private List<decimal> lastPrices;
 
         private System.Threading.Timer candlesTimer;
 
@@ -56,7 +54,8 @@ namespace TradeBot
 
                 // Check if there is any ticker.
                 activeStock = allegedStocks.Instruments.Find(x => x.Ticker == tickerTextBox.Text);
-                if (activeStock == null) throw new NullReferenceException();
+                if (activeStock == null)
+                    throw new NullReferenceException();
             }
             catch (OpenApiException)
             {
@@ -84,66 +83,24 @@ namespace TradeBot
             return true;
         }
 
-        // Calculates SMA for every calndle provided and returns them as a list.
-        private List<Price> CalculateSMA(List<Price> closures, int step)
+        private void AddLineSeries(List<decimal> values, int strokeThiccness)
         {
-            var SMA = new List<Price>(closures.Count - step);
-            for (int i = step; i < closures.Count; ++i)
-            {
-                decimal sum = 0;
-                for (int j = 0; j < step; ++j)
-                    sum += closures[i - j];
-                SMA.Add(sum / step);
-            }
-            return SMA;
-        }
-
-        private async Task DisplayClosures()
-        {
-            if (activeStock == null)
-            {
-                MessageBox.Show("Pick a stock first");
-                return;
-            }
-
-            List<Price> closePrices = await GetCandlesClosures(activeStock.Figi, candlesSpan, candleInterval, TimeSpan.FromHours(1));
-            previousPrices = closePrices;
-
-            if (chart.Series.Count > 0)
-            {
-                chart.Series[0].Values = new ChartValues<Price>(closePrices);
-            }
-            else
-            {
-                chart.Series.Add(new LineSeries
-                {
-                    Values = new ChartValues<Price>(closePrices),
-                    StrokeThickness = 3
-                });
-            }
-        }
-        
-        private async Task DisplaySMA()
-        {
-            if (activeStock == null)
-            {
-                MessageBox.Show("Pick a stock first");
-                return;
-            }
-
-            int step = int.Parse(smaStepTextBox.Text.Trim());
-
             chart.Series.Add(new LineSeries
             {
-                Values = new ChartValues<Price>(
-                    CalculateSMA(await GetCandlesClosures(activeStock.Figi, candlesSpan + step, candleInterval, TimeSpan.FromHours(1)), step)),
-                Fill = Brushes.Transparent,
+                Values = new ChartValues<decimal>(values),
+                StrokeThickness = strokeThiccness
             });
         }
 
-        private async Task<List<Price>> GetCandlesClosures(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
+        private void UpdateLineSeries(List<decimal> values, int index)
         {
-            var result = new List<Price>(amount);
+            if (chart.Series.Count >= index)
+                chart.Series[index].Values = new ChartValues<decimal>(values);
+        }
+
+        private async Task<List<decimal>> GetCandlesClosures(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
+        {
+            var result = new List<decimal>(amount);
             var to = DateTime.Now;
 
             while (result.Count < amount)
@@ -151,9 +108,7 @@ namespace TradeBot
                 var candles = await context.MarketCandlesAsync(figi, to - queryOffset, to, interval);
 
                 for (int i = candles.Candles.Count - 1; i >= 0 && result.Count < amount; --i)
-                {
                     result.Add(candles.Candles[i].Close);
-                }
                 to = to - queryOffset;
             }
             result.Reverse();
@@ -171,12 +126,12 @@ namespace TradeBot
 
             var candles = await GetCandlesClosures(activeStock.Figi, candlesSpan, candleInterval, TimeSpan.FromHours(1));
 
-            if (candles.SequenceEqual(previousPrices))
+            if (candles.SequenceEqual(lastPrices))
                 return;
             else
             {
-                await Dispatcher.InvokeAsync(() => CandlesValuesChanged());
-                previousPrices = candles;
+                lastPrices = candles;
+                Dispatcher.Invoke(() => CandlesValuesChanged());
             }
         }
 
@@ -185,7 +140,16 @@ namespace TradeBot
             if (activeStock == null)
                 return;
 
-            await DisplayClosures();
+            UpdateLineSeries(lastPrices, 0);
+            for (int i = 0; i < indicators.Count; ++i)
+            {
+                var indicator = (SimpleMovingAverage)indicators[i];
+                UpdateLineSeries(indicator.Calculate(await GetCandlesClosures(
+                    activeStock.Figi,
+                    candlesSpan + indicator.Period,
+                    candleInterval,
+                    TimeSpan.FromHours(1))), 1 + i);
+            }
         }
 
         private async void FindButton_Click(object sender, RoutedEventArgs e)
@@ -194,13 +158,38 @@ namespace TradeBot
                 return;
 
             chart.Series = new SeriesCollection();
+            indicators = new List<IIndicator>();
 
-            await DisplayClosures();
+            lastPrices = await GetCandlesClosures(
+                activeStock.Figi,
+                candlesSpan,
+                candleInterval,
+                TimeSpan.FromHours(1));
+            AddLineSeries(lastPrices, 3);
         }
 
         private async void smaButton_Click(object sender, RoutedEventArgs e)
         {
-            await DisplaySMA();
+            if (activeStock == null)
+            {
+                MessageBox.Show("Pick a stock first");
+                return;
+            }
+
+            int smaStep;
+            if (!int.TryParse(smaStepTextBox.Text.Trim(), out smaStep))
+            {
+                MessageBox.Show("Wrong value in 'SMA step'");
+                return;
+            }
+
+            var newIndicator = new SimpleMovingAverage(smaStep);
+            indicators.Add(newIndicator);
+            AddLineSeries(newIndicator.Calculate(await GetCandlesClosures(
+                activeStock.Figi,
+                candlesSpan + newIndicator.Period,
+                candleInterval,
+                TimeSpan.FromHours(1))), 2);
         }
     }
 }

@@ -82,7 +82,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Indicators\MovingAverage.cs" />
+    <Compile Include="Indicators\SimpleMovingAverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
