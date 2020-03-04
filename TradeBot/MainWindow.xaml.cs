@@ -20,7 +20,7 @@ namespace TradeBot
         private MarketInstrument activeStock;
         private List<IIndicator> indicators = new List<IIndicator>(); 
 
-        private int candlesSpan = 100;
+        private int candlesSpan = 300;
         private CandleInterval candleInterval = CandleInterval.Minute;
 
         private List<decimal> lastPrices;
@@ -141,6 +141,7 @@ namespace TradeBot
                 return;
 
             UpdateLineSeries(lastPrices, 0);
+
             for (int i = 0; i < indicators.Count; ++i)
             {
                 var indicator = (SimpleMovingAverage)indicators[i];
@@ -148,6 +149,15 @@ namespace TradeBot
                     candleInterval, TimeSpan.FromHours(1));
                 indicator.UpdateState();
                 UpdateLineSeries(indicator.SMA, 1 + i);
+            }
+
+            for (int i = 0; i < indicators.Count; ++i)
+            {
+                var indicator = (SimpleMovingAverage)indicators[i];
+                if (indicator.IsBuySignal())
+                    MessageBox.Show("BUY STONK RN!1!!");
+                if (indicator.IsSellSignal())
+                    MessageBox.Show("SELL STONK RN!1!!");
             }
         }
 

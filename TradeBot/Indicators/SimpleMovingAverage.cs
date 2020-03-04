@@ -12,7 +12,6 @@ namespace TradeBot
         public int Period => period;
 
         public List<decimal> closures;
-
         public List<decimal> SMA;
 
         public SimpleMovingAverage(int period)
@@ -24,12 +23,12 @@ namespace TradeBot
 
         public bool IsBuySignal()
         {
-            throw new NotImplementedException();
+            return ((closures[closures.Count - 2] - SMA[SMA.Count - 2]) * (closures[closures.Count - 1] - SMA[SMA.Count - 1]) < 0);
         }
 
         public bool IsSellSignal()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public void UpdateState()
