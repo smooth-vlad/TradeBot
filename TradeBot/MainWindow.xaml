@@ -1,4 +1,4 @@
-﻿<Window x:Class="TradeBot.TradeBotWindow"
+﻿<Window x:Class="TradeBot.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:TradeBot"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
-        Title="TradeBot" Height="500" Width="800"
-        MinHeight="500" MinWidth="680"
+        Title="TradeBot" Height="550" Width="800"
+        MinHeight="550" MinWidth="680"
         Background="#F9F9F9">
     <Grid Height="Auto" Width="Auto">
         <Grid.ColumnDefinitions>

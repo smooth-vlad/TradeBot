@@ -9,19 +9,21 @@ using LiveCharts.Wpf;
 using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
 
+using Price = System.Decimal;
+
 namespace TradeBot
 {
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    public partial class TradeBotWindow : Window
+    public partial class MainWindow : Window
     {
         private Context context;
         private MarketInstrument stock;
         
         private System.Timers.Timer candlesTimer = new System.Timers.Timer();
 
-        public TradeBotWindow()
+        public MainWindow()
         {
             InitializeComponent();
             candlesTimer.AutoReset = true;
@@ -74,28 +76,16 @@ namespace TradeBot
             return true;
         }
 
-        // Gets a list of candles closures in the current context for a given period of time.
-        private async Task<List<decimal>> getCandlesClosures(DateTime from, DateTime to, CandleInterval interval)
-        {
-            CandleList candles = await context.MarketCandlesAsync(stock.Figi, from, to, interval);
-
-            List<decimal> closures = new List<decimal>(candles.Candles.Count);
-            candles.Candles.ForEach(x => closures.Add(x.Close));
-
-            return closures;
-        }
-
         // Calculates SMA for every calndle provided and returns them as a list.
-        private List<decimal> CalculateSMA(List<decimal> closures, int step)
+        private List<Price> CalculateSMA(List<Price> closures, int step)
         {
-            var SMA = new List<decimal>(closures.Count);
-            for (int i = 0; i < closures.Count; ++i)
+            var SMA = new List<Price>(closures.Count - step);
+            for (int i = step; i < closures.Count; ++i)
             {
                 decimal sum = 0;
-                int j;
-                for (j = 0; j < step && i - j >= 0; ++j)
+                for (int j = 0; j < step; ++j)
                     sum += closures[i - j];
-                SMA.Add(sum / j);
+                SMA.Add(sum / step);
             }
             return SMA;
         }
@@ -111,29 +101,46 @@ namespace TradeBot
             bool isInputCorrect = CheckInput();
             if (!isInputCorrect) return;
 
-            List<decimal> closePrices = await getCandlesClosures(
-                DateTime.Today.AddYears(-1).AddDays(1), DateTime.Today, CandleInterval.Day);
+            List<Price> closePrices = await GetCandlesClosures(stock.Figi, 100, CandleInterval.Hour, TimeSpan.FromDays(1));
 
             chart.Series = new SeriesCollection();
             chart.AxisX = new AxesCollection();
             chart.AxisX.Add(new Axis());
 
+            int step = 12;
+
             // Stock close price.
-            chart.Series.Add(new LineSeries { Values = new ChartValues<decimal>(closePrices), StrokeThickness = 3 });
+            chart.Series.Add(new LineSeries
+            {
+                Values = new ChartValues<Price>(closePrices.GetRange(step, closePrices.Count - step)),
+                StrokeThickness = 3
+            });
             // SMA 50
             chart.Series.Add(new LineSeries
             {
-                Values = new ChartValues<decimal>(CalculateSMA(closePrices, 50)),
+                Values = new ChartValues<Price>(CalculateSMA(closePrices, step)),
                 Fill = Brushes.Transparent,
-                //Stroke = Brushes.GreenYellow,
             });
-            // SMA 200
-            chart.Series.Add(new LineSeries
+        }
+
+        private async Task<List<Price>> GetCandlesClosures(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
+        {
+            var result = new List<Price>(amount);
+            var to = DateTime.Now;
+
+            while (result.Count < amount)
             {
-                Values = new ChartValues<decimal>(CalculateSMA(closePrices, 200)),
-                Fill = Brushes.Transparent,
-                //Stroke = Brushes.MidnightBlue,
-            });
+                var candles = await context.MarketCandlesAsync(figi, to - queryOffset, to, interval);
+
+                foreach (var candle in candles.Candles)
+                {
+                    if (result.Count >= amount)
+                        return result;
+                    result.Add(candle.Close);
+                }
+                to = to - queryOffset;
+            }
+            return result;
         }
     }
 }
