@@ -33,6 +33,7 @@ namespace TradeBot
             candlesTimer.AutoReset = true;
             candlesTimer.Elapsed += CandlesTimer_Elapsed;
             candlesTimer.Interval = TimeSpan.FromMinutes(1).TotalMilliseconds;
+            candlesTimer.Start();
         }
 
         // Check if it is possible to build chart using user input.
@@ -104,11 +105,18 @@ namespace TradeBot
 
             List<Price> closePrices = await GetCandlesClosures(activeStock.Figi, candlesSpan, candleInterval, TimeSpan.FromHours(1));
 
-            chart.Series.Add(new LineSeries
+            if (chart.Series.Count > 0)
             {
-                Values = new ChartValues<Price>(closePrices),
-                StrokeThickness = 3
-            });
+                chart.Series[0].Values = new ChartValues<Price>(closePrices);
+            }
+            else
+            {
+                chart.Series.Add(new LineSeries
+                {
+                    Values = new ChartValues<Price>(closePrices),
+                    StrokeThickness = 3
+                });
+            }
         }
         
         private async Task DisplaySMA()
@@ -155,7 +163,10 @@ namespace TradeBot
 
         private void CandlesTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            DisplayClosures();
+            if (activeStock == null)
+                return;
+
+            Dispatcher.Invoke(() => DisplayClosures());
         }
 
         private async void FindButton_Click(object sender, RoutedEventArgs e)
@@ -165,7 +176,6 @@ namespace TradeBot
 
             chart.Series = new SeriesCollection();
 
-            candlesTimer.Start();
             await DisplayClosures();
         }
 
