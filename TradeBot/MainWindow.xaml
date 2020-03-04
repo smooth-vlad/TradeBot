@@ -99,6 +99,9 @@
                             <Setter Property="CornerRadius" Value="5"></Setter>
                         </Style>
                     </TextBox.Resources>
+                    <TextBox.Text>
+                        12
+                    </TextBox.Text>
                 </TextBox>
             </StackPanel>
         </Grid>

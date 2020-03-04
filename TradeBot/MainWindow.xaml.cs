@@ -24,17 +24,19 @@ namespace TradeBot
 
         private int candlesSpan = 100;
         private CandleInterval candleInterval = CandleInterval.Minute;
-        
+
+        private List<Price> previousPrices;
+
         private System.Threading.Timer candlesTimer;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            candlesTimer = new System.Threading.Timer((e) => CandlesTimer_Elapsed(),
+            candlesTimer = new System.Threading.Timer((e) => CandlesTimerElapsed(),
                 null,
                 TimeSpan.FromMinutes(1) - TimeSpan.FromSeconds(DateTime.Now.Second - 5),
-                TimeSpan.FromMinutes(1));
+                TimeSpan.FromSeconds(5));
         }
 
         // Check if it is possible to build chart using user input.
@@ -105,6 +107,7 @@ namespace TradeBot
             }
 
             List<Price> closePrices = await GetCandlesClosures(activeStock.Figi, candlesSpan, candleInterval, TimeSpan.FromHours(1));
+            previousPrices = closePrices;
 
             if (chart.Series.Count > 0)
             {
@@ -157,16 +160,46 @@ namespace TradeBot
             return result;
         }
 
+        private static bool AreListsEqual<T>(List<T> a, List<T> b)
+        {
+            if (a == null) return b == null;
+            if (b == null || a.Count != b.Count) return false;
+            for (int i = 0; i < a.Count; i++)
+            {
+                if (!a[i].Equals(b[i]))
+                    return false;
+            }
+            return true;
+        }
+
         // ==================================================
         // events
         // ==================================================
 
-        private void CandlesTimer_Elapsed()
+        private async void CandlesTimerElapsed()
         {
             if (activeStock == null)
                 return;
 
-            Dispatcher.Invoke(() => DisplayClosures());
+            var candles = await GetCandlesClosures(activeStock.Figi, candlesSpan, candleInterval, TimeSpan.FromHours(1));
+
+            bool areCandlesSame = AreListsEqual(candles, previousPrices);
+
+            if (areCandlesSame)
+                return;
+            else
+            {
+                await Dispatcher.InvokeAsync(() => CandlesValuesChanged());
+                previousPrices = candles;
+            }
+        }
+
+        private async void CandlesValuesChanged()
+        {
+            if (activeStock == null)
+                return;
+
+            await DisplayClosures();
         }
 
         private async void FindButton_Click(object sender, RoutedEventArgs e)
