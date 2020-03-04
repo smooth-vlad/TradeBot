@@ -160,18 +160,6 @@ namespace TradeBot
             return result;
         }
 
-        private static bool AreListsEqual<T>(List<T> a, List<T> b)
-        {
-            if (a == null) return b == null;
-            if (b == null || a.Count != b.Count) return false;
-            for (int i = 0; i < a.Count; i++)
-            {
-                if (!a[i].Equals(b[i]))
-                    return false;
-            }
-            return true;
-        }
-
         // ==================================================
         // events
         // ==================================================
@@ -183,9 +171,7 @@ namespace TradeBot
 
             var candles = await GetCandlesClosures(activeStock.Figi, candlesSpan, candleInterval, TimeSpan.FromHours(1));
 
-            bool areCandlesSame = AreListsEqual(candles, previousPrices);
-
-            if (areCandlesSame)
+            if (candles.SequenceEqual(previousPrices))
                 return;
             else
             {
