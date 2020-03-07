@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradeBot
 {
@@ -14,16 +11,19 @@ namespace TradeBot
         public List<decimal> closures;
         public List<decimal> SMA;
 
-        public SimpleMovingAverage(int period)
+        public int bindedGraph;
+
+        public SimpleMovingAverage(int period, int bindedGraph)
         {
             if (period < 1)
                 throw new ArgumentOutOfRangeException();
             this.period = period;
+            this.bindedGraph = bindedGraph;
         }
 
         public bool IsBuySignal()
         {
-            return ((closures[closures.Count - 2] - SMA[SMA.Count - 2]) * (closures[closures.Count - 1] - SMA[SMA.Count - 1]) < 0);
+            return (closures[closures.Count - 2] - SMA[SMA.Count - 2]) * (closures[closures.Count - 1] - SMA[SMA.Count - 1]) < 0;
         }
 
         public bool IsSellSignal()

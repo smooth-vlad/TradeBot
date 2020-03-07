@@ -21,6 +21,7 @@ namespace TradeBot
         private List<IIndicator> indicators = new List<IIndicator>(); 
 
         private int candlesSpan = 300;
+        private int maxCandlesSpan = 0;
         private CandleInterval candleInterval = CandleInterval.Minute;
 
         private List<decimal> lastPrices;
@@ -35,10 +36,12 @@ namespace TradeBot
                 null,
                 TimeSpan.FromMinutes(1) - TimeSpan.FromSeconds(DateTime.Now.Second - 5),
                 TimeSpan.FromSeconds(5));
+
+            
         }
 
         // Check if it is possible to build chart using user input.
-        private bool CheckInput()
+        private async Task<bool> CheckInput()
         {
             // Set default values.
             tokenTextBlock.Text = "Token";
@@ -50,7 +53,7 @@ namespace TradeBot
                 // Connect using token.
                 SandboxConnection connection = ConnectionFactory.GetSandboxConnection(tokenTextBox.Text.Trim());
                 context = connection.Context;
-                MarketInstrumentList allegedStocks = context.MarketStocksAsync().Result;
+                MarketInstrumentList allegedStocks = await context.MarketStocksAsync();
 
                 // Check if there is any ticker.
                 activeStock = allegedStocks.Instruments.Find(x => x.Ticker == tickerTextBox.Text);
@@ -124,9 +127,18 @@ namespace TradeBot
             if (activeStock == null)
                 return;
 
-            var candles = await GetCandlesClosures(activeStock.Figi, candlesSpan, candleInterval, TimeSpan.FromHours(1));
+            for (int i = 0; i < indicators.Count; ++i)
+            {
+                var indicator = (SimpleMovingAverage)indicators[i];
+                if (indicator.Period + candlesSpan > maxCandlesSpan)
+                    maxCandlesSpan = candlesSpan + indicator.Period;
+            }
 
-            if (candles.SequenceEqual(lastPrices))
+            Console.WriteLine(maxCandlesSpan);
+
+            var candles = await GetCandlesClosures(activeStock.Figi, maxCandlesSpan, candleInterval, TimeSpan.FromHours(1));
+
+            if (lastPrices != null && candles.SequenceEqual(lastPrices))
                 return;
             else
             {
@@ -135,20 +147,26 @@ namespace TradeBot
             }
         }
 
-        private async void CandlesValuesChanged()
+        private void CandlesValuesChanged()
         {
             if (activeStock == null)
                 return;
 
-            UpdateLineSeries(lastPrices, 0);
+            if (chart.Series.Count == 0)
+                AddLineSeries(lastPrices.GetRange(maxCandlesSpan - candlesSpan, candlesSpan), 3);
+            else
+                UpdateLineSeries(lastPrices.GetRange(maxCandlesSpan - candlesSpan, candlesSpan), 0);
 
             for (int i = 0; i < indicators.Count; ++i)
             {
                 var indicator = (SimpleMovingAverage)indicators[i];
-                indicator.closures = await GetCandlesClosures(activeStock.Figi, candlesSpan + indicator.Period,
-                    candleInterval, TimeSpan.FromHours(1));
+                indicator.closures = lastPrices.GetRange(maxCandlesSpan - (candlesSpan + indicator.Period), candlesSpan + indicator.Period);
                 indicator.UpdateState();
-                UpdateLineSeries(indicator.SMA, 1 + i);
+
+                if (chart.Series.Count <= indicator.bindedGraph)
+                    AddLineSeries(indicator.SMA, 2);
+                else
+                    UpdateLineSeries(indicator.SMA, indicator.bindedGraph);
             }
 
             for (int i = 0; i < indicators.Count; ++i)
@@ -163,18 +181,26 @@ namespace TradeBot
 
         private async void FindButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!CheckInput())
+            if (!await CheckInput())
                 return;
 
             chart.Series = new SeriesCollection();
             indicators = new List<IIndicator>();
 
-            lastPrices = await GetCandlesClosures(
-                activeStock.Figi,
-                candlesSpan,
-                candleInterval,
-                TimeSpan.FromHours(1));
-            AddLineSeries(lastPrices, 3);
+            for (int i = 0; i < indicators.Count; ++i)
+            {
+                var indicator = (SimpleMovingAverage)indicators[i];
+                if (indicator.Period + candlesSpan > maxCandlesSpan)
+                    maxCandlesSpan = candlesSpan + indicator.Period;
+            }
+            lastPrices = await GetCandlesClosures(activeStock.Figi, maxCandlesSpan, candleInterval, TimeSpan.FromHours(1));
+            CandlesValuesChanged();
+            //lastPrices = await GetCandlesClosures(
+            //    activeStock.Figi,
+            //    maxCandlesSpan,
+            //    candleInterval,
+            //    TimeSpan.FromHours(1));
+            //AddLineSeries(lastPrices.GetRange(12, maxCandlesSpan - 12), 3);
         }
 
         private async void smaButton_Click(object sender, RoutedEventArgs e)
@@ -192,13 +218,22 @@ namespace TradeBot
                 return;
             }
 
-            var newIndicator = new SimpleMovingAverage(smaStep);
-            newIndicator.closures = await GetCandlesClosures(activeStock.Figi, candlesSpan + newIndicator.Period,
-                candleInterval, TimeSpan.FromHours(1));
-            newIndicator.UpdateState();
+            var newIndicator = new SimpleMovingAverage(smaStep, chart.Series.Count);
+            //newIndicator.closures = lastPrices;
+
+            //newIndicator.UpdateState();
 
             indicators.Add(newIndicator);
-            AddLineSeries(newIndicator.SMA, 2);
+
+            for (int i = 0; i < indicators.Count; ++i)
+            {
+                var indicator = (SimpleMovingAverage)indicators[i];
+                if (indicator.Period + candlesSpan > maxCandlesSpan)
+                    maxCandlesSpan = candlesSpan + indicator.Period;
+            }
+            lastPrices = await GetCandlesClosures(activeStock.Figi, maxCandlesSpan, candleInterval, TimeSpan.FromHours(1));
+            CandlesValuesChanged();
+            //AddLineSeries(newIndicator.SMA, 2);
         }
     }
 }
