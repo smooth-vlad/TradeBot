@@ -217,5 +217,19 @@ namespace TradeBot
             await Update();
             CandlesValuesChanged();
         }
+
+        private async void periodButton_Click(object sender, RoutedEventArgs e)
+        {
+            int period;
+            if (!int.TryParse(periodTextBox.Text.Trim(), out period))
+            {
+                MessageBox.Show("Wrong value in 'Period'");
+                return;
+            }
+
+            candlesSpan = period;
+            await Update();
+            CandlesValuesChanged();
+        }
     }
 }
