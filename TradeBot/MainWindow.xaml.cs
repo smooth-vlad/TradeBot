@@ -20,7 +20,7 @@ namespace TradeBot
         private MarketInstrument activeStock;
         private List<IIndicator> indicators = new List<IIndicator>(); 
 
-        private int candlesSpan = 300;
+        private int candlesSpan = 100;
         private int maxCandlesSpan = 0;
         private CandleInterval candleInterval = CandleInterval.Minute;
 
@@ -35,9 +35,7 @@ namespace TradeBot
             candlesTimer = new System.Threading.Timer((e) => CandlesTimerElapsed(),
                 null,
                 TimeSpan.FromMinutes(1) - TimeSpan.FromSeconds(DateTime.Now.Second - 5),
-                TimeSpan.FromSeconds(5));
-
-            
+                TimeSpan.FromSeconds(20));
         }
 
         // Check if it is possible to build chart using user input.
@@ -106,6 +104,7 @@ namespace TradeBot
             var result = new List<decimal>(amount);
             var to = DateTime.Now;
 
+            int m = 0;
             while (result.Count < amount)
             {
                 var candles = await context.MarketCandlesAsync(figi, to - queryOffset, to, interval);
@@ -113,7 +112,9 @@ namespace TradeBot
                 for (int i = candles.Candles.Count - 1; i >= 0 && result.Count < amount; --i)
                     result.Add(candles.Candles[i].Close);
                 to = to - queryOffset;
+                m++;
             }
+            //MessageBox.Show(m.ToString());
             result.Reverse();
             return result;
         }
@@ -127,24 +128,27 @@ namespace TradeBot
             if (activeStock == null)
                 return;
 
+            await Update();
+            Dispatcher.Invoke(() => CandlesValuesChanged());
+        }
+
+        private async Task Update()
+        {
+            if (activeStock == null)
+                return;
+            var local_maxCandlesSpan = candlesSpan;
             for (int i = 0; i < indicators.Count; ++i)
             {
                 var indicator = (SimpleMovingAverage)indicators[i];
-                if (indicator.Period + candlesSpan > maxCandlesSpan)
-                    maxCandlesSpan = candlesSpan + indicator.Period;
+                if (indicator.Period + candlesSpan > local_maxCandlesSpan)
+                    local_maxCandlesSpan = candlesSpan + indicator.Period;
             }
+            maxCandlesSpan = local_maxCandlesSpan;
 
-            Console.WriteLine(maxCandlesSpan);
+            var candles = await GetCandlesClosures(activeStock.Figi, maxCandlesSpan, candleInterval, TimeSpan.FromDays(1));
 
-            var candles = await GetCandlesClosures(activeStock.Figi, maxCandlesSpan, candleInterval, TimeSpan.FromHours(1));
-
-            if (lastPrices != null && candles.SequenceEqual(lastPrices))
-                return;
-            else
-            {
+            if (lastPrices == null || lastPrices.Count != candles.Count || !candles.SequenceEqual(lastPrices))
                 lastPrices = candles;
-                Dispatcher.Invoke(() => CandlesValuesChanged());
-            }
         }
 
         private void CandlesValuesChanged()
@@ -187,20 +191,8 @@ namespace TradeBot
             chart.Series = new SeriesCollection();
             indicators = new List<IIndicator>();
 
-            for (int i = 0; i < indicators.Count; ++i)
-            {
-                var indicator = (SimpleMovingAverage)indicators[i];
-                if (indicator.Period + candlesSpan > maxCandlesSpan)
-                    maxCandlesSpan = candlesSpan + indicator.Period;
-            }
-            lastPrices = await GetCandlesClosures(activeStock.Figi, maxCandlesSpan, candleInterval, TimeSpan.FromHours(1));
+            await Update();
             CandlesValuesChanged();
-            //lastPrices = await GetCandlesClosures(
-            //    activeStock.Figi,
-            //    maxCandlesSpan,
-            //    candleInterval,
-            //    TimeSpan.FromHours(1));
-            //AddLineSeries(lastPrices.GetRange(12, maxCandlesSpan - 12), 3);
         }
 
         private async void smaButton_Click(object sender, RoutedEventArgs e)
@@ -219,21 +211,11 @@ namespace TradeBot
             }
 
             var newIndicator = new SimpleMovingAverage(smaStep, chart.Series.Count);
-            //newIndicator.closures = lastPrices;
-
-            //newIndicator.UpdateState();
 
             indicators.Add(newIndicator);
 
-            for (int i = 0; i < indicators.Count; ++i)
-            {
-                var indicator = (SimpleMovingAverage)indicators[i];
-                if (indicator.Period + candlesSpan > maxCandlesSpan)
-                    maxCandlesSpan = candlesSpan + indicator.Period;
-            }
-            lastPrices = await GetCandlesClosures(activeStock.Figi, maxCandlesSpan, candleInterval, TimeSpan.FromHours(1));
+            await Update();
             CandlesValuesChanged();
-            //AddLineSeries(newIndicator.SMA, 2);
         }
     }
 }
