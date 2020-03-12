@@ -131,10 +131,21 @@ namespace TradeBot
 
             var newCandles = await GetCandles(activeStock.Figi, maxCandlesSpan, candleInterval, TimeSpan.FromDays(1));
 
-            if (candles == null || candles.Count != newCandles.Count || !candles.SequenceEqual(newCandles))
+            if (candles == null || candles.Count != newCandles.Count)
             {
                 candles = newCandles;
                 return true;
+            }
+            for (int i = 0; i < candles.Count; ++i)
+            {
+                if (!(candles[i].Close == newCandles[i].Close &&
+                    candles[i].Open == newCandles[i].Open &&
+                    candles[i].Low == newCandles[i].Low &&
+                    candles[i].High == newCandles[i].High))
+                {
+                    candles = newCandles;
+                    return true;
+                }
             }
             return false;
         }
@@ -192,10 +203,10 @@ namespace TradeBot
                     CandlesSeries[indicator.bindedGraph].Values = new ChartValues<decimal>(indicator.SMA);
             }
 
-            Labels = new List<string>(candlesSpan);
+            Labels.Clear();
             for (int i = 0; i < candlesSpan; ++i)
             {
-                Labels.Add(DateTime.Now.AddMinutes(-(candlesSpan - i)).ToString("mm"));
+                Labels.Add(DateTime.Now.AddMinutes(-(candlesSpan - i)).ToString("HH:mm"));
             }
 
             for (int i = 0; i < indicators.Count; ++i)
