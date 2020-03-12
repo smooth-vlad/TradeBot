@@ -27,10 +27,6 @@
                     <Setter Property="LineSmoothness" Value="0"></Setter>
                     <Setter Property="Fill" Value="Transparent"/>
                 </Style>
-                <Style TargetType="lvc:Axis">
-                    <Setter Property="ShowLabels" Value="False"></Setter>
-                    <Setter Property="IsEnabled" Value="False"></Setter>
-                </Style>
             </Grid.Resources>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"></RowDefinition>
@@ -45,7 +41,16 @@
 
             <TextBlock Grid.Row="0" TextAlignment="Center" Padding="0, 0, 0, 20" Foreground="White" FontSize="18">The Current Chart</TextBlock>
 
-            <lvc:CartesianChart x:Name="chart" Grid.Row="1" Margin="0, 0, 0, 0" Hoverable="False" DataTooltip="{x:Null}" Grid.RowSpan="2" Background="White">
+            <lvc:CartesianChart x:Name="chart"
+                                Grid.Row="1" Grid.RowSpan="2"
+                                Margin="0, 0, 0, 0"
+                                Hoverable="False"
+                                DataTooltip="{x:Null}"
+                                Background="White"
+                                Series="{Binding CandlesSeries}">
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Labels="{Binding Labels}"/>
+                </lvc:CartesianChart.AxisX>
             </lvc:CartesianChart>
 
             <ScrollViewer Grid.Row="3">

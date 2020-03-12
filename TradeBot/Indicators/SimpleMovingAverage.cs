@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Tinkoff.Trading.OpenApi.Models;
 
 namespace TradeBot
 {
@@ -8,7 +9,7 @@ namespace TradeBot
         private int period;
         public int Period => period;
 
-        public List<decimal> closures;
+        public List<CandlePayload> candles;
         public List<decimal> SMA;
 
         public int bindedGraph;
@@ -17,13 +18,16 @@ namespace TradeBot
         {
             if (period < 1)
                 throw new ArgumentOutOfRangeException();
+            if (bindedGraph < 0)
+                throw new ArgumentOutOfRangeException();
             this.period = period;
             this.bindedGraph = bindedGraph;
         }
 
         public bool IsBuySignal()
         {
-            return (closures[closures.Count - 2] - SMA[SMA.Count - 2]) * (closures[closures.Count - 1] - SMA[SMA.Count - 1]) < 0;
+            return (candles[candles.Count - 2].Close - SMA[SMA.Count - 2]) *
+                (candles[candles.Count - 1].Close - SMA[SMA.Count - 1]) < 0;
         }
 
         public bool IsSellSignal()
@@ -38,12 +42,12 @@ namespace TradeBot
 
         private void Calculate()
         {
-            var SMA = new List<decimal>(closures.Count - period);
-            for (int i = period; i < closures.Count; ++i)
+            var SMA = new List<decimal>(candles.Count - period);
+            for (int i = period; i < candles.Count; ++i)
             {
                 decimal sum = 0;
                 for (int j = 0; j < period; ++j)
-                    sum += closures[i - j];
+                    sum += candles[i - j].Close;
                 SMA.Add(sum / period);
             }
             this.SMA = SMA;
