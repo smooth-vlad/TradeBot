@@ -179,13 +179,14 @@ namespace TradeBot
                 indicator.candles = candles.GetRange(maxCandlesSpan - (candlesSpan + indicator.Period), candlesSpan + indicator.Period);
                 indicator.UpdateState();
 
-                if (CandlesSeries.Count <= indicator.bindedGraph)
+                if (indicator.bindedGraph == -1)
                 {
                     CandlesSeries.Add(new LineSeries
                     {
                         ScalesXAt = 0,
                         Values = new ChartValues<decimal>(indicator.SMA),
                     });
+                    indicator.bindedGraph = CandlesSeries.Count - 1;
                 }
                 else
                     CandlesSeries[indicator.bindedGraph].Values = new ChartValues<decimal>(indicator.SMA);
@@ -234,8 +235,7 @@ namespace TradeBot
                 return;
             }
 
-            var newIndicator = new SimpleMovingAverage(smaStep, CandlesSeries.Count);
-
+            var newIndicator = new SimpleMovingAverage(smaStep);
             indicators.Add(newIndicator);
 
             await UpdateCandles();

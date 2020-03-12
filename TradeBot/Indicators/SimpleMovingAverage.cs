@@ -12,16 +12,13 @@ namespace TradeBot
         public List<CandlePayload> candles;
         public List<decimal> SMA;
 
-        public int bindedGraph;
+        public int bindedGraph = -1;
 
-        public SimpleMovingAverage(int period, int bindedGraph)
+        public SimpleMovingAverage(int period)
         {
             if (period < 1)
                 throw new ArgumentOutOfRangeException();
-            if (bindedGraph < 0)
-                throw new ArgumentOutOfRangeException();
             this.period = period;
-            this.bindedGraph = bindedGraph;
         }
 
         public bool IsBuySignal()
