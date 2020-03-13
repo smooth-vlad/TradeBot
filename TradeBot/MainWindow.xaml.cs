@@ -24,7 +24,7 @@ namespace TradeBot
 
         private int candlesSpan = 100;
         private int maxCandlesSpan = 0;
-        private CandleInterval candleInterval = CandleInterval.FiveMinutes;
+        private CandleInterval candleInterval = CandleInterval.Minute;
 
         private List<CandlePayload> candles;
 
@@ -63,8 +63,8 @@ namespace TradeBot
 
             candlesTimer = new System.Threading.Timer((e) => CandlesTimerElapsed(),
                 null,
-                TimeSpan.FromMinutes(1) - TimeSpan.FromSeconds(DateTime.Now.Second - 5),
-                TimeSpan.FromSeconds(10));
+                TimeSpan.Zero,
+                TimeSpan.FromSeconds(30));
         }
 
 
