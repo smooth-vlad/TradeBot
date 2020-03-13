@@ -48,3 +48,6 @@ C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradeBot.csproj.G
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradeBot.csproj.CopyComplete
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradeBot.exe
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradeBot.pdb
+C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\RealTimeTrading.g.cs
+C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\GeneratedInternalTypeHelper.g.cs
+C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\RealTimeTrading.baml
