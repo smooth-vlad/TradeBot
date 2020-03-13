@@ -132,6 +132,43 @@
                         100
                     </TextBox.Text>
                 </TextBox>
+
+                <Button x:Name="intervalButton"
+                        Margin="0, 6" Padding="40, 4"
+                        Background="#81D4FA"
+                        HorizontalAlignment="Left"
+                        BorderThickness="0"
+                        Click="intervalButton_Click">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5"></Setter>
+                        </Style>
+                    </Button.Resources>
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1"/>
+                    </Button.Effect>
+                    <TextBlock TextAlignment="Center" Foreground="White">Update interval</TextBlock>
+                </Button>
+
+                <ComboBox x:Name="intervalComboBox"
+                          Foreground="#303030"
+                          FontSize="18"
+                          VerticalContentAlignment="Bottom"
+                          Margin="0, 6"
+                          IsReadOnly="True">
+                    <!--<ComboBoxItem>1 minute</ComboBoxItem>
+                    <ComboBoxItem>2 minutes</ComboBoxItem>
+                    <ComboBoxItem>3 minutes</ComboBoxItem>
+                    <ComboBoxItem>5 minutes</ComboBoxItem>
+                    <ComboBoxItem>10 minutes</ComboBoxItem>
+                    <ComboBoxItem>15 minutes</ComboBoxItem>
+                    <ComboBoxItem>30 minutes</ComboBoxItem>
+                    <ComboBoxItem>1 hour</ComboBoxItem>
+                    <ComboBoxItem>1 day</ComboBoxItem>
+                    <ComboBoxItem>1 week</ComboBoxItem>
+                    <ComboBoxItem>1 month</ComboBoxItem>-->
+                 </ComboBox>
+
                 </StackPanel>
             </ScrollViewer>
         </Grid>

@@ -24,7 +24,7 @@ namespace TradeBot
 
         private int candlesSpan = 100;
         private int maxCandlesSpan = 0;
-        private CandleInterval candleInterval = CandleInterval.Day;
+        private CandleInterval candleInterval = CandleInterval.FiveMinutes;
 
         private List<CandlePayload> candles;
 
@@ -33,9 +33,28 @@ namespace TradeBot
 
         private System.Threading.Timer candlesTimer;
 
+        private readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
+            = new Dictionary<CandleInterval, TimeSpan>
+        {
+            { CandleInterval.Minute,        TimeSpan.FromDays(1)},
+            { CandleInterval.TwoMinutes,    TimeSpan.FromDays(1)},
+            { CandleInterval.ThreeMinutes,  TimeSpan.FromDays(1)},
+            { CandleInterval.FiveMinutes,   TimeSpan.FromDays(1)},
+            { CandleInterval.TenMinutes,    TimeSpan.FromDays(1)},
+            { CandleInterval.QuarterHour,   TimeSpan.FromDays(1)},
+            { CandleInterval.HalfHour,      TimeSpan.FromDays(1)},
+            { CandleInterval.Hour,          TimeSpan.FromDays(7)},
+            { CandleInterval.Day,           TimeSpan.FromDays(365)},
+            { CandleInterval.Week,          TimeSpan.FromDays(365*2)},
+            { CandleInterval.Month,         TimeSpan.FromDays(365*10)},
+        };
+
         public MainWindow()
         {
             InitializeComponent();
+
+            intervalComboBox.ItemsSource = intervalToMaxPeriod.Keys;
+            intervalComboBox.SelectedIndex = 0;
 
             CandlesSeries = new SeriesCollection();
             Labels = new List<string>();
@@ -49,7 +68,7 @@ namespace TradeBot
         }
 
 
-        private OhlcPoint CandleToOhlc(CandlePayload candlePayload)
+        public static OhlcPoint CandleToOhlc(CandlePayload candlePayload)
         {
             return new OhlcPoint((double)candlePayload.Open, (double)candlePayload.High, (double)candlePayload.Low, (double)candlePayload.Close);
         }
@@ -123,7 +142,11 @@ namespace TradeBot
                 return false;
 
             maxCandlesSpan = RecalculateMaxCandlesSpan();
-            var newCandles = await GetCandles(activeStock.Figi, maxCandlesSpan, candleInterval, TimeSpan.FromDays(365));
+            TimeSpan period;
+            if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
+                throw new KeyNotFoundException();
+
+            var newCandles = await GetCandles(activeStock.Figi, maxCandlesSpan, candleInterval, period);
 
             if (candles == null || candles.Count != newCandles.Count)
             {
@@ -204,7 +227,7 @@ namespace TradeBot
 
             Labels.Clear();
             for (int i = 0; i < candlesSpan; ++i)
-                Labels.Add(DateTime.Now.AddMinutes(-(candlesSpan - i)).ToString("HH:mm"));
+                Labels.Add(candles[maxCandlesSpan - candlesSpan + i].Time.ToString("dd.MM.yyyy HH:mm"));
 
             for (int i = 0; i < indicators.Count; ++i)
             {
@@ -267,6 +290,28 @@ namespace TradeBot
             if (activeStock == null)
                 return;
 
+            await UpdateCandlesList();
+            CandlesValuesChanged();
+        }
+
+        private async void intervalButton_Click(object sender, RoutedEventArgs e)
+        {
+            CandleInterval interval = CandleInterval.Minute;
+            bool intervalFound = false;
+            var selectedInterval = intervalComboBox.SelectedItem.ToString();
+            foreach (var k in intervalToMaxPeriod.Keys)
+            {
+                if (k.ToString() == selectedInterval)
+                {
+                    interval = k;
+                    intervalFound = true;
+                    break;
+                }
+            }
+            if (!intervalFound)
+                return;
+
+            candleInterval = interval;
             await UpdateCandlesList();
             CandlesValuesChanged();
         }

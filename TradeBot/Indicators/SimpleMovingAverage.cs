@@ -36,10 +36,10 @@ namespace TradeBot
 
         override public void UpdateState()
         {
-            Calculate();
+            CalculateSMA();
         }
 
-        private void Calculate()
+        private void CalculateSMA()
         {
             var SMA = new ChartValues<decimal>();
             for (int i = Candles.Count - candlesSpan; i < Candles.Count; ++i)
