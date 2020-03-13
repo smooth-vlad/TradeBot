@@ -20,7 +20,7 @@ namespace TradeBot
         private Context context;
         private MarketInstrument activeStock;
 
-        private List<IIndicator> indicators = new List<IIndicator>(); 
+        private List<Indicator> indicators = new List<Indicator>(); 
 
         private int candlesSpan = 100;
         private int maxCandlesSpan = 0;
@@ -149,9 +149,9 @@ namespace TradeBot
             var result = candlesSpan;
             for (int i = 0; i < indicators.Count; ++i)
             {
-                var indicator = (SimpleMovingAverage)indicators[i];
-                if (indicator.Period + candlesSpan > result)
-                    result = candlesSpan + indicator.Period;
+                var indicator = indicators[i];
+                if (indicator.candlesNeeded > result)
+                    result = indicator.candlesNeeded;
             }
             return result;
         }
@@ -193,10 +193,10 @@ namespace TradeBot
             for (int i = 0; i < indicators.Count; ++i)
             {
                 var indicator = indicators[i];
-                indicator.candles = candles;
+                indicator.Candles = candles;
                 indicator.UpdateState();
 
-                if (!indicator.areGraphsInitialized)
+                if (!indicator.AreGraphsInitialized)
                     indicator.InitializeGraphs(CandlesSeries);
                 else
                     indicator.UpdateGraphs();
@@ -222,7 +222,7 @@ namespace TradeBot
                 return;
 
             CandlesSeries.Clear();
-            indicators = new List<IIndicator>();
+            indicators = new List<Indicator>();
 
             await UpdateCandlesList();
             CandlesValuesChanged();

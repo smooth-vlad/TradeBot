@@ -6,18 +6,15 @@ using Tinkoff.Trading.OpenApi.Models;
 
 namespace TradeBot
 {
-    class SimpleMovingAverage : IIndicator
+    class SimpleMovingAverage : Indicator
     {
         private int period;
-        public int Period => period;
 
-        public List<CandlePayload> candles { get; set; }
-        public int candlesSpan { get; set; }
         public ChartValues<decimal> SMA;
 
-        public LineSeries bindedGraph;
+        private LineSeries bindedGraph;
 
-        public bool areGraphsInitialized { get; set; } = false;
+        public override int candlesNeeded => candlesSpan + period;
 
         public SimpleMovingAverage(int period)
         {
@@ -26,18 +23,18 @@ namespace TradeBot
             this.period = period;
         }
 
-        public bool IsBuySignal()
+        override public bool IsBuySignal()
         {
-            return (candles[candles.Count - 2].Close - SMA[SMA.Count - 2]) *
-                (candles[candles.Count - 1].Close - SMA[SMA.Count - 1]) < 0;
+            return (Candles[Candles.Count - 2].Close - SMA[SMA.Count - 2]) *
+                (Candles[Candles.Count - 1].Close - SMA[SMA.Count - 1]) < 0;
         }
 
-        public bool IsSellSignal()
+        override public bool IsSellSignal()
         {
             return false;
         }
 
-        public void UpdateState()
+        override public void UpdateState()
         {
             Calculate();
         }
@@ -45,22 +42,22 @@ namespace TradeBot
         private void Calculate()
         {
             var SMA = new ChartValues<decimal>();
-            for (int i = candles.Count - candlesSpan; i < candles.Count; ++i)
+            for (int i = Candles.Count - candlesSpan; i < Candles.Count; ++i)
             {
                 decimal sum = 0;
                 for (int j = 0; j < period; ++j)
-                    sum += candles[i - j].Close;
+                    sum += Candles[i - j].Close;
                 SMA.Add(sum / period);
             }
             this.SMA = SMA;
         }
 
-        public void UpdateGraphs()
+        override public void UpdateGraphs()
         {
             bindedGraph.Values = SMA;
         }
 
-        public void InitializeGraphs(SeriesCollection series)
+        override public void InitializeGraphs(SeriesCollection series)
         {
             bindedGraph = new LineSeries
             {
