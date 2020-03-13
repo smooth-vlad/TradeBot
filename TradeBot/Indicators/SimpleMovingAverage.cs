@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LiveCharts;
+using LiveCharts.Wpf;
+using System;
 using System.Collections.Generic;
 using Tinkoff.Trading.OpenApi.Models;
 
@@ -9,10 +11,13 @@ namespace TradeBot
         private int period;
         public int Period => period;
 
-        public List<CandlePayload> candles;
-        public List<decimal> SMA;
+        public List<CandlePayload> candles { get; set; }
+        public int candlesSpan { get; set; }
+        public ChartValues<decimal> SMA;
 
-        public int bindedGraph = -1;
+        public LineSeries bindedGraph;
+
+        public bool areGraphsInitialized { get; set; } = false;
 
         public SimpleMovingAverage(int period)
         {
@@ -39,8 +44,8 @@ namespace TradeBot
 
         private void Calculate()
         {
-            var SMA = new List<decimal>(candles.Count - period);
-            for (int i = period; i < candles.Count; ++i)
+            var SMA = new ChartValues<decimal>();
+            for (int i = candles.Count - candlesSpan; i < candles.Count; ++i)
             {
                 decimal sum = 0;
                 for (int j = 0; j < period; ++j)
@@ -48,6 +53,22 @@ namespace TradeBot
                 SMA.Add(sum / period);
             }
             this.SMA = SMA;
+        }
+
+        public void UpdateGraphs()
+        {
+            bindedGraph.Values = SMA;
+        }
+
+        public void InitializeGraphs(SeriesCollection series)
+        {
+            bindedGraph = new LineSeries
+            {
+                ScalesXAt = 0,
+                Values = SMA,
+            };
+            series.Add(bindedGraph);
+            areGraphsInitialized = true;
         }
     }
 }
