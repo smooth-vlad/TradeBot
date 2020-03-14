@@ -35,7 +35,7 @@ namespace TradeBot
 
         private System.Threading.Timer candlesTimer;
 
-        private Stopwatch stopwatch;
+        private bool updatingCandlesNow = false;
 
         public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
             = new Dictionary<CandleInterval, TimeSpan>
@@ -48,9 +48,9 @@ namespace TradeBot
             { CandleInterval.QuarterHour,   TimeSpan.FromDays(1)},
             { CandleInterval.HalfHour,      TimeSpan.FromDays(1)},
             { CandleInterval.Hour,          TimeSpan.FromDays(7)},
-            { CandleInterval.Day,           TimeSpan.FromDays(365)},
-            { CandleInterval.Week,          TimeSpan.FromDays(365*2)},
-            { CandleInterval.Month,         TimeSpan.FromDays(365*10)},
+            { CandleInterval.Day,           TimeSpan.FromDays(364)},
+            { CandleInterval.Week,          TimeSpan.FromDays(364*2)},
+            { CandleInterval.Month,         TimeSpan.FromDays(364*10)},
         };
 
         public RealTimeTrading()
@@ -68,7 +68,7 @@ namespace TradeBot
             candlesTimer = new System.Threading.Timer((e) => CandlesTimerElapsed(),
                 null,
                 TimeSpan.Zero,
-                TimeSpan.FromMinutes(1));
+                TimeSpan.FromSeconds(5));
         }
 
 
@@ -124,6 +124,7 @@ namespace TradeBot
         }
         private async Task<List<CandlePayload>> GetCandles(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
         {
+            updatingCandlesNow = true;
             var result = new List<CandlePayload>(amount);
             var to = DateTime.Now;
 
@@ -136,6 +137,7 @@ namespace TradeBot
                 to = to - queryOffset;
             }
             result.Reverse();
+            updatingCandlesNow = false;
             return result;
         }
 
@@ -192,6 +194,8 @@ namespace TradeBot
             if (activeStock == null)
                 return;
 
+            if (updatingCandlesNow)
+                return;
             if (await UpdateCandlesList())
                 Dispatcher.Invoke(() => CandlesValuesChanged());
         }

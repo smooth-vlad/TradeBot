@@ -46,7 +46,8 @@
                                 Background="White"
                                 Series="{Binding CandlesSeries}"
                                 DisableAnimations="False"
-                                Hoverable="False">
+                                Hoverable="False"
+                                DataTooltip="{x:Null}">
                 <lvc:CartesianChart.AxisX>
                     <lvc:Axis Labels="{Binding Labels}"/>
                 </lvc:CartesianChart.AxisX>
