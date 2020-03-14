@@ -10,12 +10,17 @@
         MinHeight="785" MinWidth="680"
         Background="#F9F9F9">
     <Grid Height="Auto" Width="Auto">
-        <TabControl>
+        <TabControl x:Name="tabControl">
             <TabItem Header="Tab 1">
                 <local:RealTimeTrading/>
             </TabItem>
             <TabItem Header="Tab 2">
                 <local:RealTimeTrading/>
+            </TabItem>
+            <TabItem x:Name="AddTabButton" Selector.Selected="AddTabButton_Selected"
+                     Header="+"
+                     BorderBrush="Transparent"
+                     Background="Transparent">
             </TabItem>
         </TabControl>
     </Grid>

@@ -52,17 +52,18 @@ namespace TradeBot
             this.SMA = SMA;
         }
 
-        override public void UpdateGraphs()
+        override public void UpdateSeries()
         {
             bindedGraph.Values = SMA;
         }
 
-        override public void InitializeGraphs(SeriesCollection series)
+        override public void InitializeSeries(SeriesCollection series)
         {
             bindedGraph = new LineSeries
             {
                 ScalesXAt = 0,
                 Values = SMA,
+                Title = string.Format("Simple Moving Average {0}", period),
             };
             series.Add(bindedGraph);
             areGraphsInitialized = true;

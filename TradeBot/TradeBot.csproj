@@ -70,6 +70,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="SimulationTrading.xaml.cs">
+      <DependentUpon>SimulationTrading.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RealTimeTrading.xaml.cs">
       <DependentUpon>RealTimeTrading.xaml</DependentUpon>
     </Compile>
@@ -86,6 +89,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SimulationTrading.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="RealTimeTrading.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -16,14 +16,14 @@ namespace TradeBot
     /// <summary>
     /// Логика взаимодействия для RealTimeTrading.xaml
     /// </summary>
-    public partial class RealTimeTrading : UserControl
+    public partial class SimulationTrading : UserControl
     {
         private Context context;
         private MarketInstrument activeStock;
 
         private List<Indicator> indicators = new List<Indicator>();
 
-        private int candlesSpan = 50;
+        private int candlesSpan = 100;
         private int maxCandlesSpan = 0;
         private CandleInterval candleInterval = CandleInterval.Minute;
 
@@ -50,7 +50,7 @@ namespace TradeBot
             { CandleInterval.Month,         TimeSpan.FromDays(365*10)},
         };
 
-        public RealTimeTrading()
+        public SimulationTrading()
         {
             InitializeComponent();
 
@@ -65,7 +65,7 @@ namespace TradeBot
             candlesTimer = new System.Threading.Timer((e) => CandlesTimerElapsed(),
                 null,
                 TimeSpan.Zero,
-                TimeSpan.FromMinutes(1));
+                TimeSpan.FromSeconds(30));
         }
 
 
@@ -208,8 +208,7 @@ namespace TradeBot
                 {
                     ScalesXAt = 0,
                     Values = v,
-                    StrokeThickness = 3,
-                    Title = "Candles",
+                    StrokeThickness = 3
                 });
             }
             else
@@ -251,8 +250,6 @@ namespace TradeBot
 
             await UpdateCandlesList();
             CandlesValuesChanged();
-
-            chart.AxisY[0].ShowLabels = true;
         }
 
         private async void smaButton_Click(object sender, RoutedEventArgs e)
@@ -298,7 +295,7 @@ namespace TradeBot
             CandlesValuesChanged();
         }
 
-        private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void intervalButton_Click(object sender, RoutedEventArgs e)
         {
             CandleInterval interval = CandleInterval.Minute;
             bool intervalFound = false;

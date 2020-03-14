@@ -20,7 +20,7 @@ namespace TradeBot
         public abstract bool IsBuySignal();
         public abstract bool IsSellSignal();
 
-        public abstract void UpdateGraphs();
-        public abstract void InitializeGraphs(SeriesCollection series);
+        public abstract void UpdateSeries();
+        public abstract void InitializeSeries(SeriesCollection series);
     }
 }
