@@ -41,7 +41,7 @@ namespace TradeBot
 
         private void CalculateSMA()
         {
-            var SMA = new ChartValues<decimal>();
+            var SMA = new List<decimal>(candlesSpan);
             for (int i = Candles.Count - candlesSpan; i < Candles.Count; ++i)
             {
                 decimal sum = 0;
@@ -49,7 +49,9 @@ namespace TradeBot
                     sum += Candles[i - j].Close;
                 SMA.Add(sum / period);
             }
-            this.SMA = SMA;
+            var SMA2 = new ChartValues<decimal>();
+            SMA2.AddRange(SMA);
+            this.SMA = SMA2;
         }
 
         override public void UpdateSeries()

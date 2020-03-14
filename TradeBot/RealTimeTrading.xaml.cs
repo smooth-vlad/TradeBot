@@ -10,6 +10,7 @@ using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
 using LiveCharts.Defaults;
 using System.Windows.Controls;
+using System.Diagnostics;
 
 namespace TradeBot
 {
@@ -34,7 +35,9 @@ namespace TradeBot
 
         private System.Threading.Timer candlesTimer;
 
-        private readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
+        private Stopwatch stopwatch;
+
+        public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
             = new Dictionary<CandleInterval, TimeSpan>
         {
             { CandleInterval.Minute,        TimeSpan.FromDays(1)},
@@ -198,22 +201,24 @@ namespace TradeBot
             if (activeStock == null)
                 return;
 
-            var v = new ChartValues<OhlcPoint>();
+            var v = new List<OhlcPoint>(candlesSpan);
             for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
                 v.Add(CandleToOhlc(candles[i]));
+            var v2 = new ChartValues<OhlcPoint>();
+            v2.AddRange(v);
 
             if (CandlesSeries.Count == 0)
             {
                 CandlesSeries.Add(new CandleSeries
                 {
                     ScalesXAt = 0,
-                    Values = v,
+                    Values = v2,
                     StrokeThickness = 3,
                     Title = "Candles",
                 });
             }
             else
-                CandlesSeries[0].Values = v;
+                CandlesSeries[0].Values = v2;
 
             for (int i = 0; i < indicators.Count; ++i)
             {
@@ -283,7 +288,12 @@ namespace TradeBot
             int period;
             if (!int.TryParse(periodTextBox.Text.Trim(), out period))
             {
-                MessageBox.Show("Wrong value in 'Period'");
+                MessageBox.Show("Not a number in 'Period'");
+                return;
+            }
+            if (period < 10 || period > 300)
+            {
+                MessageBox.Show("'Period' should be >= 10 and <= 300");
                 return;
             }
 
