@@ -30,8 +30,10 @@ namespace TradeBot
 
         private List<CandlePayload> candles;
         private ChartValues<ObservablePoint> buySeries = new ChartValues<ObservablePoint>();
+        private ChartValues<ObservablePoint> sellSeries = new ChartValues<ObservablePoint>();
 
         private int bindedBuySeries = -1;
+        private int bindedSellSeries = -1;
 
         public SeriesCollection CandlesSeries { get; set; }
         public List<string> Labels { get; set; }
@@ -195,14 +197,21 @@ namespace TradeBot
             await Task.Run(() =>
             {
                 buySeries.Clear();
+                sellSeries.Clear();
                 for (int i = 0; i < candlesSpan; ++i)
                 {
                     foreach (var indicator in indicators)
                     {
+                        indicator.UpdateState(i);
                         if (indicator.IsBuySignal(i))
                         {
                             var candle = candles[maxCandlesSpan - candlesSpan + i];
                             buySeries.Add(new ObservablePoint(i, (double)candle.Close));
+                        }
+                        else if (indicator.IsSellSignal(i))
+                        {
+                            var candle = candles[maxCandlesSpan - candlesSpan + i];
+                            sellSeries.Add(new ObservablePoint(i, (double)candle.Close));
                         }
                     }
                 }
@@ -213,7 +222,7 @@ namespace TradeBot
                 {
                     ScalesXAt = 0,
                     Values = buySeries,
-                    Title = "Operations",
+                    Title = "Buy",
                     Stroke = Brushes.Blue,
                     Fill = Brushes.Blue,
                     StrokeThickness = 3,
@@ -222,6 +231,22 @@ namespace TradeBot
             }
             else
                 CandlesSeries[bindedBuySeries].Values = buySeries;
+
+            if (bindedSellSeries == -1)
+            {
+                CandlesSeries.Add(new ScatterSeries
+                {
+                    ScalesXAt = 0,
+                    Values = sellSeries,
+                    Title = "Sell",
+                    Stroke = Brushes.Yellow,
+                    Fill = Brushes.Yellow,
+                    StrokeThickness = 3,
+                });
+                bindedSellSeries = CandlesSeries.Count - 1;
+            }
+            else
+                CandlesSeries[bindedSellSeries].Values = sellSeries;
         }
 
         // ==================================================
@@ -255,7 +280,6 @@ namespace TradeBot
             {
                 var indicator = indicators[i];
                 indicator.Candles = candles;
-                indicator.UpdateState();
 
                 if (!indicator.AreGraphsInitialized)
                     indicator.InitializeSeries(CandlesSeries);
@@ -275,6 +299,7 @@ namespace TradeBot
 
             CandlesSeries.Clear();
             bindedBuySeries = -1;
+            bindedSellSeries = -1;
             indicators = new List<Indicator>();
 
             await UpdateCandlesList();
@@ -298,7 +323,7 @@ namespace TradeBot
                 return;
             }
 
-            var newIndicator = new SimpleMovingAverage(smaStep);
+            var newIndicator = new SimpleMovingAverage(smaStep, 5, activeStock.MinPriceIncrement);
             newIndicator.candlesSpan = candlesSpan;
             indicators.Add(newIndicator);
 
