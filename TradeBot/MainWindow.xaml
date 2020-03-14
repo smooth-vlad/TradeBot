@@ -15,9 +15,6 @@
             <TabItem Header="Tab 1 (Real Time)">
                 <local:RealTimeTrading/>
             </TabItem>
-            <TabItem Header="Tab 2 (Real Time)">
-                <local:RealTimeTrading/>
-            </TabItem>
             <TabItem x:Name="AddTabButton" Selector.Selected="AddTabButton_Selected"
                      Header="+"
                      BorderBrush="Transparent"

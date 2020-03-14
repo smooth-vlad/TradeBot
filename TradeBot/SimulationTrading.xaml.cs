@@ -29,6 +29,9 @@ namespace TradeBot
         private CandleInterval candleInterval = CandleInterval.Minute;
 
         private List<CandlePayload> candles;
+        private ChartValues<ObservablePoint> buySeries = new ChartValues<ObservablePoint>();
+
+        private int bindedBuySeries = -1;
 
         public SeriesCollection CandlesSeries { get; set; }
         public List<string> Labels { get; set; }
@@ -174,44 +177,51 @@ namespace TradeBot
             return result;
         }
 
-        private void BlockEverything()
+        private void SetEverythingEnabled(bool value)
         {
-            findButton.IsEnabled = false;
-            simulateButton.IsEnabled = false;
-            periodButton.IsEnabled = false;
-            smaButton.IsEnabled = false;
-            intervalComboBox.IsEnabled = false;
-            periodTextBox.IsEnabled = false;
-            tickerTextBox.IsEnabled = false;
-            tokenTextBox.IsEnabled = false;
-            smaStepTextBox.IsEnabled = false;
-        }
-
-        private void UnblockEverything()
-        {
-            findButton.IsEnabled = true;
-            simulateButton.IsEnabled = true;
-            periodButton.IsEnabled = true;
-            smaButton.IsEnabled = true;
-            intervalComboBox.IsEnabled = true;
-            periodTextBox.IsEnabled = true;
-            tickerTextBox.IsEnabled = true;
-            tokenTextBox.IsEnabled = true;
-            smaStepTextBox.IsEnabled = true;
+            findButton.IsEnabled = value;
+            simulateButton.IsEnabled = value;
+            periodButton.IsEnabled = value;
+            smaButton.IsEnabled = value;
+            intervalComboBox.IsEnabled = value;
+            periodTextBox.IsEnabled = value;
+            tickerTextBox.IsEnabled = value;
+            tokenTextBox.IsEnabled = value;
+            smaStepTextBox.IsEnabled = value;
         }
 
         private async Task Simulate()
         {
-            for (int i = 0; i < candlesSpan; ++i)
+            await Task.Run(() =>
             {
-                foreach (var indicator in indicators)
+                buySeries.Clear();
+                for (int i = 0; i < candlesSpan; ++i)
                 {
-                    if (indicator.IsBuySignal(i))
+                    foreach (var indicator in indicators)
                     {
-                        MessageBox.Show(string.Format("BUY STONK AT {0} RN!1!!", candles[maxCandlesSpan - candlesSpan + i].Time));
+                        if (indicator.IsBuySignal(i))
+                        {
+                            var candle = candles[maxCandlesSpan - candlesSpan + i];
+                            buySeries.Add(new ObservablePoint(i, (double)candle.Close));
+                        }
                     }
                 }
+            });
+            if (bindedBuySeries == -1)
+            {
+                CandlesSeries.Add(new ScatterSeries
+                {
+                    ScalesXAt = 0,
+                    Values = buySeries,
+                    Title = "Operations",
+                    Stroke = Brushes.Blue,
+                    Fill = Brushes.Blue,
+                    StrokeThickness = 3,
+                });
+                bindedBuySeries = CandlesSeries.Count - 1;
             }
+            else
+                CandlesSeries[bindedBuySeries].Values = buySeries;
         }
 
         // ==================================================
@@ -264,6 +274,7 @@ namespace TradeBot
                 return;
 
             CandlesSeries.Clear();
+            bindedBuySeries = -1;
             indicators = new List<Indicator>();
 
             await UpdateCandlesList();
@@ -344,9 +355,9 @@ namespace TradeBot
 
         private async void simulateButton_Click(object sender, RoutedEventArgs e)
         {
-            BlockEverything();
+            SetEverythingEnabled(false);
             await Simulate();
-            UnblockEverything();
+            SetEverythingEnabled(true);
         }
     }
 }
