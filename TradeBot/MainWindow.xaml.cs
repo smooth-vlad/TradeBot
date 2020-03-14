@@ -26,8 +26,8 @@ namespace TradeBot
         private void AddTabButton_Selected(object sender, RoutedEventArgs e)
         {
             var newItem = new TabItem();
-            newItem.Content = new RealTimeTrading();
-            newItem.Header = string.Format("Tab {0}", tabControl.Items.Count);
+            newItem.Content = new SimulationTrading();
+            newItem.Header = string.Format("Tab {0} (Simulation)", tabControl.Items.Count);
             newItem.IsSelected = true;
 
             var s = sender as TabItem;

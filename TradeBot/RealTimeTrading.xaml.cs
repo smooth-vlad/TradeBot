@@ -208,8 +208,7 @@ namespace TradeBot
             var v = new List<OhlcPoint>(candlesSpan);
             for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
                 v.Add(CandleToOhlc(candles[i]));
-            var v2 = new ChartValues<OhlcPoint>();
-            v2.AddRange(v);
+            var v2 = new ChartValues<OhlcPoint>(v);
 
             if (CandlesSeries.Count == 0)
             {
@@ -243,9 +242,9 @@ namespace TradeBot
             for (int i = 0; i < indicators.Count; ++i)
             {
                 var indicator = (SimpleMovingAverage)indicators[i];
-                if (indicator.IsBuySignal())
+                if (indicator.IsBuySignal(candlesSpan - 1))
                     MessageBox.Show("BUY STONK RN!1!!");
-                if (indicator.IsSellSignal())
+                if (indicator.IsSellSignal(candlesSpan - 1))
                     MessageBox.Show("SELL STONK RN!1!!");
             }
         }

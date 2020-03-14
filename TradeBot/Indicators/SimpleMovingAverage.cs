@@ -23,13 +23,21 @@ namespace TradeBot
             this.period = period;
         }
 
-        override public bool IsBuySignal()
+        override public bool IsBuySignal(int candleIndex)
         {
-            return (Candles[Candles.Count - 2].Close - SMA[SMA.Count - 2]) *
-                (Candles[Candles.Count - 1].Close - SMA[SMA.Count - 1]) < 0;
+            int candlesStartIndex = Candles.Count - candlesSpan;
+            try
+            {
+                return (Candles[candlesStartIndex + candleIndex - 1].Close - SMA[candleIndex - 1]) *
+                    (Candles[candlesStartIndex + candleIndex].Close - SMA[candleIndex]) < 0;
+            }
+            catch(Exception)
+            {
+                return false;
+            }
         }
 
-        override public bool IsSellSignal()
+        override public bool IsSellSignal(int candleIndex)
         {
             return false;
         }
@@ -49,9 +57,7 @@ namespace TradeBot
                     sum += Candles[i - j].Close;
                 SMA.Add(sum / period);
             }
-            var SMA2 = new ChartValues<decimal>();
-            SMA2.AddRange(SMA);
-            this.SMA = SMA2;
+            this.SMA = new ChartValues<decimal>(SMA);
         }
 
         override public void UpdateSeries()

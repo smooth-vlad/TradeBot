@@ -44,10 +44,16 @@
                                 Grid.Row="1" Grid.RowSpan="2"
                                 Margin="0, 0, 0, 0"
                                 Background="White"
-                                Series="{Binding CandlesSeries}">
+                                Series="{Binding CandlesSeries}"
+                                DisableAnimations="False"
+                                Hoverable="False"
+                                DataTooltip="{x:Null}">
                 <lvc:CartesianChart.AxisX>
                     <lvc:Axis Labels="{Binding Labels}"/>
                 </lvc:CartesianChart.AxisX>
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis ShowLabels="False"/>
+                </lvc:CartesianChart.AxisY>
             </lvc:CartesianChart>
 
             <ScrollViewer Grid.Row="3">
@@ -84,15 +90,25 @@
                         <TextBlock TextAlignment="Center" Foreground="White">FIND</TextBlock>
                     </Button>
 
+                    <Button x:Name="simulateButton" Margin="0, 6" Background="#81D4FA" HorizontalAlignment="Left" Padding="40, 4" BorderThickness="0" Click="simulateButton_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"></Setter>
+                            </Style>
+                        </Button.Resources>
+                        <Button.Effect>
+                            <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1"/>
+                        </Button.Effect>
+                        <TextBlock TextAlignment="Center" Foreground="White">SIMULATE</TextBlock>
+                    </Button>
+
                     <TextBox x:Name="smaStepTextBox" Foreground="#303030" FontSize="18" VerticalContentAlignment="Bottom" Margin="0, 6">
                         <TextBox.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="5"></Setter>
                             </Style>
                         </TextBox.Resources>
-                        <TextBox.Text>
-                            12
-                        </TextBox.Text>
+                        <TextBox.Text>12</TextBox.Text>
                     </TextBox>
 
                     <Button x:Name="smaButton" Margin="0, 6" Background="#81D4FA" HorizontalAlignment="Left" Padding="40, 4" BorderThickness="0" Click="smaButton_Click">
@@ -114,7 +130,7 @@
                             </Style>
                         </TextBox.Resources>
                         <TextBox.Text>
-                            100
+                            50
                         </TextBox.Text>
                     </TextBox>
 
@@ -131,29 +147,14 @@
                     </Button>
 
                     <ComboBox x:Name="intervalComboBox"
-                        Foreground="#303030"
-                        FontSize="18"
-                        VerticalContentAlignment="Bottom"
-                        Margin="0, 6"
-                        IsReadOnly="True">
+                              Foreground="#303030"
+                              FontSize="18"
+                              VerticalContentAlignment="Bottom"
+                              Margin="0, 6"
+                              IsReadOnly="True"
+                              SelectionChanged="intervalComboBox_SelectionChanged">
                     </ComboBox>
 
-                    <Button x:Name="intervalButton"
-                            Margin="0, 6" Padding="40, 4"
-                            Background="#81D4FA"
-                            HorizontalAlignment="Left"
-                            BorderThickness="0"
-                            Click="intervalButton_Click">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"></Setter>
-                            </Style>
-                        </Button.Resources>
-                        <Button.Effect>
-                            <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1"/>
-                        </Button.Effect>
-                        <TextBlock TextAlignment="Center" Foreground="White">Update interval</TextBlock>
-                    </Button>
                 </StackPanel>
             </ScrollViewer>
         </Grid>

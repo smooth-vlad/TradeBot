@@ -10,11 +10,12 @@ using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
 using LiveCharts.Defaults;
 using System.Windows.Controls;
+using System.Diagnostics;
 
 namespace TradeBot
 {
     /// <summary>
-    /// Логика взаимодействия для RealTimeTrading.xaml
+    /// Логика взаимодействия для SimulationTrading.xaml
     /// </summary>
     public partial class SimulationTrading : UserControl
     {
@@ -23,7 +24,7 @@ namespace TradeBot
 
         private List<Indicator> indicators = new List<Indicator>();
 
-        private int candlesSpan = 100;
+        private int candlesSpan = 50;
         private int maxCandlesSpan = 0;
         private CandleInterval candleInterval = CandleInterval.Minute;
 
@@ -32,9 +33,7 @@ namespace TradeBot
         public SeriesCollection CandlesSeries { get; set; }
         public List<string> Labels { get; set; }
 
-        private System.Threading.Timer candlesTimer;
-
-        private readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
+        public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
             = new Dictionary<CandleInterval, TimeSpan>
         {
             { CandleInterval.Minute,        TimeSpan.FromDays(1)},
@@ -45,9 +44,9 @@ namespace TradeBot
             { CandleInterval.QuarterHour,   TimeSpan.FromDays(1)},
             { CandleInterval.HalfHour,      TimeSpan.FromDays(1)},
             { CandleInterval.Hour,          TimeSpan.FromDays(7)},
-            { CandleInterval.Day,           TimeSpan.FromDays(365)},
-            { CandleInterval.Week,          TimeSpan.FromDays(365*2)},
-            { CandleInterval.Month,         TimeSpan.FromDays(365*10)},
+            { CandleInterval.Day,           TimeSpan.FromDays(364)},
+            { CandleInterval.Week,          TimeSpan.FromDays(364*2)},
+            { CandleInterval.Month,         TimeSpan.FromDays(364*10)},
         };
 
         public SimulationTrading()
@@ -61,11 +60,6 @@ namespace TradeBot
             Labels = new List<string>();
 
             DataContext = this;
-
-            candlesTimer = new System.Threading.Timer((e) => CandlesTimerElapsed(),
-                null,
-                TimeSpan.Zero,
-                TimeSpan.FromSeconds(30));
         }
 
 
@@ -180,39 +174,72 @@ namespace TradeBot
             return result;
         }
 
+        private void BlockEverything()
+        {
+            findButton.IsEnabled = false;
+            simulateButton.IsEnabled = false;
+            periodButton.IsEnabled = false;
+            smaButton.IsEnabled = false;
+            intervalComboBox.IsEnabled = false;
+            periodTextBox.IsEnabled = false;
+            tickerTextBox.IsEnabled = false;
+            tokenTextBox.IsEnabled = false;
+            smaStepTextBox.IsEnabled = false;
+        }
+
+        private void UnblockEverything()
+        {
+            findButton.IsEnabled = true;
+            simulateButton.IsEnabled = true;
+            periodButton.IsEnabled = true;
+            smaButton.IsEnabled = true;
+            intervalComboBox.IsEnabled = true;
+            periodTextBox.IsEnabled = true;
+            tickerTextBox.IsEnabled = true;
+            tokenTextBox.IsEnabled = true;
+            smaStepTextBox.IsEnabled = true;
+        }
+
+        private async Task Simulate()
+        {
+            for (int i = 0; i < candlesSpan; ++i)
+            {
+                foreach (var indicator in indicators)
+                {
+                    if (indicator.IsBuySignal(i))
+                    {
+                        MessageBox.Show(string.Format("BUY STONK AT {0} RN!1!!", candles[maxCandlesSpan - candlesSpan + i].Time));
+                    }
+                }
+            }
+        }
+
         // ==================================================
         // events
         // ==================================================
-
-        private async void CandlesTimerElapsed()
-        {
-            if (activeStock == null)
-                return;
-
-            if (await UpdateCandlesList())
-                Dispatcher.Invoke(() => CandlesValuesChanged());
-        }
 
         private void CandlesValuesChanged()
         {
             if (activeStock == null)
                 return;
 
-            var v = new ChartValues<OhlcPoint>();
+            var v = new List<OhlcPoint>(candlesSpan);
             for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
                 v.Add(CandleToOhlc(candles[i]));
+            var v2 = new ChartValues<OhlcPoint>(v);
 
             if (CandlesSeries.Count == 0)
             {
                 CandlesSeries.Add(new CandleSeries
                 {
                     ScalesXAt = 0,
-                    Values = v,
-                    StrokeThickness = 3
+                    Values = v2,
+                    StrokeThickness = 3,
+                    Title = "Candles",
                 });
             }
             else
-                CandlesSeries[0].Values = v;
+                CandlesSeries[0].Values = v2;
 
             for (int i = 0; i < indicators.Count; ++i)
             {
@@ -229,15 +256,6 @@ namespace TradeBot
             Labels.Clear();
             for (int i = 0; i < candlesSpan; ++i)
                 Labels.Add(candles[maxCandlesSpan - candlesSpan + i].Time.ToString("dd.MM.yyyy HH:mm"));
-
-            for (int i = 0; i < indicators.Count; ++i)
-            {
-                var indicator = (SimpleMovingAverage)indicators[i];
-                if (indicator.IsBuySignal())
-                    MessageBox.Show("BUY STONK RN!1!!");
-                if (indicator.IsSellSignal())
-                    MessageBox.Show("SELL STONK RN!1!!");
-            }
         }
 
         private async void FindButton_Click(object sender, RoutedEventArgs e)
@@ -250,6 +268,8 @@ namespace TradeBot
 
             await UpdateCandlesList();
             CandlesValuesChanged();
+
+            chart.AxisY[0].ShowLabels = true;
         }
 
         private async void smaButton_Click(object sender, RoutedEventArgs e)
@@ -280,7 +300,12 @@ namespace TradeBot
             int period;
             if (!int.TryParse(periodTextBox.Text.Trim(), out period))
             {
-                MessageBox.Show("Wrong value in 'Period'");
+                MessageBox.Show("Not a number in 'Period'");
+                return;
+            }
+            if (period < 10 || period > 300)
+            {
+                MessageBox.Show("'Period' should be >= 10 and <= 300");
                 return;
             }
 
@@ -295,7 +320,7 @@ namespace TradeBot
             CandlesValuesChanged();
         }
 
-        private async void intervalButton_Click(object sender, RoutedEventArgs e)
+        private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CandleInterval interval = CandleInterval.Minute;
             bool intervalFound = false;
@@ -315,6 +340,13 @@ namespace TradeBot
             candleInterval = interval;
             await UpdateCandlesList();
             CandlesValuesChanged();
+        }
+
+        private async void simulateButton_Click(object sender, RoutedEventArgs e)
+        {
+            BlockEverything();
+            await Simulate();
+            UnblockEverything();
         }
     }
 }
