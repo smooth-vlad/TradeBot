@@ -22,32 +22,20 @@ namespace TradeBot
     public partial class MainPage : Page
     {
         private Context context;
-        private int tabCounter = 1;
 
         public MainPage(Context context)
         {
             InitializeComponent();
             this.context = context;
 
-            AddRealTimeTab();
+            AddStockSelectionTab();
         }
 
-        private void AddRealTimeTab()
+        private void AddStockSelectionTab()
         {
             var newItem = new TabItem();
-            newItem.Content = new RealTimeTrading(context);
-            newItem.Header = string.Format("Tab {0} (Real Time)", tabCounter++);
-            newItem.IsSelected = true;
-            newItem.MouseRightButtonDown += Tab_MouseRightButtonDown;
-
-            tabControl.Items.Insert(tabControl.Items.Count - 1, newItem);
-        }
-
-        private void AddSimulationTab()
-        {
-            var newItem = new TabItem();
-            newItem.Content = new SimulationTrading(context);
-            newItem.Header = string.Format("Tab {0} (Simulation)", tabCounter++);
+            newItem.Content = new StockSelection(context, newItem);
+            newItem.Header = "Instrument Selection";
             newItem.IsSelected = true;
             newItem.MouseRightButtonDown += Tab_MouseRightButtonDown;
 
@@ -56,7 +44,7 @@ namespace TradeBot
 
         private void AddTabButton_Selected(object sender, RoutedEventArgs e)
         {
-            AddSimulationTab();
+            AddStockSelectionTab();
 
             var s = sender as TabItem;
             s.IsSelected = false;

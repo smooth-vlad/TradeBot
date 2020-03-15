@@ -6,14 +6,16 @@
       xmlns:local="clr-namespace:TradeBot"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="MainPage">
+      Title="MainPage"
+      Background="#D9D9D9">
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Menu Height="Auto" VerticalAlignment="Top" Grid.Row="0">
+        <Menu Height="Auto" VerticalAlignment="Top" Grid.Row="0"
+              Background="#D0D0D0">
             <MenuItem Header="Add indicator">
                 <MenuItem x:Name="MovingAverage" Header="Moving Average" Click="MovingAverage_Click"></MenuItem>
                 <MenuItem x:Name="MACD" Header="MACD"></MenuItem>
@@ -22,7 +24,7 @@
                 <MenuItem x:Name="Volume" Header="Volume"></MenuItem>
             </MenuItem>
         </Menu>
-        
+
         <TabControl x:Name="tabControl" Grid.Row="1">
             <TabItem x:Name="AddTabButton" Selector.Selected="AddTabButton_Selected"
                      Header="+" 

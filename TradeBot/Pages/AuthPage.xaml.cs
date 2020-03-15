@@ -28,6 +28,8 @@ namespace TradeBot
         public AuthPage()
         {
             InitializeComponent();
+
+            tokenTextBox.Focus();
         }
 
         private async void authButton_Click(object sender, RoutedEventArgs e)

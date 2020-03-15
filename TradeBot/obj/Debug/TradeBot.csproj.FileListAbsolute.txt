@@ -45,7 +45,6 @@ C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\bin\Debug\LiveCharts.xml
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\bin\Debug\LiveCharts.Wpf.pdb
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\bin\Debug\LiveCharts.Wpf.xml
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\bin\Debug\Newtonsoft.Json.xml
-C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradeBot.csprojAssemblyReference.cache
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\App.baml
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\IndicatorsDialogs\MovingAverageDialog.baml
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\Pages\AuthPage.baml
@@ -59,3 +58,6 @@ C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradeBot.csproj.G
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradeBot.csproj.CopyComplete
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradeBot.exe
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradeBot.pdb
+C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\StockSelection.g.cs
+C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\StockSelection.baml
+C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradeBot.csprojAssemblyReference.cache

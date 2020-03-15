@@ -54,11 +54,14 @@ namespace TradeBot
             { CandleInterval.Month,         TimeSpan.FromDays(364*10)},
         };
 
-        public SimulationTrading(Context context)
+        public SimulationTrading(Context context, MarketInstrument activeStock)
         {
             InitializeComponent();
 
+            this.activeStock = activeStock;
             this.context = context;
+
+            chartNameTextBlock.Text = activeStock.Name + " (Simulation)";
 
             intervalComboBox.ItemsSource = intervalToMaxPeriod.Keys;
             intervalComboBox.SelectedIndex = 0;
@@ -75,37 +78,6 @@ namespace TradeBot
             return new OhlcPoint((double)candlePayload.Open, (double)candlePayload.High, (double)candlePayload.Low, (double)candlePayload.Close);
         }
 
-        // Check if it is possible to build chart using user input.
-        private async Task<bool> CheckInput()
-        {
-            // Set default values.
-            tickerTextBlock.Text = "Ticker";
-            tickerTextBlock.Foreground = new SolidColorBrush(Colors.Black);
-            try
-            {
-                MarketInstrumentList allegedStocks = await context.MarketStocksAsync();
-
-                // Check if there is any ticker.
-                activeStock = allegedStocks.Instruments.Find(x => x.Ticker == tickerTextBox.Text);
-                if (activeStock == null)
-                    throw new NullReferenceException();
-            }
-            catch (NullReferenceException)
-            {
-                // Prompt the ticker.
-                tickerTextBlock.Text += "* ERROR * Unknown ticker.";
-                tickerTextBlock.Foreground = new SolidColorBrush(Colors.Red);
-                tickerTextBox.Text = "";
-                tickerTextBox.Focus();
-                return false;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Something went wrong...");
-                return false;
-            }
-            return true;
-        }
         private async Task<List<CandlePayload>> GetCandles(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
         {
             var result = new List<CandlePayload>(amount);
@@ -156,7 +128,6 @@ namespace TradeBot
             periodButton.IsEnabled = value;
             intervalComboBox.IsEnabled = value;
             periodTextBox.IsEnabled = value;
-            tickerTextBox.IsEnabled = value;
         }
 
         private async Task Simulate()
@@ -290,9 +261,6 @@ namespace TradeBot
 
         private async void FindButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!await CheckInput())
-                return;
-
             CandlesSeries.Clear();
             bindedBuySeries = -1;
             bindedSellSeries = -1;
