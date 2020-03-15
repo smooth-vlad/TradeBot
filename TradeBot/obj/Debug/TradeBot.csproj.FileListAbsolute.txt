@@ -53,3 +53,7 @@ C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\GeneratedInternal
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\RealTimeTrading.baml
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\SimulationTrading.g.cs
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\SimulationTrading.baml
+C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\AuthPage.g.cs
+C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\MainPage.g.cs
+C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\AuthPage.baml
+C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\MainPage.baml

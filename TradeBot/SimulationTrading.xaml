@@ -57,15 +57,6 @@
 
             <ScrollViewer Grid.Row="3">
                 <StackPanel VerticalAlignment="Center" Margin="25,3,25,4">
-                    <TextBlock x:Name="tokenTextBlock" Opacity=".4" FontSize="13">Token</TextBlock>
-
-                    <TextBox x:Name="tokenTextBox" Foreground="#303030" FontSize="18" VerticalContentAlignment="Bottom" Margin="0, 6">
-                        <TextBox.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"></Setter>
-                            </Style>
-                        </TextBox.Resources>
-                    </TextBox>
 
                     <TextBlock x:Name="tickerTextBlock" Opacity=".4" FontSize="13">Ticker</TextBlock>
 

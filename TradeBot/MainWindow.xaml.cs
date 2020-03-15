@@ -18,23 +18,19 @@ namespace TradeBot
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static Context Context { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
+
+            authPage.Connect += AuthPage_Connect;
         }
 
-        private void AddTabButton_Selected(object sender, RoutedEventArgs e)
+        private void AuthPage_Connect(Context context)
         {
-            var newItem = new TabItem();
-            newItem.Content = new SimulationTrading();
-            newItem.Header = string.Format("Tab {0} (Simulation)", tabControl.Items.Count);
-            newItem.IsSelected = true;
-
-            var s = sender as TabItem;
-            s.IsSelected = false;
-
-            e.Handled = true;
-            tabControl.Items.Insert(tabControl.Items.Count - 1, newItem);
+            Context = context;
+            Content = new MainPage(Context);
         }
     }
 }

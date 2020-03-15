@@ -54,9 +54,11 @@ namespace TradeBot
             { CandleInterval.Month,         TimeSpan.FromDays(364*10)},
         };
 
-        public SimulationTrading()
+        public SimulationTrading(Context context)
         {
             InitializeComponent();
+
+            this.context = context;
 
             intervalComboBox.ItemsSource = intervalToMaxPeriod.Keys;
             intervalComboBox.SelectedIndex = 0;
@@ -77,30 +79,16 @@ namespace TradeBot
         private async Task<bool> CheckInput()
         {
             // Set default values.
-            tokenTextBlock.Text = "Token";
-            tokenTextBlock.Foreground = new SolidColorBrush(Colors.Black);
             tickerTextBlock.Text = "Ticker";
             tickerTextBlock.Foreground = new SolidColorBrush(Colors.Black);
             try
             {
-                // Connect using token.
-                SandboxConnection connection = ConnectionFactory.GetSandboxConnection(tokenTextBox.Text.Trim());
-                context = connection.Context;
                 MarketInstrumentList allegedStocks = await context.MarketStocksAsync();
 
                 // Check if there is any ticker.
                 activeStock = allegedStocks.Instruments.Find(x => x.Ticker == tickerTextBox.Text);
                 if (activeStock == null)
                     throw new NullReferenceException();
-            }
-            catch (OpenApiException)
-            {
-                // Prompt the tocken.
-                tokenTextBlock.Text += "* ERROR * Unable to use this token.";
-                tokenTextBlock.Foreground = new SolidColorBrush(Colors.Red);
-                tokenTextBox.Text = "";
-                tokenTextBox.Focus();
-                return false;
             }
             catch (NullReferenceException)
             {
@@ -188,7 +176,6 @@ namespace TradeBot
             intervalComboBox.IsEnabled = value;
             periodTextBox.IsEnabled = value;
             tickerTextBox.IsEnabled = value;
-            tokenTextBox.IsEnabled = value;
             smaStepTextBox.IsEnabled = value;
         }
 
