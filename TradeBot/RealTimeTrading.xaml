@@ -60,7 +60,7 @@
                 <StackPanel VerticalAlignment="Center" Margin="25,3,25,4">
                     <TextBlock x:Name="tickerTextBlock" Opacity=".4" FontSize="13">Ticker</TextBlock>
 
-                    <TextBox x:Name="tickerTextBox" Foreground="#303030" FontSize="18" VerticalContentAlignment="Bottom" Margin="0, 6">
+                    <TextBox x:Name="tickerTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6">
                         <TextBox.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="5"></Setter>
@@ -80,7 +80,7 @@
                         <TextBlock TextAlignment="Center" Foreground="White">FIND</TextBlock>
                     </Button>
 
-                    <TextBox x:Name="smaStepTextBox" Foreground="#303030" FontSize="18" VerticalContentAlignment="Bottom" Margin="0, 6">
+                    <TextBox x:Name="smaStepTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6">
                         <TextBox.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="5"></Setter>
@@ -101,7 +101,7 @@
                         <TextBlock TextAlignment="Center" Foreground="White">Add SMA</TextBlock>
                     </Button>
 
-                    <TextBox x:Name="periodTextBox" Foreground="#303030" FontSize="18" VerticalContentAlignment="Bottom" Margin="0, 6">
+                    <TextBox x:Name="periodTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6">
                         <TextBox.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="5"></Setter>
@@ -126,7 +126,7 @@
 
                     <ComboBox x:Name="intervalComboBox"
                               Foreground="#303030"
-                              FontSize="18"
+                              FontSize="16"
                               VerticalContentAlignment="Bottom"
                               Margin="0, 6"
                               IsReadOnly="True"

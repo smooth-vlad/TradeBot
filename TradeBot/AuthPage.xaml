@@ -12,7 +12,9 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Grid Margin="30, 30, 30, 30" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid Margin="30, 30, 30, 30"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              Width="350">
             <Grid.Effect>
                 <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1"/>
             </Grid.Effect>
@@ -42,7 +44,6 @@
             <Border x:Name="CardBorder"
                         Grid.Row="1" Grid.Column="0"
                         Grid.RowSpan="4" Grid.ColumnSpan="2"
-                    Width="350"
                         CornerRadius="5"
                         Background="White">
             </Border>
@@ -76,7 +77,7 @@
                          Grid.Row="3" Grid.Column="0"
                      Grid.ColumnSpan="2"
                          Margin="25 5 25 5"
-                     FontSize="18"
+                        FontSize="16"
                      VerticalContentAlignment="Center">
                 <TextBox.Resources>
                     <Style TargetType="Border">
