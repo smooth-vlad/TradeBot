@@ -216,37 +216,45 @@ namespace TradeBot
                     }
                 }
             });
-            if (bindedBuySeries == -1)
+            if (buySeries.Count > 0)
             {
-                CandlesSeries.Add(new ScatterSeries
+                if (bindedBuySeries == -1)
                 {
-                    ScalesXAt = 0,
-                    Values = buySeries,
-                    Title = "Buy",
-                    Stroke = Brushes.Blue,
-                    Fill = Brushes.Blue,
-                    StrokeThickness = 3,
-                });
-                bindedBuySeries = CandlesSeries.Count - 1;
+                    CandlesSeries.Add(new ScatterSeries
+                    {
+                        ScalesXAt = 0,
+                        ScalesYAt = 0,
+                        Values = buySeries,
+                        Title = "Buy",
+                        Stroke = Brushes.Blue,
+                        Fill = Brushes.Blue,
+                        StrokeThickness = 3,
+                    });
+                    bindedBuySeries = CandlesSeries.Count - 1;
+                }
+                else
+                    CandlesSeries[bindedBuySeries].Values = buySeries;
             }
-            else
-                CandlesSeries[bindedBuySeries].Values = buySeries;
 
-            if (bindedSellSeries == -1)
+            if (sellSeries.Count > 0)
             {
-                CandlesSeries.Add(new ScatterSeries
+                if (bindedSellSeries == -1)
                 {
-                    ScalesXAt = 0,
-                    Values = sellSeries,
-                    Title = "Sell",
-                    Stroke = Brushes.Yellow,
-                    Fill = Brushes.Yellow,
-                    StrokeThickness = 3,
-                });
-                bindedSellSeries = CandlesSeries.Count - 1;
+                    CandlesSeries.Add(new ScatterSeries
+                    {
+                        ScalesXAt = 0,
+                        ScalesYAt = 0,
+                        Values = sellSeries,
+                        Title = "Sell",
+                        Stroke = Brushes.Yellow,
+                        Fill = Brushes.Yellow,
+                        StrokeThickness = 3,
+                    });
+                    bindedSellSeries = CandlesSeries.Count - 1;
+                }
+                else
+                    CandlesSeries[bindedSellSeries].Values = sellSeries;
             }
-            else
-                CandlesSeries[bindedSellSeries].Values = sellSeries;
         }
 
         // ==================================================
@@ -258,6 +266,11 @@ namespace TradeBot
             if (activeStock == null)
                 return;
 
+            if (bindedBuySeries != -1)
+                CandlesSeries[bindedBuySeries].Values = null;
+            if (bindedSellSeries != -1)
+                CandlesSeries[bindedSellSeries].Values = null;
+
             var v = new List<OhlcPoint>(candlesSpan);
             for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
                 v.Add(CandleToOhlc(candles[i]));
@@ -268,6 +281,7 @@ namespace TradeBot
                 CandlesSeries.Add(new CandleSeries
                 {
                     ScalesXAt = 0,
+                    ScalesYAt = 0,
                     Values = v2,
                     StrokeThickness = 3,
                     Title = "Candles",
