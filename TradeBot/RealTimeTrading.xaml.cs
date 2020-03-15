@@ -230,8 +230,7 @@ namespace TradeBot
 
                 if (!indicator.AreGraphsInitialized)
                     indicator.InitializeSeries(CandlesSeries);
-                else
-                    indicator.UpdateSeries();
+                indicator.UpdateSeries();
             }
 
             Labels.Clear();
@@ -240,7 +239,7 @@ namespace TradeBot
 
             for (int i = 0; i < indicators.Count; ++i)
             {
-                var indicator = (SimpleMovingAverage)indicators[i];
+                var indicator = (MovingAverage)indicators[i];
                 indicator.UpdateState(candlesSpan - 1);
                 if (indicator.IsBuySignal(candlesSpan - 1))
                     MessageBox.Show("BUY STONK RN!1!!");
@@ -278,7 +277,7 @@ namespace TradeBot
                 return;
             }
 
-            var newIndicator = new SimpleMovingAverage(smaStep, 5, activeStock.MinPriceIncrement);
+            var newIndicator = new MovingAverage(smaStep, 5, activeStock.MinPriceIncrement);
             newIndicator.candlesSpan = candlesSpan;
             indicators.Add(newIndicator);
             

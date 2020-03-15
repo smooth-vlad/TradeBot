@@ -283,8 +283,7 @@ namespace TradeBot
 
                 if (!indicator.AreGraphsInitialized)
                     indicator.InitializeSeries(CandlesSeries);
-                else
-                    indicator.UpdateSeries();
+                indicator.UpdateSeries();
             }
 
             Labels.Clear();
@@ -323,7 +322,7 @@ namespace TradeBot
                 return;
             }
 
-            var newIndicator = new SimpleMovingAverage(smaStep, 5, activeStock.MinPriceIncrement);
+            var newIndicator = new MovingAverage(smaStep, 5, activeStock.MinPriceIncrement);
             newIndicator.candlesSpan = candlesSpan;
             indicators.Add(newIndicator);
 

@@ -29,23 +29,24 @@ namespace TradeBot
     //    Иначе
     //        Если свеча большая и пробила SMA вверх
     //            Поставить ордер на 2 пункта выше от максимума
-    class SimpleMovingAverage : Indicator
+    class MovingAverage : Indicator
     {
         private int period;
         private int offset;
         private decimal priceIncrement;
 
-        public ChartValues<decimal> SMA;
+        public ChartValues<decimal> MA;
         private LineSeries bindedGraph;
 
         private int boughtCandle = -1;
         private int whenToSellIndex = -1;
         private decimal whenToBuyPrice = -1;
         private int whenToBuyPriceSetIndex = -1;
+        private decimal stopLoss = -1;
 
         public override int candlesNeeded => candlesSpan + period;
 
-        public SimpleMovingAverage(int period, int offset, decimal priceIncrement)
+        public MovingAverage(int period, int offset, decimal priceIncrement)
         {
             if (period < 1 || offset < 1 || priceIncrement < 0)
                 throw new ArgumentOutOfRangeException();
@@ -69,9 +70,9 @@ namespace TradeBot
                         boughtCandle = candleIndex;
                         whenToBuyPrice = -1;
                         whenToBuyPriceSetIndex = -1;
+                        stopLoss = MA[rawCandleIndex] - priceIncrement * 10;
                         return true;
                     }
-                    // stop loss
                 }
                 return false;
             }
@@ -88,11 +89,18 @@ namespace TradeBot
                 int candlesStartIndex = Candles.Count - candlesSpan;
                 int candleIndex = candlesStartIndex + rawCandleIndex;
 
-                // stop loss
+                if (Candles[candleIndex].Close < stopLoss)
+                {
+                    boughtCandle = -1;
+                    stopLoss = -1;
+                    whenToSellIndex = -1;
+                    return true;
+                }
 
                 if (whenToSellIndex == candleIndex)
                 {
                     boughtCandle = -1;
+                    stopLoss = -1;
                     whenToSellIndex = -1;
                     return true;
                 }
@@ -114,7 +122,7 @@ namespace TradeBot
 
                 if (boughtCandle != -1)
                 {
-                    if (whenToSellIndex == -1 && Candles[candleIndex].Close < SMA[rawCandleIndex])
+                    if (whenToSellIndex == -1 && Candles[candleIndex].Close < MA[rawCandleIndex])
                     {
                         whenToSellIndex = candleIndex + 1;
                     }
@@ -132,23 +140,19 @@ namespace TradeBot
                     }
                     else
                     {
-                        if (rawCandleIndex == 13)
-                        {
-
-                        }
                         bool isCandleBig = true;
-                        decimal candleSize = Math.Abs(Candles[candleIndex].Open - Candles[candleIndex].Close);
+                        decimal candleSize = Math.Abs(Candles[candleIndex].Close - Candles[candleIndex - 1].Close);
                         for (int i = 1; i < offset + 1; ++i)
                         {
-                            decimal thisCandleSize = Math.Abs(Candles[candleIndex - i].Open - Candles[candleIndex - i].Close);
+                            decimal thisCandleSize = Math.Abs(Candles[candleIndex - i].Close - Candles[candleIndex - i - 1].Close);
                             if (thisCandleSize > candleSize)
                                 isCandleBig = false;
                         }
 
                         if (isCandleBig &&
-                            ((Candles[candleIndex - 1].Close - SMA[rawCandleIndex - 1]) *
-                                (Candles[candleIndex].Close - SMA[rawCandleIndex]) < 0) &&
-                            Candles[candleIndex].Close > SMA[rawCandleIndex])
+                            ((Candles[candleIndex - 1].Close - MA[rawCandleIndex - 1]) *
+                                (Candles[candleIndex].Close - MA[rawCandleIndex]) < 0) &&
+                            Candles[candleIndex].Close > MA[rawCandleIndex])
                         {
                             whenToBuyPrice = Candles[candleIndex].High + priceIncrement * 2;
                             whenToBuyPriceSetIndex = candleIndex;
@@ -169,13 +173,13 @@ namespace TradeBot
                     sum += Candles[i - j].Close;
                 SMA.Add(sum / period);
             }
-            this.SMA = new ChartValues<decimal>(SMA);
+            this.MA = new ChartValues<decimal>(SMA);
         }
 
         override public void UpdateSeries()
         {
             CalculateSMA();
-            bindedGraph.Values = SMA;
+            bindedGraph.Values = MA;
         }
 
         override public void InitializeSeries(SeriesCollection series)
@@ -183,14 +187,11 @@ namespace TradeBot
             bindedGraph = new LineSeries
             {
                 ScalesXAt = 0,
-                Values = SMA,
+                Values = MA,
                 Title = string.Format("Simple Moving Average {0}", period),
             };
             series.Add(bindedGraph);
             areGraphsInitialized = true;
-
-            CalculateSMA();
-            bindedGraph.Values = SMA;
         }
     }
 }

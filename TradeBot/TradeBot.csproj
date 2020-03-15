@@ -99,7 +99,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Indicators\SimpleMovingAverage.cs" />
+    <Compile Include="Indicators\MovingAverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
