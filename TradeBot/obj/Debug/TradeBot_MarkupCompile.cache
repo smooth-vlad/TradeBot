@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\App.xaml
-51601052141
+5786037923
 
-11-299234726
+11499600888
 181113538168
-AuthPage.xaml;MainPage.xaml;MainWindow.xaml;SimulationTrading.xaml;RealTimeTrading.xaml;
+Pages\AuthPage.xaml;Pages\MainPage.xaml;MainWindow.xaml;Modes\SimulationTrading.xaml;Modes\RealTimeTrading.xaml;
 
 False
 
