@@ -39,7 +39,7 @@
 
             <Border Grid.Row="0" Grid.RowSpan="3" Background="#81D4FA" ></Border>
 
-            <TextBlock x:Name="chartNameTextBlock" Grid.Row="0" TextAlignment="Center" Padding="0, 0, 0, 20" Foreground="White" FontSize="18">Instrument</TextBlock>
+            <TextBlock x:Name="chartNameTextBlock" Grid.Row="0" TextAlignment="Center" Padding="0, 0, 0, 20" Foreground="#303030" FontSize="18">Instrument</TextBlock>
 
             <lvc:CartesianChart x:Name="chart"
                                 Background="#FDFDFD"
@@ -62,16 +62,20 @@
 
             <ScrollViewer Grid.Row="3">
                 <StackPanel VerticalAlignment="Center" Margin="25,3,25,4">
-                    <Button x:Name="findButton" Margin="0, 6" Background="#81D4FA" HorizontalAlignment="Left" Padding="40, 4" BorderThickness="0" Click="FindButton_Click">
+                    <Button x:Name="resetIndicatorsButton" Margin="0, 6" Background="#81D4FA" HorizontalAlignment="Left" Padding="40, 4" BorderThickness="0" Click="resetIndicatorsButton_Click">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="5"></Setter>
                             </Style>
                         </Button.Resources>
-                        <TextBlock TextAlignment="Center" Foreground="White">FIND</TextBlock>
+                        <TextBlock TextAlignment="Center" Foreground="#303030">Reset Indicators</TextBlock>
                     </Button>
 
-                    <TextBox x:Name="periodTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6">
+                    <TextBlock x:Name="periodTextBlock" Opacity=".6" FontSize="13">Number of candles</TextBlock>
+
+                    <TextBox x:Name="periodTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6"
+                             LostFocus="periodTextBox_LostFocus"
+                             KeyDown="periodTextBox_KeyDown">
                         <TextBox.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="5"></Setter>
@@ -82,16 +86,7 @@
                         </TextBox.Text>
                     </TextBox>
 
-                    <Button x:Name="periodButton" Margin="0, 6" Background="#81D4FA" HorizontalAlignment="Left" Padding="40, 4" BorderThickness="0" Click="periodButton_Click">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"></Setter>
-                            </Style>
-                        </Button.Resources>
-                        <TextBlock TextAlignment="Center" Foreground="White">Update period</TextBlock>
-                    </Button>
-
-                    <TextBlock x:Name="intervalTextBlock" Opacity=".4" FontSize="13">Interval</TextBlock>
+                    <TextBlock x:Name="intervalTextBlock" Opacity=".6" FontSize="13">Interval</TextBlock>
 
                     <ComboBox x:Name="intervalComboBox"
                               Foreground="#303030"

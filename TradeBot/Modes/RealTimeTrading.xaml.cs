@@ -218,13 +218,13 @@ namespace TradeBot
                 var indicator = (MovingAverage)indicators[i];
                 indicator.UpdateState(candlesSpan - 1);
                 if (indicator.IsBuySignal(candlesSpan - 1))
-                    MessageBox.Show("BUY STONK RN!1!!");
+                    MessageBox.Show("It's time to buy the instrument");
                 if (indicator.IsSellSignal(candlesSpan - 1))
-                    MessageBox.Show("SELL STONK RN!1!!");
+                    MessageBox.Show("It's time to sell the instrument");
             }
         }
 
-        private async void FindButton_Click(object sender, RoutedEventArgs e)
+        private async void resetIndicatorsButton_Click(object sender, RoutedEventArgs e)
         {
             CandlesSeries.Clear();
             indicators = new List<Indicator>();
@@ -235,31 +235,6 @@ namespace TradeBot
             CandlesValuesChanged();
 
             chart.AxisY[0].ShowLabels = true;
-        }
-
-        private async void periodButton_Click(object sender, RoutedEventArgs e)
-        {
-            int period;
-            if (!int.TryParse(periodTextBox.Text.Trim(), out period))
-            {
-                MessageBox.Show("Not a number in 'Period'");
-                return;
-            }
-            if (period < 10 || period > 300)
-            {
-                MessageBox.Show("'Period' should be >= 10 and <= 300");
-                return;
-            }
-
-            candlesSpan = period;
-            foreach (var indicator in indicators)
-                indicator.candlesSpan = candlesSpan;
-
-            if (activeStock == null)
-                return;
-
-            await UpdateCandlesList();
-            CandlesValuesChanged();
         }
 
         private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -282,6 +257,44 @@ namespace TradeBot
             candleInterval = interval;
             await UpdateCandlesList();
             CandlesValuesChanged();
+        }
+
+        private async void periodTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            int period;
+            if (!int.TryParse(periodTextBox.Text.Trim(), out period))
+            {
+                MessageBox.Show("Not a number in 'Period'");
+                return;
+            }
+
+            if (period < 10 || period > 300)
+            {
+                MessageBox.Show("'Period' should be >= 10 and <= 300");
+                return;
+            }
+
+            if (candlesSpan == period)
+                return;
+
+            candlesSpan = period;
+            foreach (var indicator in indicators)
+            {
+                indicator.ResetState();
+                indicator.candlesSpan = candlesSpan;
+            }
+
+            if (activeStock == null)
+                return;
+
+            await UpdateCandlesList();
+            CandlesValuesChanged();
+        }
+
+        private void periodTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+                periodTextBox_LostFocus(this, new RoutedEventArgs());
         }
     }
 }

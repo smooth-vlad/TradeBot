@@ -53,13 +53,13 @@
             <TextBlock Grid.Row="0" Grid.Column="0"
                        Grid.ColumnSpan="2"
                        TextAlignment="Center" 
-                       Foreground="White"
+                       Foreground="#303030"
                        VerticalAlignment="Center"
                        FontSize="18">Authorization</TextBlock>
 
             <TextBlock x:Name="tokenTextBlock"
                            Grid.Row="2" Grid.Column="0"
-                           Opacity=".4"
+                           Opacity=".6"
                            FontSize="13"
                        Margin="25 0 0 0"
                            VerticalAlignment="Center">
@@ -68,7 +68,7 @@
 
             <TextBlock x:Name="tokenErrorTextBlock"
                            Grid.Row="2" Grid.Column="1"
-                           Opacity=".4"
+                           Opacity=".6"
                            FontSize="13"
                        Margin="5 0 0 0"
                            VerticalAlignment="Center"
@@ -102,7 +102,7 @@
                         <Setter Property="CornerRadius" Value="5"></Setter>
                     </Style>
                 </Button.Resources>
-                <TextBlock TextAlignment="Center" Foreground="White">Authorize</TextBlock>
+                <TextBlock TextAlignment="Center" Foreground="#303030">Authorize</TextBlock>
             </Button>
         </Grid>
     </Grid>

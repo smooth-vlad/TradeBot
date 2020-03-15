@@ -25,7 +25,7 @@
         <TextBlock x:Name="periodTextBlock"
                            Grid.Row="0" Grid.Column="0"
                    Grid.ColumnSpan="1"
-                           Opacity=".4"
+                           Opacity=".6"
                            FontSize="13"
                            VerticalAlignment="Center">
                     Period
@@ -34,7 +34,7 @@
         <TextBlock x:Name="periodErrorTextBlock"
                            Grid.Row="0" Grid.Column="1"
                    Grid.ColumnSpan="3"
-                           Opacity=".4"
+                           Opacity=".6"
                            FontSize="13"
                        Margin="5 0 0 0"
                            VerticalAlignment="Center"
@@ -59,7 +59,7 @@
         <TextBlock x:Name="offsetTextBlock"
                            Grid.Row="2" Grid.Column="0"
                    Grid.ColumnSpan="1"
-                           Opacity=".4"
+                           Opacity=".6"
                            FontSize="13"
                            VerticalAlignment="Center">
                     Offset
@@ -68,7 +68,7 @@
         <TextBlock x:Name="offsetErrorTextBlock"
                            Grid.Row="2" Grid.Column="1"
                                       Grid.ColumnSpan="3"
-                           Opacity=".4"
+                           Opacity=".6"
                            FontSize="13"
                        Margin="5 0 0 0"
                            VerticalAlignment="Center"
@@ -103,7 +103,7 @@
                     <Setter Property="CornerRadius" Value="5"></Setter>
                 </Style>
             </Button.Resources>
-            <TextBlock TextAlignment="Center" Foreground="White">Add</TextBlock>
+            <TextBlock TextAlignment="Center" Foreground="#303030">Add</TextBlock>
         </Button>
 
         <Button x:Name="cancelButton"
@@ -119,7 +119,7 @@
                     <Setter Property="CornerRadius" Value="5"></Setter>
                 </Style>
             </Button.Resources>
-            <TextBlock TextAlignment="Center" Foreground="White">Cancel</TextBlock>
+            <TextBlock TextAlignment="Center" Foreground="#303030">Cancel</TextBlock>
         </Button>
     </Grid>
 </Window>
