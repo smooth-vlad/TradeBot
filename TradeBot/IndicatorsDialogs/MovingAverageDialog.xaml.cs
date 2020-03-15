@@ -21,10 +21,15 @@ namespace TradeBot
     {
         public int Period { get; private set; }
         public int Offset { get; private set; }
+        public MovingAverage.Type Type { get; private set; }
 
         public MovingAverageDialog()
         {
             InitializeComponent();
+
+            typeComboBox.Items.Add(MovingAverage.Type.Simple.ToString());
+            typeComboBox.Items.Add(MovingAverage.Type.Exponential.ToString());
+            typeComboBox.SelectedIndex = 0;
         }
 
         private void addButton_Click(object sender, RoutedEventArgs e)
@@ -61,6 +66,7 @@ namespace TradeBot
 
             Period = period;
             Offset = offset;
+            Type = (MovingAverage.Type)typeComboBox.SelectedIndex;
             DialogResult = true;
         }
 

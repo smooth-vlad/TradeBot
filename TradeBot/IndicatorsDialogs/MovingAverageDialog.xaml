@@ -5,10 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TradeBot"
         mc:Ignorable="d"
-        Title="Add 'Moving Average' indicator" Height="200" Width="400"
+        Title="Add 'Moving Average' indicator" Height="250" Width="400"
         ResizeMode="CanMinimize">
     <Grid Margin="10">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -90,8 +92,24 @@
             5
         </TextBox>
 
+        <TextBlock x:Name="typeTextBlock"
+                           Grid.Row="4" Grid.Column="0"
+                   Grid.ColumnSpan="1"
+                           Opacity=".6"
+                           FontSize="13"
+                           VerticalAlignment="Center">
+                    Type
+        </TextBlock>
+
+        <ComboBox x:Name="typeComboBox"
+                  Grid.Row="5" Grid.Column="0"
+                  Grid.ColumnSpan="4"
+                  IsReadOnly="True">
+            
+        </ComboBox>
+
         <Button x:Name="addButton"
-                        Grid.Row="4" Grid.Column="2"
+                        Grid.Row="6" Grid.Column="2"
                         Margin="10, 12"
                         Background="#81D4FA"
                         HorizontalAlignment="Right"
@@ -107,7 +125,7 @@
         </Button>
 
         <Button x:Name="cancelButton"
-                        Grid.Row="4" Grid.Column="3"
+                        Grid.Row="6" Grid.Column="3"
                         Margin="10, 12"
                         Background="#81D4FA"
                         HorizontalAlignment="Right"

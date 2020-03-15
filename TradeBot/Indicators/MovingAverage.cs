@@ -29,10 +29,17 @@ namespace TradeBot
     //    Иначе
     //        Если свеча большая и пробила MA вверх
     //            Поставить ордер на 2 пункта выше от максимума
-    class MovingAverage : Indicator
+    public class MovingAverage : Indicator
     {
+        public enum Type
+        {
+            Simple,
+            Exponential,
+        }
+
         private int period;
         private int offset;
+        private Type type;
 
         public ChartValues<decimal> MA;
         private LineSeries bindedGraph;
@@ -45,13 +52,14 @@ namespace TradeBot
 
         public override int candlesNeeded => candlesSpan + period;
 
-        public MovingAverage(int period, int offset)
+        public MovingAverage(int period, int offset, Type type)
         {
             if (period < 1 || offset < 1)
                 throw new ArgumentOutOfRangeException();
 
             this.period = period;
             this.offset = offset;
+            this.type = type;
         }
 
         override public bool IsBuySignal(int rawCandleIndex)
@@ -161,7 +169,7 @@ namespace TradeBot
             catch (Exception) { }
         }
 
-        private void CalculateSMA()
+        private List<decimal> CalculateSMA()
         {
             var SMA = new List<decimal>(candlesSpan);
             for (int i = Candles.Count - candlesSpan; i < Candles.Count; ++i)
@@ -171,22 +179,44 @@ namespace TradeBot
                     sum += Candles[i - j].Close;
                 SMA.Add(sum / period);
             }
-            MA = new ChartValues<decimal>(SMA);
+            return SMA;
+        }
+
+        private List<decimal> CalculateEMA()
+        {
+            var EMA = new List<decimal>(candlesSpan);
+            double multiplier = 2.0 / (period + 1.0);
+            EMA.Add(Candles[0].Close);            
+            for (int i = 1; i < candlesSpan; ++i)
+            {
+                EMA.Add((Candles[i].Close * (decimal)multiplier) + EMA[i - 1] * (1 - (decimal)multiplier));
+            }
+            return EMA;
         }
 
         override public void UpdateSeries()
         {
-            CalculateSMA();
+            List<decimal> values = new List<decimal>();
+            if (type == Type.Simple)
+                values = CalculateSMA();
+            else if (type == Type.Exponential)
+                values = CalculateEMA();
+            MA = new ChartValues<decimal>(values);
             bindedGraph.Values = MA;
         }
 
         override public void InitializeSeries(SeriesCollection series)
         {
+            string title = string.Empty;
+            if (type == Type.Simple)
+                string.Format("Simple Moving Average {0}", period);
+            else if (type == Type.Exponential)
+                string.Format("Exponential Moving Average {0}", period);
             bindedGraph = new LineSeries
             {
                 ScalesXAt = 0,
                 Values = MA,
-                Title = string.Format("Simple Moving Average {0}", period),
+                Title = title,
             };
             series.Add(bindedGraph);
             areGraphsInitialized = true;
