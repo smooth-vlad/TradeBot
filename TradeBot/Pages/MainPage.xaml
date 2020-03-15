@@ -25,7 +25,7 @@
         
         <TabControl x:Name="tabControl" Grid.Row="1">
             <TabItem x:Name="AddTabButton" Selector.Selected="AddTabButton_Selected"
-                     Header="+"
+                     Header="+" 
                      BorderBrush="Transparent"
                      Background="Transparent">
             </TabItem>

@@ -260,6 +260,8 @@ namespace TradeBot
             CandlesSeries.Clear();
             indicators = new List<Indicator>();
 
+            chartNameTextBlock.Text = activeStock.Name;
+
             await UpdateCandlesList();
             CandlesValuesChanged();
 

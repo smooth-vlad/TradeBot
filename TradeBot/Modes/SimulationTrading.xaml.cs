@@ -298,6 +298,8 @@ namespace TradeBot
             bindedSellSeries = -1;
             indicators = new List<Indicator>();
 
+            chartNameTextBlock.Text = activeStock.Name;
+
             await UpdateCandlesList();
             CandlesValuesChanged();
 

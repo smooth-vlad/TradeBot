@@ -39,7 +39,7 @@
 
             <Border Grid.Row="0" Grid.RowSpan="3" Background="#81D4FA" ></Border>
 
-            <TextBlock Grid.Row="0" TextAlignment="Center" Padding="0, 0, 0, 20" Foreground="White" FontSize="18">Current Chart</TextBlock>
+            <TextBlock x:Name="chartNameTextBlock" Grid.Row="0" TextAlignment="Center" Padding="0, 0, 0, 20" Foreground="White" FontSize="18">Instrument</TextBlock>
 
             <lvc:CartesianChart x:Name="chart"
                                 Grid.Row="1" Grid.RowSpan="2"
@@ -111,6 +111,8 @@
                         </Button.Resources>
                         <TextBlock TextAlignment="Center" Foreground="White">Update period</TextBlock>
                     </Button>
+
+                    <TextBlock x:Name="intervalTextBlock" Opacity=".4" FontSize="13">Interval</TextBlock>
 
                     <ComboBox x:Name="intervalComboBox"
                               Foreground="#303030"

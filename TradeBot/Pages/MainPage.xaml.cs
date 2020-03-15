@@ -22,6 +22,7 @@ namespace TradeBot
     public partial class MainPage : Page
     {
         private Context context;
+        private int tabCounter = 1;
 
         public MainPage(Context context)
         {
@@ -35,8 +36,9 @@ namespace TradeBot
         {
             var newItem = new TabItem();
             newItem.Content = new RealTimeTrading(context);
-            newItem.Header = string.Format("Tab {0} (Real Time)", tabControl.Items.Count);
+            newItem.Header = string.Format("Tab {0} (Real Time)", tabCounter++);
             newItem.IsSelected = true;
+            newItem.MouseRightButtonDown += Tab_MouseRightButtonDown;
 
             tabControl.Items.Insert(tabControl.Items.Count - 1, newItem);
         }
@@ -45,8 +47,9 @@ namespace TradeBot
         {
             var newItem = new TabItem();
             newItem.Content = new SimulationTrading(context);
-            newItem.Header = string.Format("Tab {0} (Simulation)", tabControl.Items.Count);
+            newItem.Header = string.Format("Tab {0} (Simulation)", tabCounter++);
             newItem.IsSelected = true;
+            newItem.MouseRightButtonDown += Tab_MouseRightButtonDown;
 
             tabControl.Items.Insert(tabControl.Items.Count - 1, newItem);
         }
@@ -78,6 +81,12 @@ namespace TradeBot
                     tab1.AddIndicator(new MovingAverage(dialog.Period, dialog.Offset));
                 }
             }
+        }
+
+        private void Tab_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var tab = sender as TabItem;
+            tabControl.Items.Remove(tab);
         }
     }
 }
