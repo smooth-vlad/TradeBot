@@ -63,16 +63,20 @@ namespace TradeBot
 
         private void MovingAverage_Click(object sender, RoutedEventArgs e)
         {
-            var tab = tabControl.SelectedContent;
-            if (tab.GetType() == typeof(RealTimeTrading))
+            var dialog = new MovingAverageDialog();
+            if (dialog.ShowDialog() == true)
             {
-                var tab1 = tab as RealTimeTrading;
-                tab1.AddIndicator(new MovingAverage(12, 5));
-            }
-            else if (tab.GetType() == typeof(SimulationTrading))
-            {
-                var tab1 = tab as SimulationTrading;
-                tab1.AddIndicator(new MovingAverage(12, 5));
+                var tab = tabControl.SelectedContent;
+                if (tab.GetType() == typeof(RealTimeTrading))
+                {
+                    var tab1 = tab as RealTimeTrading;
+                    tab1.AddIndicator(new MovingAverage(dialog.Period, dialog.Offset));
+                }
+                else if (tab.GetType() == typeof(SimulationTrading))
+                {
+                    var tab1 = tab as SimulationTrading;
+                    tab1.AddIndicator(new MovingAverage(dialog.Period, dialog.Offset));
+                }
             }
         }
     }

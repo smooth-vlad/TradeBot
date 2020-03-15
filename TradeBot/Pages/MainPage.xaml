@@ -14,9 +14,12 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Menu Height="Auto" VerticalAlignment="Top" Grid.Row="0">
-            <MenuItem Header="Indicators">
+            <MenuItem Header="Add indicator">
                 <MenuItem x:Name="MovingAverage" Header="Moving Average" Click="MovingAverage_Click"></MenuItem>
                 <MenuItem x:Name="MACD" Header="MACD"></MenuItem>
+                <MenuItem x:Name="RSI" Header="RSI"></MenuItem>
+                <MenuItem x:Name="Momentum" Header="Momentum"></MenuItem>
+                <MenuItem x:Name="Volume" Header="Volume"></MenuItem>
             </MenuItem>
         </Menu>
         
