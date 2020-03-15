@@ -16,6 +16,7 @@ namespace TradeBot
         public bool AreGraphsInitialized { get => areGraphsInitialized; }
         abstract public int candlesNeeded { get; }
 
+        public abstract void ResetState();
         public abstract void UpdateState(int rawCandleIndex);
         public abstract bool IsBuySignal(int rawCandleIndex);
         public abstract bool IsSellSignal(int rawCandleIndex);

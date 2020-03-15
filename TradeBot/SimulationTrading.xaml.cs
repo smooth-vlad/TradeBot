@@ -227,8 +227,8 @@ namespace TradeBot
                         Values = buySeries,
                         Title = "Buy",
                         Stroke = Brushes.Blue,
-                        Fill = Brushes.Blue,
-                        StrokeThickness = 3,
+                        Fill = Brushes.White,
+                        StrokeThickness = 2,
                     });
                     bindedBuySeries = CandlesSeries.Count - 1;
                 }
@@ -247,8 +247,8 @@ namespace TradeBot
                         Values = sellSeries,
                         Title = "Sell",
                         Stroke = Brushes.Yellow,
-                        Fill = Brushes.Yellow,
-                        StrokeThickness = 3,
+                        Fill = Brushes.White,
+                        StrokeThickness = 2,
                     });
                     bindedSellSeries = CandlesSeries.Count - 1;
                 }
@@ -360,7 +360,10 @@ namespace TradeBot
 
             candlesSpan = period;
             foreach (var indicator in indicators)
+            {
+                indicator.ResetState();
                 indicator.candlesSpan = candlesSpan;
+            }
 
             if (activeStock == null)
                 return;
@@ -385,6 +388,11 @@ namespace TradeBot
             }
             if (!intervalFound)
                 return;
+
+            foreach (var indicator in indicators)
+            {
+                indicator.ResetState();
+            }
 
             candleInterval = interval;
             await UpdateCandlesList();

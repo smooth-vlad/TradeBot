@@ -76,7 +76,7 @@ namespace TradeBot
                 }
                 return false;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return false;
             }
@@ -160,7 +160,7 @@ namespace TradeBot
                     }
                 }
             }
-            catch (Exception) {}
+            catch (Exception) { }
         }
 
         private void CalculateSMA()
@@ -192,6 +192,15 @@ namespace TradeBot
             };
             series.Add(bindedGraph);
             areGraphsInitialized = true;
+        }
+
+        public override void ResetState()
+        {
+            boughtCandle = -1;
+            whenToSellIndex = -1;
+            whenToBuyPrice = -1;
+            whenToBuyPriceSetIndex = -1;
+            stopLoss = -1;
         }
     }
 }
