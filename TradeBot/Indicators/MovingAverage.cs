@@ -33,7 +33,6 @@ namespace TradeBot
     {
         private int period;
         private int offset;
-        private decimal priceIncrement;
 
         public ChartValues<decimal> MA;
         private LineSeries bindedGraph;
@@ -46,14 +45,13 @@ namespace TradeBot
 
         public override int candlesNeeded => candlesSpan + period;
 
-        public MovingAverage(int period, int offset, decimal priceIncrement)
+        public MovingAverage(int period, int offset)
         {
-            if (period < 1 || offset < 1 || priceIncrement < 0)
+            if (period < 1 || offset < 1)
                 throw new ArgumentOutOfRangeException();
 
             this.period = period;
             this.offset = offset;
-            this.priceIncrement = priceIncrement;
         }
 
         override public bool IsBuySignal(int rawCandleIndex)

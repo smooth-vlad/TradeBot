@@ -173,6 +173,22 @@ namespace TradeBot
             return result;
         }
 
+        public async void AddIndicator(Indicator indicator)
+        {
+            if (activeStock == null)
+            {
+                MessageBox.Show("Pick a stock first");
+                return;
+            }
+
+            indicator.candlesSpan = candlesSpan;
+            indicator.priceIncrement = activeStock.MinPriceIncrement;
+            indicators.Add(indicator);
+
+            await UpdateCandlesList();
+            CandlesValuesChanged();
+        }
+
         // ==================================================
         // events
         // ==================================================
@@ -248,29 +264,6 @@ namespace TradeBot
             CandlesValuesChanged();
 
             chart.AxisY[0].ShowLabels = true;
-        }
-
-        private async void smaButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (activeStock == null)
-            {
-                MessageBox.Show("Pick a stock first");
-                return;
-            }
-
-            int smaStep;
-            if (!int.TryParse(smaStepTextBox.Text.Trim(), out smaStep))
-            {
-                MessageBox.Show("Wrong value in 'SMA step'");
-                return;
-            }
-
-            var newIndicator = new MovingAverage(smaStep, 5, activeStock.MinPriceIncrement);
-            newIndicator.candlesSpan = candlesSpan;
-            indicators.Add(newIndicator);
-            
-            await UpdateCandlesList();
-            CandlesValuesChanged();
         }
 
         private async void periodButton_Click(object sender, RoutedEventArgs e)

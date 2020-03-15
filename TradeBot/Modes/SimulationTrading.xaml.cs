@@ -123,11 +123,10 @@ namespace TradeBot
             return result;
         }
 
-        // returns true if new candles are the same as last candles
-        private async Task<bool> UpdateCandlesList()
+        private async Task UpdateCandlesList()
         {
             if (activeStock == null)
-                return false;
+                return;
 
             maxCandlesSpan = RecalculateMaxCandlesSpan();
             TimeSpan period;
@@ -135,24 +134,7 @@ namespace TradeBot
                 throw new KeyNotFoundException();
 
             var newCandles = await GetCandles(activeStock.Figi, maxCandlesSpan, candleInterval, period);
-
-            if (candles == null || candles.Count != newCandles.Count)
-            {
-                candles = newCandles;
-                return true;
-            }
-            for (int i = 0; i < candles.Count; ++i)
-            {
-                if (!(candles[i].Close == newCandles[i].Close &&
-                    candles[i].Open == newCandles[i].Open &&
-                    candles[i].Low == newCandles[i].Low &&
-                    candles[i].High == newCandles[i].High))
-                {
-                    candles = newCandles;
-                    return true;
-                }
-            }
-            return false;
+            candles = newCandles;
         }
 
         private int RecalculateMaxCandlesSpan()
@@ -172,11 +154,9 @@ namespace TradeBot
             findButton.IsEnabled = value;
             simulateButton.IsEnabled = value;
             periodButton.IsEnabled = value;
-            smaButton.IsEnabled = value;
             intervalComboBox.IsEnabled = value;
             periodTextBox.IsEnabled = value;
             tickerTextBox.IsEnabled = value;
-            smaStepTextBox.IsEnabled = value;
         }
 
         private async Task Simulate()
@@ -244,6 +224,22 @@ namespace TradeBot
             }
         }
 
+        public async void AddIndicator(Indicator indicator)
+        {
+            if (activeStock == null)
+            {
+                MessageBox.Show("Pick a stock first");
+                return;
+            }
+
+            indicator.candlesSpan = candlesSpan;
+            indicator.priceIncrement = activeStock.MinPriceIncrement;
+            indicators.Add(indicator);
+
+            await UpdateCandlesList();
+            CandlesValuesChanged();
+        }
+
         // ==================================================
         // events
         // ==================================================
@@ -308,29 +304,6 @@ namespace TradeBot
             chart.AxisY[0].ShowLabels = true;
         }
 
-        private async void smaButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (activeStock == null)
-            {
-                MessageBox.Show("Pick a stock first");
-                return;
-            }
-
-            int smaStep;
-            if (!int.TryParse(smaStepTextBox.Text.Trim(), out smaStep))
-            {
-                MessageBox.Show("Wrong value in 'SMA step'");
-                return;
-            }
-
-            var newIndicator = new MovingAverage(smaStep, 5, activeStock.MinPriceIncrement);
-            newIndicator.candlesSpan = candlesSpan;
-            indicators.Add(newIndicator);
-
-            await UpdateCandlesList();
-            CandlesValuesChanged();
-        }
-
         private async void periodButton_Click(object sender, RoutedEventArgs e)
         {
             int period;
@@ -339,6 +312,7 @@ namespace TradeBot
                 MessageBox.Show("Not a number in 'Period'");
                 return;
             }
+
             if (period < 10 || period > 300)
             {
                 MessageBox.Show("'Period' should be >= 10 and <= 300");

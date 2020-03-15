@@ -12,9 +12,10 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
+        
         <Grid Margin="30, 30, 30, 30">
             <Grid.Effect>
-                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1"/>
+                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Performance" Opacity=".2" ShadowDepth="1"/>
             </Grid.Effect>
             <Grid.OpacityMask>
                 <VisualBrush Visual="{Binding ElementName=CardBorder}" />
@@ -47,8 +48,13 @@
                                 Series="{Binding CandlesSeries}"
                                 DisableAnimations="False"
                                 Hoverable="False">
+                <lvc:CartesianChart.Resources>
+                    <Style TargetType="lvc:Separator">
+                        <Setter Property="IsEnabled" Value="False"></Setter>
+                    </Style>
+                </lvc:CartesianChart.Resources>
                 <lvc:CartesianChart.AxisX>
-                    <lvc:Axis Labels="{Binding Labels}"/>
+                    <lvc:Axis ShowLabels="True" Labels="{Binding Labels}"/>
                 </lvc:CartesianChart.AxisX>
                 <lvc:CartesianChart.AxisY>
                     <lvc:Axis ShowLabels="False"/>
@@ -74,9 +80,6 @@
                                 <Setter Property="CornerRadius" Value="5"></Setter>
                             </Style>
                         </Button.Resources>
-                        <Button.Effect>
-                            <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1"/>
-                        </Button.Effect>
                         <TextBlock TextAlignment="Center" Foreground="White">FIND</TextBlock>
                     </Button>
 
@@ -86,31 +89,7 @@
                                 <Setter Property="CornerRadius" Value="5"></Setter>
                             </Style>
                         </Button.Resources>
-                        <Button.Effect>
-                            <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1"/>
-                        </Button.Effect>
                         <TextBlock TextAlignment="Center" Foreground="White">SIMULATE</TextBlock>
-                    </Button>
-
-                    <TextBox x:Name="smaStepTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6">
-                        <TextBox.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"></Setter>
-                            </Style>
-                        </TextBox.Resources>
-                        <TextBox.Text>12</TextBox.Text>
-                    </TextBox>
-
-                    <Button x:Name="smaButton" Margin="0, 6" Background="#81D4FA" HorizontalAlignment="Left" Padding="40, 4" BorderThickness="0" Click="smaButton_Click">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"></Setter>
-                            </Style>
-                        </Button.Resources>
-                        <Button.Effect>
-                            <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1"/>
-                        </Button.Effect>
-                        <TextBlock TextAlignment="Center" Foreground="White">Add SMA</TextBlock>
                     </Button>
 
                     <TextBox x:Name="periodTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6">
@@ -130,9 +109,6 @@
                                 <Setter Property="CornerRadius" Value="5"></Setter>
                             </Style>
                         </Button.Resources>
-                        <Button.Effect>
-                            <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1"/>
-                        </Button.Effect>
                         <TextBlock TextAlignment="Center" Foreground="White">Update period</TextBlock>
                     </Button>
 

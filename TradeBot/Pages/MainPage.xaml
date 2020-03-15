@@ -9,7 +9,18 @@
       Title="MainPage">
 
     <Grid>
-        <TabControl x:Name="tabControl">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Menu Height="Auto" VerticalAlignment="Top" Grid.Row="0">
+            <MenuItem Header="Indicators">
+                <MenuItem x:Name="MovingAverage" Header="Moving Average" Click="MovingAverage_Click"></MenuItem>
+                <MenuItem x:Name="MACD" Header="MACD"></MenuItem>
+            </MenuItem>
+        </Menu>
+        
+        <TabControl x:Name="tabControl" Grid.Row="1">
             <TabItem x:Name="AddTabButton" Selector.Selected="AddTabButton_Selected"
                      Header="+"
                      BorderBrush="Transparent"

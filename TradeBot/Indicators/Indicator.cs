@@ -8,10 +8,11 @@ using Tinkoff.Trading.OpenApi.Models;
 
 namespace TradeBot
 {
-    abstract class Indicator
+    public abstract class Indicator
     {
         public List<CandlePayload> Candles { get; set; }
         public int candlesSpan { get; set; }
+        public decimal priceIncrement;
         protected bool areGraphsInitialized;
         public bool AreGraphsInitialized { get => areGraphsInitialized; }
         abstract public int candlesNeeded { get; }
