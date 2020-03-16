@@ -50,7 +50,17 @@ namespace TradeBot
         private int whenToBuyPriceSetIndex = -1;
         private decimal stopLoss = -1;
 
-        public override int candlesNeeded => candlesSpan + period;
+        public override int CandlesNeeded
+        {
+            get
+            {
+                if (type == Type.Simple)
+                    return candlesSpan + period;
+                else if (type == Type.Exponential)
+                    return candlesSpan;
+                return candlesSpan;
+            }
+        }
 
         public MovingAverage(int period, int offset, Type type)
         {
@@ -186,10 +196,10 @@ namespace TradeBot
         {
             var EMA = new List<decimal>(candlesSpan);
             double multiplier = 2.0 / (period + 1.0);
-            EMA.Add(Candles[period].Close);
+            EMA.Add(Candles[Candles.Count - candlesSpan].Close);
             for (int i = 1; i < candlesSpan; ++i)
             {
-                EMA.Add((Candles[period + i].Close * (decimal)multiplier) + EMA[i - 1] * (1 - (decimal)multiplier));
+                EMA.Add((Candles[Candles.Count - candlesSpan + i].Close * (decimal)multiplier) + EMA[i - 1] * (1 - (decimal)multiplier));
             }
             return EMA;
         }

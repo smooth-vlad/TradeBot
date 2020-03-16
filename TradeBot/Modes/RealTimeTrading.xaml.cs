@@ -139,8 +139,8 @@ namespace TradeBot
             for (int i = 0; i < indicators.Count; ++i)
             {
                 var indicator = indicators[i];
-                if (indicator.candlesNeeded > result)
-                    result = indicator.candlesNeeded;
+                if (indicator.CandlesNeeded > result)
+                    result = indicator.CandlesNeeded;
             }
             return result;
         }

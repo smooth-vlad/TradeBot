@@ -15,7 +15,7 @@ namespace TradeBot
         public decimal priceIncrement;
         protected bool areGraphsInitialized;
         public bool AreGraphsInitialized { get => areGraphsInitialized; }
-        abstract public int candlesNeeded { get; }
+        abstract public int CandlesNeeded { get; }
 
         public abstract void ResetState();
         public abstract void UpdateState(int rawCandleIndex);
