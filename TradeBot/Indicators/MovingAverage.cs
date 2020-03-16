@@ -186,10 +186,10 @@ namespace TradeBot
         {
             var EMA = new List<decimal>(candlesSpan);
             double multiplier = 2.0 / (period + 1.0);
-            EMA.Add(Candles[0].Close);            
+            EMA.Add(Candles[period].Close);
             for (int i = 1; i < candlesSpan; ++i)
             {
-                EMA.Add((Candles[i].Close * (decimal)multiplier) + EMA[i - 1] * (1 - (decimal)multiplier));
+                EMA.Add((Candles[period + i].Close * (decimal)multiplier) + EMA[i - 1] * (1 - (decimal)multiplier));
             }
             return EMA;
         }
@@ -230,6 +230,12 @@ namespace TradeBot
             whenToBuyPrice = -1;
             whenToBuyPriceSetIndex = -1;
             stopLoss = -1;
+        }
+
+        public override void RemoveSeries(SeriesCollection series)
+        {
+            if (bindedGraph != null)
+                series.Remove(bindedGraph);
         }
     }
 }

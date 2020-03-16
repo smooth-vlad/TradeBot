@@ -29,14 +29,13 @@ namespace TradeBot
         private CandleInterval candleInterval = CandleInterval.Minute;
 
         private List<CandlePayload> candles;
-        private ChartValues<ObservablePoint> buySeries = new ChartValues<ObservablePoint>();
-        private ChartValues<ObservablePoint> sellSeries = new ChartValues<ObservablePoint>();
 
-        private int bindedBuySeries = -1;
-        private int bindedSellSeries = -1;
+        private CandleSeries candlesSeries;
+        private ScatterSeries buySeries;
+        private ScatterSeries sellSeries;
 
-        public SeriesCollection CandlesSeries { get; set; }
-        public List<string> Labels { get; set; }
+        public SeriesCollection Series { get; private set; }
+        public List<string> Labels { get; private set; }
 
         public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
             = new Dictionary<CandleInterval, TimeSpan>
@@ -63,11 +62,44 @@ namespace TradeBot
 
             chartNameTextBlock.Text = activeStock.Name + " (Simulation)";
 
+            Series = new SeriesCollection();
+            Labels = new List<string>();
+
+            candles = new List<CandlePayload>();
+
+            candlesSeries = new CandleSeries
+            {
+                ScalesXAt = 0,
+                ScalesYAt = 0,
+                Values = new ChartValues<OhlcPoint>(),
+                StrokeThickness = 3,
+                Title = "Candles",
+                
+            };
+            buySeries = new ScatterSeries
+            {
+                ScalesXAt = 0,
+                ScalesYAt = 0,
+                Values = new ChartValues<ObservablePoint>(),
+                Title = "Buy",
+                Stroke = Brushes.Blue,
+                Fill = Brushes.White,
+                StrokeThickness = 2,
+            };
+            sellSeries = new ScatterSeries
+            {
+                ScalesXAt = 0,
+                ScalesYAt = 0,
+                Values = new ChartValues<ObservablePoint>(),
+                Title = "Sell",
+                Stroke = Brushes.Orange,
+                Fill = Brushes.White,
+                StrokeThickness = 2,
+            };
+            Series.Add(candlesSeries);
+
             intervalComboBox.ItemsSource = intervalToMaxPeriod.Keys;
             intervalComboBox.SelectedIndex = 0;
-
-            CandlesSeries = new SeriesCollection();
-            Labels = new List<string>();
 
             DataContext = this;
         }
@@ -104,7 +136,7 @@ namespace TradeBot
             TimeSpan period;
             if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
                 throw new KeyNotFoundException();
-
+             
             var newCandles = await GetCandles(activeStock.Figi, maxCandlesSpan, candleInterval, period);
             candles = newCandles;
         }
@@ -131,10 +163,11 @@ namespace TradeBot
 
         private async Task Simulate()
         {
+            var buy = new List<ObservablePoint>();
+            var sell = new List<ObservablePoint>();
+
             await Task.Run(() =>
             {
-                buySeries.Clear();
-                sellSeries.Clear();
                 for (int i = 0; i < candlesSpan; ++i)
                 {
                     foreach (var indicator in indicators)
@@ -143,54 +176,26 @@ namespace TradeBot
                         if (indicator.IsBuySignal(i))
                         {
                             var candle = candles[maxCandlesSpan - candlesSpan + i];
-                            buySeries.Add(new ObservablePoint(i, (double)candle.Close));
+                            buy.Add(new ObservablePoint(i, (double)candle.Close));
                         }
                         else if (indicator.IsSellSignal(i))
                         {
                             var candle = candles[maxCandlesSpan - candlesSpan + i];
-                            sellSeries.Add(new ObservablePoint(i, (double)candle.Close));
+                            sell.Add(new ObservablePoint(i, (double)candle.Close));
                         }
                     }
                 }
             });
-            if (buySeries.Count > 0)
+            if (buy.Count > 0)
             {
-                if (bindedBuySeries == -1)
-                {
-                    CandlesSeries.Add(new ScatterSeries
-                    {
-                        ScalesXAt = 0,
-                        ScalesYAt = 0,
-                        Values = buySeries,
-                        Title = "Buy",
-                        Stroke = Brushes.Blue,
-                        Fill = Brushes.White,
-                        StrokeThickness = 2,
-                    });
-                    bindedBuySeries = CandlesSeries.Count - 1;
-                }
-                else
-                    CandlesSeries[bindedBuySeries].Values = buySeries;
+                buySeries.Values = new ChartValues<ObservablePoint>(buy);
+                Series.Add(buySeries);
             }
 
-            if (sellSeries.Count > 0)
+            if (sell.Count > 0)
             {
-                if (bindedSellSeries == -1)
-                {
-                    CandlesSeries.Add(new ScatterSeries
-                    {
-                        ScalesXAt = 0,
-                        ScalesYAt = 0,
-                        Values = sellSeries,
-                        Title = "Sell",
-                        Stroke = Brushes.Orange,
-                        Fill = Brushes.White,
-                        StrokeThickness = 2,
-                    });
-                    bindedSellSeries = CandlesSeries.Count - 1;
-                }
-                else
-                    CandlesSeries[bindedSellSeries].Values = sellSeries;
+                sellSeries.Values = new ChartValues<ObservablePoint>(sell);
+                Series.Add(sellSeries);
             }
         }
 
@@ -219,29 +224,16 @@ namespace TradeBot
             if (activeStock == null)
                 return;
 
-            if (bindedBuySeries != -1)
-                CandlesSeries[bindedBuySeries].Values = null;
-            if (bindedSellSeries != -1)
-                CandlesSeries[bindedSellSeries].Values = null;
+            if (Series.Contains(buySeries))
+                Series.Remove(buySeries);
+            if (Series.Contains(sellSeries))
+                Series.Remove(sellSeries);
+
 
             var v = new List<OhlcPoint>(candlesSpan);
             for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
                 v.Add(CandleToOhlc(candles[i]));
-            var v2 = new ChartValues<OhlcPoint>(v);
-
-            if (CandlesSeries.Count == 0)
-            {
-                CandlesSeries.Add(new CandleSeries
-                {
-                    ScalesXAt = 0,
-                    ScalesYAt = 0,
-                    Values = v2,
-                    StrokeThickness = 3,
-                    Title = "Candles",
-                });
-            }
-            else
-                CandlesSeries[0].Values = v2;
+            candlesSeries.Values = new ChartValues<OhlcPoint>(v);
 
             for (int i = 0; i < indicators.Count; ++i)
             {
@@ -249,7 +241,7 @@ namespace TradeBot
                 indicator.Candles = candles;
 
                 if (!indicator.AreGraphsInitialized)
-                    indicator.InitializeSeries(CandlesSeries);
+                    indicator.InitializeSeries(Series);
                 indicator.UpdateSeries();
             }
 
@@ -258,17 +250,18 @@ namespace TradeBot
                 Labels.Add(candles[maxCandlesSpan - candlesSpan + i].Time.ToString("dd.MM.yyyy HH:mm"));
         }
 
-        private async void resetIndicatorsButton_Click(object sender, RoutedEventArgs e)
+        private void resetIndicatorsButton_Click(object sender, RoutedEventArgs e)
         {
-            CandlesSeries.Clear();
-            bindedBuySeries = -1;
-            bindedSellSeries = -1;
+            if (Series.Contains(buySeries))
+                Series.Remove(buySeries);
+            if (Series.Contains(sellSeries))
+                Series.Remove(sellSeries);
+
+            foreach (var indicator in indicators)
+            {
+                indicator.RemoveSeries(chart.Series);
+            }
             indicators = new List<Indicator>();
-
-            await UpdateCandlesList();
-            CandlesValuesChanged();
-
-            chart.AxisY[0].ShowLabels = true;
         }
 
         private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -226,15 +226,11 @@ namespace TradeBot
 
         private async void resetIndicatorsButton_Click(object sender, RoutedEventArgs e)
         {
-            CandlesSeries.Clear();
+            //CandlesSeries.Clear();
             indicators = new List<Indicator>();
 
-            chartNameTextBlock.Text = activeStock.Name;
-
-            await UpdateCandlesList();
+            //await UpdateCandlesList();
             CandlesValuesChanged();
-
-            chart.AxisY[0].ShowLabels = true;
         }
 
         private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
