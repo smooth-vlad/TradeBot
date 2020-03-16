@@ -30,8 +30,10 @@ namespace TradeBot
 
         private List<CandlePayload> candles;
 
-        public SeriesCollection CandlesSeries { get; set; }
-        public List<string> Labels { get; set; }
+        private CandleSeries candlesSeries;
+
+        public SeriesCollection CandlesSeries { get; private set; }
+        public List<string> Labels { get; private set; }
 
         private System.Threading.Timer candlesTimer;
 
@@ -62,18 +64,30 @@ namespace TradeBot
 
             chartNameTextBlock.Text = activeStock.Name + " (Real-Time)";
 
-            intervalComboBox.ItemsSource = intervalToMaxPeriod.Keys;
-            intervalComboBox.SelectedIndex = 0;
-
             CandlesSeries = new SeriesCollection();
             Labels = new List<string>();
 
-            DataContext = this;
+            candles = new List<CandlePayload>();
+
+            candlesSeries = new CandleSeries
+            {
+                ScalesXAt = 0,
+                ScalesYAt = 0,
+                Values = new ChartValues<OhlcPoint>(),
+                StrokeThickness = 3,
+                Title = "Candles",
+            };
+            CandlesSeries.Add(candlesSeries);
+
+            intervalComboBox.ItemsSource = intervalToMaxPeriod.Keys;
+            intervalComboBox.SelectedIndex = 0;
 
             candlesTimer = new System.Threading.Timer((e) => CandlesTimerElapsed(),
                 null,
                 TimeSpan.Zero,
                 TimeSpan.FromSeconds(5));
+
+            DataContext = this;
         }
 
 
@@ -184,20 +198,7 @@ namespace TradeBot
             var v = new List<OhlcPoint>(candlesSpan);
             for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
                 v.Add(CandleToOhlc(candles[i]));
-            var v2 = new ChartValues<OhlcPoint>(v);
-
-            if (CandlesSeries.Count == 0)
-            {
-                CandlesSeries.Add(new CandleSeries
-                {
-                    ScalesXAt = 0,
-                    Values = v2,
-                    StrokeThickness = 3,
-                    Title = "Candles",
-                });
-            }
-            else
-                CandlesSeries[0].Values = v2;
+            candlesSeries.Values = new ChartValues<OhlcPoint>(v);
 
             for (int i = 0; i < indicators.Count; ++i)
             {
@@ -226,11 +227,11 @@ namespace TradeBot
 
         private async void resetIndicatorsButton_Click(object sender, RoutedEventArgs e)
         {
-            //CandlesSeries.Clear();
+            foreach (var indicator in indicators)
+            {
+                indicator.RemoveSeries(chart.Series);
+            }
             indicators = new List<Indicator>();
-
-            //await UpdateCandlesList();
-            CandlesValuesChanged();
         }
 
         private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
