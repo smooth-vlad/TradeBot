@@ -26,11 +26,11 @@ namespace TradeBot
         public event CandlesChangeHandler CandlesChange;
 
         public int candlesSpan = 50;
-        public int maxCandlesSpan = 0;
+        public int maxCandlesSpan { get; private set; }
         public CandleInterval candleInterval = CandleInterval.Minute;
 
         private List<CandlePayload> candles = new List<CandlePayload>();
-        public List<Indicator> indicators = new List<Indicator>();
+        public List<Indicator> indicators { get; private set; } = new List<Indicator>();
 
         private CandleSeries candlesSeries;
         private ScatterSeries buySeries;
@@ -99,7 +99,7 @@ namespace TradeBot
             return new OhlcPoint((double)candlePayload.Open, (double)candlePayload.High, (double)candlePayload.Low, (double)candlePayload.Close);
         }
 
-        public async Task<List<CandlePayload>> GetCandles(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
+        public async Task<List<CandlePayload>> GetFixedAmountOfCandles(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
         {
             var result = new List<CandlePayload>(amount);
             var to = DateTime.Now;
@@ -123,7 +123,7 @@ namespace TradeBot
             if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
                 throw new KeyNotFoundException();
 
-            var newCandles = await GetCandles(activeStock.Figi, maxCandlesSpan, candleInterval, period);
+            var newCandles = await GetFixedAmountOfCandles(activeStock.Figi, maxCandlesSpan, candleInterval, period);
             candles = newCandles;
         }
 
@@ -240,7 +240,7 @@ namespace TradeBot
             UpdateIndicatorsSeries();
             UpdateXLabels();
 
-            CandlesChange.Invoke();
+            CandlesChange?.Invoke();
         }
     }
 }

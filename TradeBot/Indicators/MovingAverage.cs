@@ -74,7 +74,6 @@ namespace TradeBot
 
         override public bool IsBuySignal(int rawCandleIndex)
         {
-            return true;
             try
             {
                 int candlesStartIndex = Candles.Count - candlesSpan;
