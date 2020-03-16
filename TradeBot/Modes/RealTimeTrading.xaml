@@ -44,7 +44,7 @@
             <lvc:CartesianChart x:Name="chart"
                                 Background="#FDFDFD"
                                 Grid.Row="1" Grid.RowSpan="2"
-                                Series="{Binding CandlesSeries}"
+                                Series="{Binding Series}"
                                 DisableAnimations="False"
                                 Hoverable="False">
                 <lvc:CartesianChart.Resources>

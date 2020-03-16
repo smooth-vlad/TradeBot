@@ -28,12 +28,13 @@ namespace TradeBot
         private int maxCandlesSpan = 0;
         private CandleInterval candleInterval = CandleInterval.Minute;
 
-        private List<CandlePayload> candles;
+        private List<CandlePayload> candles = new List<CandlePayload>();
 
         private CandleSeries candlesSeries;
 
-        public SeriesCollection CandlesSeries { get; private set; }
-        public List<string> Labels { get; private set; }
+        public SeriesCollection Series { get; private set; } = new SeriesCollection();
+        public List<string> Labels { get; private set; } = new List<string>();
+
 
         private System.Threading.Timer candlesTimer;
 
@@ -59,15 +60,13 @@ namespace TradeBot
         {
             InitializeComponent();
 
+            if (activeStock == null || context == null)
+                throw new ArgumentNullException();
+
             this.context = context;
             this.activeStock = activeStock;
 
             chartNameTextBlock.Text = activeStock.Name + " (Real-Time)";
-
-            CandlesSeries = new SeriesCollection();
-            Labels = new List<string>();
-
-            candles = new List<CandlePayload>();
 
             candlesSeries = new CandleSeries
             {
@@ -77,7 +76,7 @@ namespace TradeBot
                 StrokeThickness = 3,
                 Title = "Candles",
             };
-            CandlesSeries.Add(candlesSeries);
+            Series.Add(candlesSeries);
 
             intervalComboBox.ItemsSource = intervalToMaxPeriod.Keys;
             intervalComboBox.SelectedIndex = 0;
@@ -118,10 +117,7 @@ namespace TradeBot
         // returns true if new candles are the same as last candles
         private async Task<bool> UpdateCandlesList()
         {
-            if (activeStock == null)
-                return false;
-
-            maxCandlesSpan = RecalculateMaxCandlesSpan();
+            maxCandlesSpan = CalculateMaxCandlesSpan();
             TimeSpan period;
             if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
                 throw new KeyNotFoundException();
@@ -147,7 +143,7 @@ namespace TradeBot
             return false;
         }
 
-        private int RecalculateMaxCandlesSpan()
+        private int CalculateMaxCandlesSpan()
         {
             var result = candlesSpan;
             for (int i = 0; i < indicators.Count; ++i)
@@ -161,58 +157,56 @@ namespace TradeBot
 
         public async void AddIndicator(Indicator indicator)
         {
-            if (activeStock == null)
-            {
-                MessageBox.Show("Pick a stock first");
-                return;
-            }
-
             indicator.candlesSpan = candlesSpan;
             indicator.priceIncrement = activeStock.MinPriceIncrement;
             indicators.Add(indicator);
 
             await UpdateCandlesList();
-            CandlesValuesChanged();
+            UpdateIndicatorSeries(indicator);
         }
 
-        // ==================================================
-        // events
-        // ==================================================
-
-        private async void CandlesTimerElapsed()
+        private void UpdateCandlesSeries()
         {
-            if (activeStock == null)
-                return;
-
-            if (updatingCandlesNow)
-                return;
-            if (await UpdateCandlesList())
-                Dispatcher.Invoke(() => CandlesValuesChanged());
-        }
-
-        private void CandlesValuesChanged()
-        {
-            if (activeStock == null)
-                return;
-
             var v = new List<OhlcPoint>(candlesSpan);
             for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
                 v.Add(CandleToOhlc(candles[i]));
             candlesSeries.Values = new ChartValues<OhlcPoint>(v);
+        }
 
-            for (int i = 0; i < indicators.Count; ++i)
-            {
-                var indicator = indicators[i];
-                indicator.Candles = candles;
-
-                if (!indicator.AreGraphsInitialized)
-                    indicator.InitializeSeries(CandlesSeries);
-                indicator.UpdateSeries();
-            }
-
+        private void UpdateXLabels()
+        {
             Labels.Clear();
             for (int i = 0; i < candlesSpan; ++i)
                 Labels.Add(candles[maxCandlesSpan - candlesSpan + i].Time.ToString("dd.MM.yyyy HH:mm"));
+        }
+
+        private void UpdateIndicatorsSeries()
+        {
+            foreach (var indicator in indicators)
+                UpdateIndicatorSeries(indicator);
+        }
+
+        private void UpdateIndicatorSeries(Indicator indicator)
+        {
+            indicator.Candles = candles;
+
+            if (!indicator.AreGraphsInitialized)
+                indicator.InitializeSeries(Series);
+            indicator.UpdateSeries();
+        }
+
+        private void RemoveIndicators()
+        {
+            foreach (var indicator in indicators)
+                indicator.RemoveSeries(chart.Series);
+            indicators = new List<Indicator>();
+        }
+
+        private void CandlesValuesChanged()
+        {
+            UpdateCandlesSeries();
+            UpdateIndicatorsSeries();
+            UpdateXLabels();
 
             for (int i = 0; i < indicators.Count; ++i)
             {
@@ -225,13 +219,21 @@ namespace TradeBot
             }
         }
 
-        private async void resetIndicatorsButton_Click(object sender, RoutedEventArgs e)
+        // ==================================================
+        // events
+        // ==================================================
+
+        private async void CandlesTimerElapsed()
         {
-            foreach (var indicator in indicators)
-            {
-                indicator.RemoveSeries(chart.Series);
-            }
-            indicators = new List<Indicator>();
+            if (updatingCandlesNow)
+                return;
+            if (await UpdateCandlesList())
+                Dispatcher.Invoke(() => CandlesValuesChanged());
+        }
+
+        private void resetIndicatorsButton_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveIndicators();
         }
 
         private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -252,6 +254,7 @@ namespace TradeBot
                 return;
 
             candleInterval = interval;
+
             await UpdateCandlesList();
             CandlesValuesChanged();
         }
@@ -275,14 +278,9 @@ namespace TradeBot
                 return;
 
             candlesSpan = period;
-            foreach (var indicator in indicators)
-            {
-                indicator.ResetState();
-                indicator.candlesSpan = candlesSpan;
-            }
 
-            if (activeStock == null)
-                return;
+            foreach (var indicator in indicators)
+                indicator.candlesSpan = candlesSpan;
 
             await UpdateCandlesList();
             CandlesValuesChanged();
