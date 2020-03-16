@@ -80,7 +80,7 @@ namespace TradeBot
             tradingChart.candleInterval = interval;
 
             await tradingChart.UpdateCandlesList();
-            tradingChart.CandlesValuesChanged();
+            tradingChart.OnCandlesValuesChanged();
         }
 
         private async void simulateButton_Click(object sender, RoutedEventArgs e)
@@ -114,7 +114,7 @@ namespace TradeBot
                 indicator.candlesSpan = tradingChart.candlesSpan;
 
             await tradingChart.UpdateCandlesList();
-            tradingChart.CandlesValuesChanged();
+            tradingChart.OnCandlesValuesChanged();
         }
 
         private void periodTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)

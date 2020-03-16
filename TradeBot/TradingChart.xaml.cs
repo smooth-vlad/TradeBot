@@ -22,6 +22,9 @@ namespace TradeBot
         public Context context;
         public MarketInstrument activeStock;
 
+        public delegate void CandlesChangeHandler();
+        public event CandlesChangeHandler CandlesChange;
+
         public int candlesSpan = 50;
         public int maxCandlesSpan = 0;
         public CandleInterval candleInterval = CandleInterval.Minute;
@@ -226,7 +229,7 @@ namespace TradeBot
             indicators = new List<Indicator>();
         }
 
-        public void CandlesValuesChanged()
+        public void OnCandlesValuesChanged()
         {
             RemoveBuySellSeries();
             UpdateCandlesSeries();
@@ -236,6 +239,8 @@ namespace TradeBot
 
             UpdateIndicatorsSeries();
             UpdateXLabels();
+
+            CandlesChange.Invoke();
         }
     }
 }

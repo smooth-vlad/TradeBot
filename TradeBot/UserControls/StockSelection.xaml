@@ -53,7 +53,7 @@
                              IsChecked="True"
                              Margin="10"
                              Foreground="#303030">
-                    Real Time
+                    Real-Time
                 </RadioButton>
 
                 <RadioButton x:Name="simulationRadioButton"

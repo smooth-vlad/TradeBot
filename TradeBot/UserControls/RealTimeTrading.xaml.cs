@@ -38,6 +38,7 @@ namespace TradeBot
 
             tradingChart.context = context;
             tradingChart.activeStock = activeStock;
+            tradingChart.CandlesChange += TradingChart_CandlesChange;
 
             chartNameTextBlock.Text = activeStock.Name + " (Real-Time)";
 
@@ -52,62 +53,28 @@ namespace TradeBot
             DataContext = this;
         }
 
-        // returns true if new candles are the same as last candles
-        //private async Task<bool> UpdateCandlesList()
-        //{
-        //    maxCandlesSpan = CalculateMaxCandlesSpan();
-        //    TimeSpan period;
-        //    if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
-        //        throw new KeyNotFoundException();
-
-        //    var newCandles = await GetCandles(activeStock.Figi, maxCandlesSpan, candleInterval, period);
-
-        //    if (candles == null || candles.Count != newCandles.Count)
-        //    {
-        //        candles = newCandles;
-        //        return true;
-        //    }
-        //    for (int i = 0; i < candles.Count; ++i)
-        //    {
-        //        if (!(candles[i].Close == newCandles[i].Close &&
-        //            candles[i].Open == newCandles[i].Open &&
-        //            candles[i].Low == newCandles[i].Low &&
-        //            candles[i].High == newCandles[i].High))
-        //        {
-        //            candles = newCandles;
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //}
-
-        //private void CandlesValuesChanged()
-        //{
-        //    UpdateCandlesSeries();
-        //    UpdateIndicatorsSeries();
-        //    UpdateXLabels();
-
-        //    for (int i = 0; i < indicators.Count; ++i)
-        //    {
-        //        var indicator = (MovingAverage)indicators[i];
-        //        indicator.UpdateState(candlesSpan - 1);
-        //        if (indicator.IsBuySignal(candlesSpan - 1))
-        //            MessageBox.Show("It's time to buy the instrument");
-        //        if (indicator.IsSellSignal(candlesSpan - 1))
-        //            MessageBox.Show("It's time to sell the instrument");
-        //    }
-        //}
-
         // ==================================================
         // events
         // ==================================================
+
+        private void TradingChart_CandlesChange()
+        {
+            foreach (var indicator in tradingChart.indicators)
+            {
+                indicator.UpdateState(tradingChart.candlesSpan - 1);
+                if (indicator.IsBuySignal(tradingChart.candlesSpan - 1))
+                    MessageBox.Show("It's time to buy the instrument");
+                if (indicator.IsSellSignal(tradingChart.candlesSpan - 1))
+                    MessageBox.Show("It's time to sell the instrument");
+            }
+        }
 
         private async void CandlesTimerElapsed()
         {
             if (updatingCandlesNow)
                 return;
             await tradingChart.UpdateCandlesList();
-            Dispatcher.Invoke(() => tradingChart.CandlesValuesChanged());
+            Dispatcher.Invoke(() => tradingChart.OnCandlesValuesChanged());
         }
 
         private void resetIndicatorsButton_Click(object sender, RoutedEventArgs e)
@@ -135,7 +102,7 @@ namespace TradeBot
             tradingChart.candleInterval = interval;
 
             await tradingChart.UpdateCandlesList();
-            tradingChart.CandlesValuesChanged();
+            tradingChart.OnCandlesValuesChanged();
         }
 
         private async void periodTextBox_LostFocus(object sender, RoutedEventArgs e)
@@ -162,7 +129,7 @@ namespace TradeBot
                 indicator.candlesSpan = tradingChart.candlesSpan;
 
             await tradingChart.UpdateCandlesList();
-            tradingChart.CandlesValuesChanged();
+            tradingChart.OnCandlesValuesChanged();
         }
 
         private void periodTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
