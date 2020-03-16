@@ -209,9 +209,10 @@ namespace TradeBot
         {
             string title = string.Empty;
             if (type == Type.Simple)
-                string.Format("Simple Moving Average {0}", period);
+                title = string.Format("Simple Moving Average {0}", period);
             else if (type == Type.Exponential)
-                string.Format("Exponential Moving Average {0}", period);
+                title = string.Format("Exponential Moving Average {0}", period);
+
             bindedGraph = new LineSeries
             {
                 ScalesXAt = 0,

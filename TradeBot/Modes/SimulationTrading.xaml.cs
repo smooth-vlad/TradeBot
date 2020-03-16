@@ -183,7 +183,7 @@ namespace TradeBot
                         ScalesYAt = 0,
                         Values = sellSeries,
                         Title = "Sell",
-                        Stroke = Brushes.Yellow,
+                        Stroke = Brushes.Orange,
                         Fill = Brushes.White,
                         StrokeThickness = 2,
                     });
@@ -264,8 +264,6 @@ namespace TradeBot
             bindedBuySeries = -1;
             bindedSellSeries = -1;
             indicators = new List<Indicator>();
-
-            chartNameTextBlock.Text = activeStock.Name;
 
             await UpdateCandlesList();
             CandlesValuesChanged();
