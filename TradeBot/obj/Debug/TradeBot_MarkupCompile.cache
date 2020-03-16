@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\App.xaml
-7-107988615
+8-1987161590
 
-13-1495892530
+14-1068286695
 181113538168
-IndicatorsDialogs\MovingAverageDialog.xaml;Pages\AuthPage.xaml;Pages\MainPage.xaml;MainWindow.xaml;Modes\SimulationTrading.xaml;Modes\RealTimeTrading.xaml;StockSelection.xaml;
+IndicatorsDialogs\MovingAverageDialog.xaml;Pages\AuthPage.xaml;Pages\MainPage.xaml;MainWindow.xaml;TradingChart.xaml;UserControls\SimulationTrading.xaml;UserControls\RealTimeTrading.xaml;UserControls\StockSelection.xaml;
 
 False
 

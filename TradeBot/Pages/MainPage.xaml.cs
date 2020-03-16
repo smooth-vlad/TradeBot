@@ -61,12 +61,12 @@ namespace TradeBot
                 if (tab.GetType() == typeof(RealTimeTrading))
                 {
                     var tab1 = tab as RealTimeTrading;
-                    tab1.AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, dialog.Type));
+                    tab1.tradingChart.AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, dialog.Type));
                 }
                 else if (tab.GetType() == typeof(SimulationTrading))
                 {
                     var tab1 = tab as SimulationTrading;
-                    tab1.AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, dialog.Type));
+                    tab1.tradingChart.AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, dialog.Type));
                 }
             }
         }

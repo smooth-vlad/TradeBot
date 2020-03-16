@@ -79,13 +79,16 @@
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Modes\SimulationTrading.xaml.cs">
+    <Compile Include="TradingChart.xaml.cs">
+      <DependentUpon>TradingChart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\SimulationTrading.xaml.cs">
       <DependentUpon>SimulationTrading.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Modes\RealTimeTrading.xaml.cs">
+    <Compile Include="UserControls\RealTimeTrading.xaml.cs">
       <DependentUpon>RealTimeTrading.xaml</DependentUpon>
     </Compile>
-    <Compile Include="StockSelection.xaml.cs">
+    <Compile Include="UserControls\StockSelection.xaml.cs">
       <DependentUpon>StockSelection.xaml</DependentUpon>
     </Compile>
     <Page Include="IndicatorsDialogs\MovingAverageDialog.xaml">
@@ -113,15 +116,19 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Modes\SimulationTrading.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Modes\RealTimeTrading.xaml">
+    <Page Include="TradingChart.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="StockSelection.xaml">
+    <Page Include="UserControls\SimulationTrading.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UserControls\RealTimeTrading.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\StockSelection.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

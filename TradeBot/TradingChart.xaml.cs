@@ -15,20 +15,19 @@ using System.Diagnostics;
 namespace TradeBot
 {
     /// <summary>
-    /// Логика взаимодействия для SimulationTrading.xaml
+    /// Логика взаимодействия для TradingChart.xaml
     /// </summary>
-    public partial class SimulationTrading : UserControl
+    public partial class TradingChart : UserControl
     {
-        private Context context;
-        private MarketInstrument activeStock;
+        public Context context;
+        public MarketInstrument activeStock;
 
-        private List<Indicator> indicators = new List<Indicator>();
-
-        private int candlesSpan = 50;
-        private int maxCandlesSpan = 0;
-        private CandleInterval candleInterval = CandleInterval.Minute;
+        public int candlesSpan = 50;
+        public int maxCandlesSpan = 0;
+        public CandleInterval candleInterval = CandleInterval.Minute;
 
         private List<CandlePayload> candles = new List<CandlePayload>();
+        public List<Indicator> indicators = new List<Indicator>();
 
         private CandleSeries candlesSeries;
         private ScatterSeries buySeries;
@@ -53,17 +52,9 @@ namespace TradeBot
             { CandleInterval.Month,         TimeSpan.FromDays(364*10)},
         };
 
-        public SimulationTrading(Context context, MarketInstrument activeStock)
+        public TradingChart()
         {
             InitializeComponent();
-
-            if (activeStock == null || context == null)
-                throw new ArgumentNullException();
-
-            this.activeStock = activeStock;
-            this.context = context;
-
-            chartNameTextBlock.Text = activeStock.Name + " (Simulation)";
 
             candlesSeries = new CandleSeries
             {
@@ -72,7 +63,7 @@ namespace TradeBot
                 Values = new ChartValues<OhlcPoint>(),
                 StrokeThickness = 3,
                 Title = "Candles",
-                
+
             };
             Series.Add(candlesSeries);
 
@@ -97,19 +88,15 @@ namespace TradeBot
                 StrokeThickness = 2,
             };
 
-            intervalComboBox.ItemsSource = intervalToMaxPeriod.Keys;
-            intervalComboBox.SelectedIndex = 0;
-
             DataContext = this;
         }
-
 
         public static OhlcPoint CandleToOhlc(CandlePayload candlePayload)
         {
             return new OhlcPoint((double)candlePayload.Open, (double)candlePayload.High, (double)candlePayload.Low, (double)candlePayload.Close);
         }
 
-        private async Task<List<CandlePayload>> GetCandles(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
+        public async Task<List<CandlePayload>> GetCandles(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
         {
             var result = new List<CandlePayload>(amount);
             var to = DateTime.Now;
@@ -126,18 +113,18 @@ namespace TradeBot
             return result;
         }
 
-        private async Task UpdateCandlesList()
+        public async Task UpdateCandlesList()
         {
             maxCandlesSpan = CalculateMaxCandlesSpan();
             TimeSpan period;
             if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
                 throw new KeyNotFoundException();
-             
+
             var newCandles = await GetCandles(activeStock.Figi, maxCandlesSpan, candleInterval, period);
             candles = newCandles;
         }
 
-        private int CalculateMaxCandlesSpan()
+        public int CalculateMaxCandlesSpan()
         {
             var result = candlesSpan;
             foreach (var indicator in indicators)
@@ -148,15 +135,7 @@ namespace TradeBot
             return result;
         }
 
-        private void SetEverythingEnabled(bool value)
-        {
-            removeIndicatorsButton.IsEnabled = value;
-            simulateButton.IsEnabled = value;
-            intervalComboBox.IsEnabled = value;
-            periodTextBox.IsEnabled = value;
-        }
-
-        private async Task Simulate()
+        public async Task Simulate()
         {
             RemoveBuySellSeries();
 
@@ -202,7 +181,7 @@ namespace TradeBot
             UpdateIndicatorSeries(indicator);
         }
 
-        private void RemoveBuySellSeries()
+        public void RemoveBuySellSeries()
         {
             if (Series.Contains(buySeries))
                 Series.Remove(buySeries);
@@ -210,7 +189,7 @@ namespace TradeBot
                 Series.Remove(sellSeries);
         }
 
-        private void UpdateCandlesSeries()
+        public void UpdateCandlesSeries()
         {
             var v = new List<OhlcPoint>(candlesSpan);
             for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
@@ -218,20 +197,20 @@ namespace TradeBot
             candlesSeries.Values = new ChartValues<OhlcPoint>(v);
         }
 
-        private void UpdateXLabels()
+        public void UpdateXLabels()
         {
             Labels.Clear();
             for (int i = 0; i < candlesSpan; ++i)
                 Labels.Add(candles[maxCandlesSpan - candlesSpan + i].Time.ToString("dd.MM.yyyy HH:mm"));
         }
 
-        private void UpdateIndicatorsSeries()
+        public void UpdateIndicatorsSeries()
         {
             foreach (var indicator in indicators)
                 UpdateIndicatorSeries(indicator);
         }
 
-        private void UpdateIndicatorSeries(Indicator indicator)
+        public void UpdateIndicatorSeries(Indicator indicator)
         {
             indicator.Candles = candles;
 
@@ -240,14 +219,14 @@ namespace TradeBot
             indicator.UpdateSeries();
         }
 
-        private void RemoveIndicators()
+        public void RemoveIndicators()
         {
             foreach (var indicator in indicators)
                 indicator.RemoveSeries(chart.Series);
             indicators = new List<Indicator>();
         }
 
-        private void CandlesValuesChanged()
+        public void CandlesValuesChanged()
         {
             RemoveBuySellSeries();
             UpdateCandlesSeries();
@@ -257,78 +236,6 @@ namespace TradeBot
 
             UpdateIndicatorsSeries();
             UpdateXLabels();
-        }
-
-        // ==================================================
-        // events
-        // ==================================================
-
-        private void removeIndicatorsButton_Click(object sender, RoutedEventArgs e)
-        {
-            RemoveIndicators();
-        }
-
-        private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            CandleInterval interval = CandleInterval.Minute;
-            bool intervalFound = false;
-            var selectedInterval = intervalComboBox.SelectedItem.ToString();
-            foreach (var k in intervalToMaxPeriod.Keys)
-            {
-                if (k.ToString() == selectedInterval)
-                {
-                    interval = k;
-                    intervalFound = true;
-                    break;
-                }
-            }
-            if (!intervalFound)
-                return;
-
-            candleInterval = interval;
-
-            await UpdateCandlesList();
-            CandlesValuesChanged();
-        }
-
-        private async void simulateButton_Click(object sender, RoutedEventArgs e)
-        {
-            SetEverythingEnabled(false);
-            await Simulate();
-            SetEverythingEnabled(true);
-        }
-
-        private async void periodTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            int period;
-            if (!int.TryParse(periodTextBox.Text.Trim(), out period))
-            {
-                MessageBox.Show("Not a number in 'Period'");
-                return;
-            }
-
-            if (period < 10 || period > 300)
-            {
-                MessageBox.Show("'Period' should be >= 10 and <= 300");
-                return;
-            }
-
-            if (candlesSpan == period)
-                return;
-
-            candlesSpan = period;
-
-            foreach (var indicator in indicators)
-                indicator.candlesSpan = candlesSpan;
-
-            await UpdateCandlesList();
-            CandlesValuesChanged();
-        }
-
-        private void periodTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (e.Key == System.Windows.Input.Key.Enter)
-                periodTextBox_LostFocus(this, new RoutedEventArgs());
         }
     }
 }
