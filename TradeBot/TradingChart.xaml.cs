@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Media;
 using LiveCharts;
 using LiveCharts.Wpf;
-using LiveCharts.Geared;
 using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
 using LiveCharts.Defaults;
@@ -33,7 +32,7 @@ namespace TradeBot
         private List<CandlePayload> candles = new List<CandlePayload>();
         public List<Indicator> indicators { get; private set; } = new List<Indicator>();
 
-        private GCandleSeries candlesSeries;
+        private CandleSeries candlesSeries;
         private ScatterSeries buySeries;
         private ScatterSeries sellSeries;
 
@@ -60,7 +59,7 @@ namespace TradeBot
         {
             InitializeComponent();
             
-            candlesSeries = new GCandleSeries
+            candlesSeries = new CandleSeries
             {
                 ScalesXAt = 0,
                 ScalesYAt = 0,
