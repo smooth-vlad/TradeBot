@@ -9,6 +9,10 @@
       d:DesignHeight="450" d:DesignWidth="800">
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
         <Grid.Resources>
             <Style TargetType="lvc:LineSeries">
                 <Setter Property="StrokeThickness" Value="2"></Setter>
@@ -19,6 +23,7 @@
         </Grid.Resources>
 
         <lvc:CartesianChart x:Name="chart"
+                            Grid.Row="0"
                                 Background="#FDFDFD"
                                 Series="{Binding Series}"
                                 DisableAnimations="False"
