@@ -4,25 +4,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using LiveCharts;
-using LiveCharts.Wpf;
 using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
-using LiveCharts.Defaults;
 using System.Windows.Controls;
 using System.Diagnostics;
 
 namespace TradeBot
 {
     /// <summary>
-    /// Логика взаимодействия для SimulationTrading.xaml
+    /// Логика взаимодействия для TestingTrading.xaml
     /// </summary>
-    public partial class SimulationTrading : UserControl
+    public partial class TestingTrading : UserControl
     {
         private Context context;
         private MarketInstrument activeStock;
 
-        public SimulationTrading(Context context, MarketInstrument activeStock)
+        public TestingTrading(Context context, MarketInstrument activeStock)
         {
             InitializeComponent();
 
@@ -35,7 +32,7 @@ namespace TradeBot
             tradingChart.context = context;
             tradingChart.activeStock = activeStock;
 
-            chartNameTextBlock.Text = activeStock.Name + " (Simulation)";
+            chartNameTextBlock.Text = activeStock.Name + " (Testing)";
 
             intervalComboBox.ItemsSource = TradingChart.intervalToMaxPeriod.Keys;
             intervalComboBox.SelectedIndex = 0;
@@ -99,9 +96,9 @@ namespace TradeBot
                 return;
             }
 
-            if (period < 10 || period > 300)
+            if (period < 10)
             {
-                MessageBox.Show("'Period' should be >= 10 and <= 300");
+                MessageBox.Show("'Period' should be >= 10");
                 return;
             }
 

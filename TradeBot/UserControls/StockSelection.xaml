@@ -56,10 +56,10 @@
                     Real-Time
                 </RadioButton>
 
-                <RadioButton x:Name="simulationRadioButton"
+                <RadioButton x:Name="testingRadioButton"
                              Margin="10"
                              Foreground="#303030">
-                    Simulation
+                    Testing
                 </RadioButton>
             </StackPanel>
 

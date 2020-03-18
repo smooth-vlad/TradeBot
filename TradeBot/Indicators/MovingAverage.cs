@@ -1,5 +1,6 @@
-﻿using LiveCharts;
-using LiveCharts.Wpf;
+﻿using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
 using Tinkoff.Trading.OpenApi.Models;
@@ -41,7 +42,6 @@ namespace TradeBot
         private int offset;
         private Type type;
 
-        public ChartValues<decimal> MA;
         private LineSeries bindedGraph;
 
         private int boughtCandle = -1;
@@ -86,7 +86,7 @@ namespace TradeBot
                         boughtCandle = candleIndex;
                         whenToBuyPrice = -1;
                         whenToBuyPriceSetIndex = -1;
-                        stopLoss = MA[rawCandleIndex] - priceIncrement * 10;
+                        stopLoss = (decimal)bindedGraph.Points[rawCandleIndex].Y - priceIncrement * 10;
                         return true;
                     }
                 }
@@ -138,7 +138,7 @@ namespace TradeBot
 
                 if (boughtCandle != -1)
                 {
-                    if (whenToSellIndex == -1 && Candles[candleIndex].Close < MA[rawCandleIndex])
+                    if (whenToSellIndex == -1 && Candles[candleIndex].Close < (decimal)bindedGraph.Points[rawCandleIndex].Y)
                     {
                         whenToSellIndex = candleIndex + 1;
                     }
@@ -166,9 +166,9 @@ namespace TradeBot
                         }
 
                         if (isCandleBig &&
-                            ((Candles[candleIndex - 1].Close - MA[rawCandleIndex - 1]) *
-                                (Candles[candleIndex].Close - MA[rawCandleIndex]) < 0) &&
-                            Candles[candleIndex].Close > MA[rawCandleIndex])
+                            ((Candles[candleIndex - 1].Close - (decimal)bindedGraph.Points[rawCandleIndex - 1].Y) *
+                                (Candles[candleIndex].Close - (decimal)bindedGraph.Points[rawCandleIndex].Y) < 0) &&
+                            Candles[candleIndex].Close > (decimal)bindedGraph.Points[rawCandleIndex].Y)
                         {
                             whenToBuyPrice = Candles[candleIndex].High + priceIncrement * 2;
                             whenToBuyPriceSetIndex = candleIndex;
@@ -211,11 +211,12 @@ namespace TradeBot
                 values = CalculateSMA();
             else if (type == Type.Exponential)
                 values = CalculateEMA();
-            MA = new ChartValues<decimal>(values);
-            bindedGraph.Values = MA;
+            bindedGraph.Points.Clear();
+            for (int i = 0; i < values.Count; ++i)
+                bindedGraph.Points.Add(new DataPoint(i, (double)values[i]));
         }
 
-        override public void InitializeSeries(SeriesCollection series)
+        override public void InitializeSeries(ElementCollection<Series> series)
         {
             string title = string.Empty;
             if (type == Type.Simple)
@@ -225,8 +226,6 @@ namespace TradeBot
 
             bindedGraph = new LineSeries
             {
-                ScalesXAt = 0,
-                Values = MA,
                 Title = title,
             };
             series.Add(bindedGraph);
@@ -242,7 +241,7 @@ namespace TradeBot
             stopLoss = -1;
         }
 
-        public override void RemoveSeries(SeriesCollection series)
+        public override void RemoveSeries(ElementCollection<Series> series)
         {
             if (bindedGraph != null)
                 series.Remove(bindedGraph);

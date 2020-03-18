@@ -1,4 +1,6 @@
-﻿using LiveCharts;
+﻿using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +25,7 @@ namespace TradeBot
         public abstract bool IsSellSignal(int rawCandleIndex);
 
         public abstract void UpdateSeries();
-        public abstract void RemoveSeries(SeriesCollection series);
-        public abstract void InitializeSeries(SeriesCollection series);
+        public abstract void RemoveSeries(ElementCollection<Series> series);
+        public abstract void InitializeSeries(ElementCollection<Series> series);
     }
 }

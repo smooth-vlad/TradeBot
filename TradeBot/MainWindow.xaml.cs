@@ -4,11 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using LiveCharts;
-using LiveCharts.Wpf;
 using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
-using LiveCharts.Defaults;
 using System.Windows.Controls;
 
 namespace TradeBot

@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using LiveCharts;
-using LiveCharts.Wpf;
 using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
-using LiveCharts.Defaults;
 using System.Windows.Controls;
 using System.Diagnostics;
+using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.Series;
 
 namespace TradeBot
 {
@@ -32,12 +32,13 @@ namespace TradeBot
         private List<CandlePayload> candles = new List<CandlePayload>();
         public List<Indicator> indicators { get; private set; } = new List<Indicator>();
 
-        private CandleSeries candlesSeries;
+        private CandleStickSeries candlesSeries;
         private ScatterSeries buySeries;
         private ScatterSeries sellSeries;
 
-        public SeriesCollection Series { get; private set; } = new SeriesCollection();
-        public List<string> Labels { get; private set; } = new List<string>();
+        private bool isAddingCandles = false;
+
+        public PlotModel model = new PlotModel();
 
         public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
             = new Dictionary<CandleInterval, TimeSpan>
@@ -49,7 +50,7 @@ namespace TradeBot
             { CandleInterval.TenMinutes,    TimeSpan.FromDays(1)},
             { CandleInterval.QuarterHour,   TimeSpan.FromDays(1)},
             { CandleInterval.HalfHour,      TimeSpan.FromDays(1)},
-            { CandleInterval.Hour,          TimeSpan.FromDays(7)},
+            { CandleInterval.Hour,          TimeSpan.FromDays(7).Add(TimeSpan.FromHours(-1))},
             { CandleInterval.Day,           TimeSpan.FromDays(364)},
             { CandleInterval.Week,          TimeSpan.FromDays(364*2)},
             { CandleInterval.Month,         TimeSpan.FromDays(364*10)},
@@ -58,45 +59,80 @@ namespace TradeBot
         public TradingChart()
         {
             InitializeComponent();
-            
-            candlesSeries = new CandleSeries
-            {
-                ScalesXAt = 0,
-                ScalesYAt = 0,
-                Values = new ChartValues<OhlcPoint>(),
-                StrokeThickness = 3,
-                Title = "Candles",
 
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, IsPanEnabled = false, IsZoomEnabled = false });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom });
+
+            candlesSeries = new CandleStickSeries
+            {
+                Title = "Candles",
             };
-            Series.Add(candlesSeries);
 
             buySeries = new ScatterSeries
             {
-                ScalesXAt = 0,
-                ScalesYAt = 0,
-                Values = new ChartValues<ObservablePoint>(),
                 Title = "Buy",
-                Stroke = Brushes.Blue,
-                Fill = Brushes.White,
-                StrokeThickness = 2,
+                MarkerType = MarkerType.Circle,
+                MarkerFill = OxyColor.FromRgb(207, 105, 255),
+                MarkerStroke = OxyColor.FromRgb(55, 55, 55),
+                MarkerStrokeThickness = 1,
+                MarkerSize = 7.5,
             };
+
             sellSeries = new ScatterSeries
             {
-                ScalesXAt = 0,
-                ScalesYAt = 0,
-                Values = new ChartValues<ObservablePoint>(),
                 Title = "Sell",
-                Stroke = Brushes.Orange,
-                Fill = Brushes.White,
-                StrokeThickness = 2,
+                MarkerType = MarkerType.Circle,
+                MarkerFill = OxyColor.FromRgb(255, 248, 82),
+                MarkerStroke = OxyColor.FromRgb(55, 55, 55),
+                MarkerStrokeThickness = 1,
+                MarkerSize = 7.5,
             };
+
+            candlesSeries.DecreasingColor = OxyColor.FromRgb(230, 63, 60);
+            candlesSeries.IncreasingColor = OxyColor.FromRgb(45, 128, 32);
+            candlesSeries.StrokeThickness = 1;
+
+            model.Series.Add(candlesSeries);
+            model.Series.Add(buySeries);
+            model.Series.Add(sellSeries);
+
+            model.Axes[0].MajorGridlineThickness = 2.5;
+            model.Axes[0].MinorGridlineThickness = 0;
+            model.Axes[0].MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0);
+            model.Axes[0].MajorGridlineStyle = LineStyle.Solid;
+            model.Axes[0].TicklineColor = OxyColor.FromArgb(10, 0, 0, 0);
+            model.Axes[0].TickStyle = TickStyle.Outside;
+
+            Func<double, string> formatLabel = delegate(double d)
+            {
+                if (candles.Count > d && d >= 0)
+                {
+                    return candles[(int)d].Time.ToString("dd.MM.yyyy-HH:mm");
+                }
+                else
+                    return "";
+            };
+            model.Axes[1].LabelFormatter = formatLabel;
+            model.Axes[1].MajorGridlineThickness = 0;
+            model.Axes[1].MinorGridlineThickness = 0;
+            model.Axes[1].MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0);
+            model.Axes[1].MajorGridlineStyle = LineStyle.Solid;
+            model.Axes[1].TicklineColor = OxyColor.FromArgb(10, 0, 0, 0);
+            model.Axes[1].TickStyle = TickStyle.Outside;
+            model.Axes[1].AxisChanged += (sender, e) => AdjustYExtent(candlesSeries, (LinearAxis)model.Axes[1], (LinearAxis)model.Axes[0]);
+            model.Axes[1].Zoom(candlesSpan - 75, candlesSpan);
+
+            model.TextColor = OxyColor.FromArgb(140, 0, 0, 0);
+            model.PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0);
+
+            plotView.Model = model;
 
             DataContext = this;
         }
 
-        public static OhlcPoint CandleToOhlc(CandlePayload candlePayload)
+        public static HighLowItem CandleToHighLowItem(double x, CandlePayload candlePayload)
         {
-            return new OhlcPoint((double)candlePayload.Open, (double)candlePayload.High, (double)candlePayload.Low, (double)candlePayload.Close);
+            return new HighLowItem(x, (double)candlePayload.High, (double)candlePayload.Low, (double)candlePayload.Open, (double)candlePayload.Close);
         }
 
         public async Task<List<CandlePayload>> GetFixedAmountOfCandles(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
@@ -140,10 +176,8 @@ namespace TradeBot
 
         public async Task Simulate()
         {
-            RemoveBuySellSeries();
-
-            var buy = new List<ObservablePoint>();
-            var sell = new List<ObservablePoint>();
+            buySeries.Points.Clear();
+            sellSeries.Points.Clear();
 
             await Task.Run(() =>
             {
@@ -154,24 +188,13 @@ namespace TradeBot
                     {
                         indicator.UpdateState(i);
                         if (indicator.IsBuySignal(i))
-                            buy.Add(new ObservablePoint(i, (double)candle.Close));
+                            buySeries.Points.Add(new ScatterPoint(i, (double)candle.Close));
                         else if (indicator.IsSellSignal(i))
-                            sell.Add(new ObservablePoint(i, (double)candle.Close));
+                            sellSeries.Points.Add(new ScatterPoint(i, (double)candle.Close));
                     }
                 }
             });
-
-            if (buy.Count > 0)
-            {
-                buySeries.Values = new ChartValues<ObservablePoint>(buy);
-                Series.Add(buySeries);
-            }
-
-            if (sell.Count > 0)
-            {
-                sellSeries.Values = new ChartValues<ObservablePoint>(sell);
-                Series.Add(sellSeries);
-            }
+            plotView.InvalidatePlot();
         }
 
         public async void AddIndicator(Indicator indicator)
@@ -184,27 +207,14 @@ namespace TradeBot
             UpdateIndicatorSeries(indicator);
         }
 
-        public void RemoveBuySellSeries()
-        {
-            if (Series.Contains(buySeries))
-                Series.Remove(buySeries);
-            if (Series.Contains(sellSeries))
-                Series.Remove(sellSeries);
-        }
-
         public void UpdateCandlesSeries()
         {
-            var v = new List<OhlcPoint>(candlesSpan);
+            candlesSeries.Items.Clear();
             for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
-                v.Add(CandleToOhlc(candles[i]));
-            candlesSeries.Values = new ChartValues<OhlcPoint>(v);
-        }
-
-        public void UpdateXLabels()
-        {
-            Labels.Clear();
-            for (int i = 0; i < candlesSpan; ++i)
-                Labels.Add(candles[maxCandlesSpan - candlesSpan + i].Time.ToString("dd.MM.yyyy HH:mm"));
+                candlesSeries.Items.Add(CandleToHighLowItem(i, candles[i]));
+            model.Axes[1].AbsoluteMaximum = candlesSpan + 10;
+            model.Axes[1].Zoom(candlesSpan - 75, candlesSpan);
+            plotView.InvalidatePlot();
         }
 
         public void UpdateIndicatorsSeries()
@@ -218,29 +228,62 @@ namespace TradeBot
             indicator.Candles = candles;
 
             if (!indicator.AreGraphsInitialized)
-                indicator.InitializeSeries(Series);
+                indicator.InitializeSeries(model.Series);
             indicator.UpdateSeries();
+            plotView.InvalidatePlot();
         }
 
         public void RemoveIndicators()
         {
+            buySeries.Points.Clear();
+            sellSeries.Points.Clear();
             foreach (var indicator in indicators)
-                indicator.RemoveSeries(chart.Series);
+                indicator.RemoveSeries(model.Series);
             indicators = new List<Indicator>();
+            plotView.InvalidatePlot();
         }
 
         public void OnCandlesValuesChanged()
         {
-            RemoveBuySellSeries();
+            buySeries.Points.Clear();
+            sellSeries.Points.Clear();
+
             UpdateCandlesSeries();
 
             foreach (var indicator in indicators)
                 indicator.ResetState();
 
             UpdateIndicatorsSeries();
-            UpdateXLabels();
 
             CandlesChange?.Invoke();
+        }
+
+        private void AdjustYExtent(CandleStickSeries lserie, LinearAxis xaxis, LinearAxis yaxis)
+        {
+            if (xaxis != null && yaxis != null && lserie.Items.Count != 0 && !isAddingCandles)
+            {
+                double istart = xaxis.ActualMinimum;
+                double iend = xaxis.ActualMaximum;
+
+                var ptlist = lserie.Items.FindAll(p => p.X >= istart && p.X <= iend);
+                if (ptlist.Count == 0)
+                    return;
+
+                double ymin = double.MaxValue;
+                double ymax = double.MinValue;
+                for (int i = 0; i < ptlist.Count; i++)
+                {
+                    ymin = Math.Min(ymin, ptlist[i].Low);
+                    ymax = Math.Max(ymax, ptlist[i].High);
+                }
+
+                var extent = ymax - ymin;
+                var margin = extent * 0.1;
+
+                yaxis.IsZoomEnabled = true;
+                yaxis.Zoom(ymin - margin, ymax + margin);
+                yaxis.IsZoomEnabled = false;
+            }
         }
     }
 }

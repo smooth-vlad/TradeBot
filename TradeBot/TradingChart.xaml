@@ -4,7 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:TradeBot"
-      xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+      xmlns:oxy="http://oxyplot.org/wpf"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800">
 
@@ -13,32 +13,8 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid.Resources>
-            <Style TargetType="lvc:LineSeries">
-                <Setter Property="StrokeThickness" Value="2"></Setter>
-                <Setter Property="PointGeometrySize" Value="0"></Setter>
-                <Setter Property="LineSmoothness" Value="0"></Setter>
-                <Setter Property="Fill" Value="Transparent"/>
-            </Style>
-        </Grid.Resources>
 
-        <lvc:CartesianChart x:Name="chart"
-                            Grid.Row="0"
-                                Background="#FDFDFD"
-                                Series="{Binding Series}"
-                                DisableAnimations="False"
-                                Hoverable="False">
-            <lvc:CartesianChart.Resources>
-                <Style TargetType="lvc:Separator">
-                    <Setter Property="IsEnabled" Value="True"></Setter>
-                </Style>
-            </lvc:CartesianChart.Resources>
-            <lvc:CartesianChart.AxisX>
-                <lvc:Axis ShowLabels="True" Labels="{Binding Labels}"/>
-            </lvc:CartesianChart.AxisX>
-            <lvc:CartesianChart.AxisY>
-                <lvc:Axis ShowLabels="True"/>
-            </lvc:CartesianChart.AxisY>
-        </lvc:CartesianChart>
+        <oxy:PlotView Grid.Row="0" x:Name="plotView" Model="{Binding Source=StaticResource Model}">
+        </oxy:PlotView>
     </Grid>
 </UserControl>

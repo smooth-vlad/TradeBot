@@ -59,10 +59,10 @@ namespace TradeBot
                 parent.Header += " (Real-Time)";
                 parent.Content = new RealTimeTrading(context, activeStock);
             }
-            else if (simulationRadioButton.IsChecked == true)
+            else if (testingRadioButton.IsChecked == true)
             {
-                parent.Header += " (Simulation)";
-                parent.Content = new SimulationTrading(context, activeStock);
+                parent.Header += " (Testing)";
+                parent.Content = new TestingTrading(context, activeStock);
             }
         }
     }
