@@ -44,11 +44,11 @@ namespace TradeBot
 
         private LineSeries bindedGraph;
 
-        private int boughtCandle = -1;
-        private int whenToSellIndex = -1;
-        private decimal whenToBuyPrice = -1;
-        private int whenToBuyPriceSetIndex = -1;
-        private decimal stopLoss = -1;
+        private int? boughtCandle;
+        private int? whenToSellIndex;
+        private decimal? whenToBuyPrice;
+        private int? whenToBuyPriceSetIndex;
+        private decimal? stopLoss;
 
         public override int CandlesNeeded
         {
@@ -64,7 +64,7 @@ namespace TradeBot
 
         public MovingAverage(int period, int offset, Type type)
         {
-            if (period < 1 || offset < 1)
+            if (period < 1 || offset < 0)
                 throw new ArgumentOutOfRangeException();
 
             this.period = period;
@@ -79,13 +79,13 @@ namespace TradeBot
                 int candlesStartIndex = Candles.Count - candlesSpan;
                 int candleIndex = candlesStartIndex + rawCandleIndex;
 
-                if (whenToBuyPrice > -1)
+                if (whenToBuyPrice != null)
                 {
                     if (Candles[candleIndex].Close > whenToBuyPrice)
                     {
                         boughtCandle = candleIndex;
-                        whenToBuyPrice = -1;
-                        whenToBuyPriceSetIndex = -1;
+                        whenToBuyPrice = null;
+                        whenToBuyPriceSetIndex = null;
                         stopLoss = (decimal)bindedGraph.Points[rawCandleIndex].Y - priceIncrement * 10;
                         return true;
                     }
@@ -105,19 +105,12 @@ namespace TradeBot
                 int candlesStartIndex = Candles.Count - candlesSpan;
                 int candleIndex = candlesStartIndex + rawCandleIndex;
 
-                if (Candles[candleIndex].Close < stopLoss)
+                if (Candles[candleIndex].Close < stopLoss ||
+                    whenToSellIndex == candleIndex)
                 {
-                    boughtCandle = -1;
-                    stopLoss = -1;
-                    whenToSellIndex = -1;
-                    return true;
-                }
-
-                if (whenToSellIndex == candleIndex)
-                {
-                    boughtCandle = -1;
-                    stopLoss = -1;
-                    whenToSellIndex = -1;
+                    boughtCandle = null;
+                    stopLoss = null;
+                    whenToSellIndex = null;
                     return true;
                 }
 
@@ -136,22 +129,22 @@ namespace TradeBot
                 int candlesStartIndex = Candles.Count - candlesSpan;
                 int candleIndex = candlesStartIndex + rawCandleIndex;
 
-                if (boughtCandle != -1)
+                if (boughtCandle != null)
                 {
-                    if (whenToSellIndex == -1 && Candles[candleIndex].Close < (decimal)bindedGraph.Points[rawCandleIndex].Y)
+                    if (whenToSellIndex == null && Candles[candleIndex].Close < (decimal)bindedGraph.Points[rawCandleIndex].Y)
                     {
                         whenToSellIndex = candleIndex + 1;
                     }
                 }
                 else
                 {
-                    if (whenToBuyPrice > -1)
+                    if (whenToBuyPrice != null)
                     {
                         if (Candles[candleIndex].Close < whenToBuyPrice &&
                             candleIndex - whenToBuyPriceSetIndex > 10)
                         {
-                            whenToBuyPrice = -1;
-                            whenToBuyPriceSetIndex = -1;
+                            whenToBuyPrice = null;
+                            whenToBuyPriceSetIndex = null;
                         }
                     }
                     else
@@ -234,11 +227,11 @@ namespace TradeBot
 
         public override void ResetState()
         {
-            boughtCandle = -1;
-            whenToSellIndex = -1;
-            whenToBuyPrice = -1;
-            whenToBuyPriceSetIndex = -1;
-            stopLoss = -1;
+            boughtCandle = null;
+            whenToSellIndex = null;
+            whenToBuyPrice = null;
+            whenToBuyPriceSetIndex = null;
+            stopLoss = null;
         }
 
         public override void RemoveSeries(ElementCollection<Series> series)

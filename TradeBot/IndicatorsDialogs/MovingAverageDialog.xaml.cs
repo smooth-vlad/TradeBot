@@ -39,13 +39,13 @@ namespace TradeBot
             int period;
             if (!int.TryParse(periodTextBox.Text.Trim(), out period))
             {
-                periodErrorTextBlock.Text = "* Not a number in 'Period'";
+                periodErrorTextBlock.Text = "* Not a number";
                 periodTextBox.Focus();
                 return;
             }
             if (period < 1)
             {
-                periodErrorTextBlock.Text = "* 'Period' should be >= 1";
+                periodErrorTextBlock.Text = "* Value should be >= 1";
                 periodTextBox.Focus();
                 return;
             }
@@ -53,13 +53,13 @@ namespace TradeBot
             int offset;
             if (!int.TryParse(offsetTextBox.Text.Trim(), out offset))
             {
-                offsetErrorTextBlock.Text = "* Not a number in 'Offset'";
+                offsetErrorTextBlock.Text = "* Not a number";
                 offsetTextBox.Focus();
                 return;
             }
             if (offset < 0)
             {
-                offsetErrorTextBlock.Text = "* 'Offset' shouldn't be negative";
+                offsetErrorTextBlock.Text = "* Value should be positive";
                 offsetTextBox.Focus();
                 return;
             }

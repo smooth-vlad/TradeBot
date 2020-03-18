@@ -47,7 +47,6 @@ namespace TradeBot
                 tokenTextBox.Focus();
                 return;
             }
-            tokenErrorTextBlock.Text = string.Empty;
         }
     }
 }

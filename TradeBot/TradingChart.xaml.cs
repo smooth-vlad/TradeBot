@@ -25,7 +25,7 @@ namespace TradeBot
         public delegate void CandlesChangeHandler();
         public event CandlesChangeHandler CandlesChange;
 
-        public int candlesSpan = 50;
+        public int candlesSpan = 75;
         public int maxCandlesSpan { get; private set; }
         public CandleInterval candleInterval = CandleInterval.Minute;
 

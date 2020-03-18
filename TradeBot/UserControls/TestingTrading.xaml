@@ -49,8 +49,17 @@
                         <TextBlock TextAlignment="Center" Foreground="#303030">Start Testing</TextBlock>
                     </Button>
 
-                    <TextBlock x:Name="periodTextBlock" Opacity=".6" FontSize="13">Number of candles</TextBlock>
-
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="periodTextBlock" Opacity=".6" FontSize="13">Number of candles</TextBlock>
+                        <TextBlock x:Name="periodErrorTextBlock"
+                                   Opacity=".6"
+                                   FontSize="13"
+                                   Margin="5 0 0 0"
+                                   VerticalAlignment="Center"
+                                   Foreground="Red">
+                        </TextBlock>
+                    </StackPanel>
+                    
                     <TextBox x:Name="periodTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6"
                              LostFocus="periodTextBox_LostFocus"
                              KeyDown="periodTextBox_KeyDown">
@@ -60,7 +69,7 @@
                             </Style>
                         </TextBox.Resources>
                         <TextBox.Text>
-                            50
+                            75
                         </TextBox.Text>
                     </TextBox>
 

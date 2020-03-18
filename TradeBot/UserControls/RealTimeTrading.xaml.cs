@@ -99,16 +99,21 @@ namespace TradeBot
 
         private async void periodTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
+            periodErrorTextBlock.Text = string.Empty;
+
             int period;
             if (!int.TryParse(periodTextBox.Text.Trim(), out period))
             {
-                MessageBox.Show("Not a number in 'Period'");
+                periodErrorTextBlock.Text = "* Not a number";
+                periodTextBox.Focus();
                 return;
             }
 
-            if (period < 10)
+            const int minPeriod = 10;
+            if (period < minPeriod)
             {
-                MessageBox.Show("'Period' should be >= 10");
+                periodErrorTextBlock.Text = string.Format("* Value should be >= {0}", minPeriod);
+                periodTextBox.Focus();
                 return;
             }
 
