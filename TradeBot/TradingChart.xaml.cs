@@ -51,10 +51,7 @@ namespace TradeBot
             = new Dictionary<CandleInterval, TimeSpan>
         {
             { CandleInterval.Minute,        TimeSpan.FromDays(1)},
-            { CandleInterval.TwoMinutes,    TimeSpan.FromDays(1)},
-            { CandleInterval.ThreeMinutes,  TimeSpan.FromDays(1)},
             { CandleInterval.FiveMinutes,   TimeSpan.FromDays(1)},
-            { CandleInterval.TenMinutes,    TimeSpan.FromDays(1)},
             { CandleInterval.QuarterHour,   TimeSpan.FromDays(1)},
             { CandleInterval.HalfHour,      TimeSpan.FromDays(1)},
             { CandleInterval.Hour,          TimeSpan.FromDays(7).Add(TimeSpan.FromHours(-1))},
@@ -120,13 +117,32 @@ namespace TradeBot
             {
                 if (c.Count > d && d >= 0)
                 {
-                    return c[(int)d].ToString("dd.MM.yy-HH:mm");
+                    switch (candleInterval)
+                    {
+                        case CandleInterval.Minute:
+                        case CandleInterval.TwoMinutes:
+                        case CandleInterval.ThreeMinutes:
+                        case CandleInterval.FiveMinutes:
+                        case CandleInterval.TenMinutes:
+                        case CandleInterval.QuarterHour:
+                        case CandleInterval.HalfHour:
+                            return c[(int)d].ToString("HH:mm");
+                        case CandleInterval.Hour:
+                        case CandleInterval.TwoHours:
+                        case CandleInterval.FourHours:
+                        case CandleInterval.Day:
+                        case CandleInterval.Week:
+                            return c[(int)d].ToString("dd MMMM yy");
+                        case CandleInterval.Month:
+                            return c[(int)d].ToString("yyyy");
+                    }
+                    return "";
                 }
                 else
                 {
                     return "";
                 }
-            };
+        };
             model.Axes[1].LabelFormatter = formatLabel;
             model.Axes[1].MajorGridlineThickness = 0;
             model.Axes[1].MinorGridlineThickness = 0;
@@ -138,8 +154,7 @@ namespace TradeBot
             {
                 await LoadMoreCandles(sender);
                 AdjustYExtent(candlesSeries, (LinearAxis)model.Axes[1], (LinearAxis)model.Axes[0]);
-            };
-            //model.Axes[1].AxisChanged += (sender, e) => ;
+    };
             model.Axes[1].EndPosition = 0;
             model.Axes[1].StartPosition = 1;
             model.Axes[1].Zoom(0, 75);
@@ -148,6 +163,9 @@ namespace TradeBot
             model.PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0);
 
             plotView.Model = model;
+
+            plotView.ActualController.BindMouseDown(OxyMouseButton.Left, PlotCommands.PanAt);
+            plotView.ActualController.BindMouseDown(OxyMouseButton.Right, PlotCommands.SnapTrack);
 
             DataContext = this;
         }
@@ -223,7 +241,7 @@ namespace TradeBot
                 max = DateTime.Now;
                 min = max - period;
             }
-            var candles = await GetCandles(activeStock.Figi, min, candleInterval);
+            var candles = await GetCandles(activeStock.Figi, max, candleInterval);
             max = min;
             min = max - period;
 
@@ -374,5 +392,5 @@ namespace TradeBot
             model.Axes[1].ZoomAtCenter(1);
             plotView.InvalidatePlot();
         }
-    }
+}
 }
