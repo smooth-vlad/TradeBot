@@ -39,30 +39,6 @@
 
             <ScrollViewer Grid.Row="3">
                 <StackPanel VerticalAlignment="Center" Margin="25,3,25,4">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock x:Name="periodTextBlock" Opacity=".6" FontSize="13">Number of candles</TextBlock>
-                        <TextBlock x:Name="periodErrorTextBlock"
-                                   Opacity=".6"
-                                   FontSize="13"
-                                   Margin="5 0 0 0"
-                                   VerticalAlignment="Center"
-                                   Foreground="Red">
-                        </TextBlock>
-                    </StackPanel>
-
-                    <TextBox x:Name="periodTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6"
-                             LostFocus="periodTextBox_LostFocus"
-                             KeyDown="periodTextBox_KeyDown">
-                        <TextBox.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"></Setter>
-                            </Style>
-                        </TextBox.Resources>
-                        <TextBox.Text>
-                            75
-                        </TextBox.Text>
-                    </TextBox>
-
                     <TextBlock x:Name="intervalTextBlock" Opacity=".6" FontSize="13">Interval</TextBlock>
 
                     <ComboBox x:Name="intervalComboBox"

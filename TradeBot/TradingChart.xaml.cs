@@ -36,7 +36,14 @@ namespace TradeBot
         private ScatterSeries buySeries;
         private ScatterSeries sellSeries;
 
-        private bool isAddingCandles = false;
+        List<DateTime> c = new List<DateTime>();
+
+        private DateTime max;
+        private DateTime min;
+
+        int m = 0;
+
+        bool isLoadingCandles = false;
 
         public PlotModel model = new PlotModel();
 
@@ -88,6 +95,12 @@ namespace TradeBot
                 MarkerSize = 7.5,
             };
 
+            TimeSpan period;
+            if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
+                throw new KeyNotFoundException();
+            max = DateTime.Now;
+            min = max;
+
             candlesSeries.DecreasingColor = OxyColor.FromRgb(230, 63, 60);
             candlesSeries.IncreasingColor = OxyColor.FromRgb(45, 128, 32);
             candlesSeries.StrokeThickness = 1;
@@ -103,14 +116,16 @@ namespace TradeBot
             model.Axes[0].TicklineColor = OxyColor.FromArgb(10, 0, 0, 0);
             model.Axes[0].TickStyle = TickStyle.Outside;
 
-            Func<double, string> formatLabel = delegate(double d)
+            Func<double, string> formatLabel = delegate (double d)
             {
-                if (candles.Count > d && d >= 0)
+                if (c.Count > d && d >= 0)
                 {
-                    return candles[(int)d].Time.ToString("dd.MM.yyyy-HH:mm");
+                    return c[(int)d].ToString("dd.MM.yy-HH:mm");
                 }
                 else
+                {
                     return "";
+                }
             };
             model.Axes[1].LabelFormatter = formatLabel;
             model.Axes[1].MajorGridlineThickness = 0;
@@ -119,8 +134,15 @@ namespace TradeBot
             model.Axes[1].MajorGridlineStyle = LineStyle.Solid;
             model.Axes[1].TicklineColor = OxyColor.FromArgb(10, 0, 0, 0);
             model.Axes[1].TickStyle = TickStyle.Outside;
-            model.Axes[1].AxisChanged += (sender, e) => AdjustYExtent(candlesSeries, (LinearAxis)model.Axes[1], (LinearAxis)model.Axes[0]);
-            model.Axes[1].Zoom(candlesSpan - 75, candlesSpan);
+            model.Axes[1].AxisChanged += async (sender, e) =>
+            {
+                await LoadMoreCandles(sender);
+                AdjustYExtent(candlesSeries, (LinearAxis)model.Axes[1], (LinearAxis)model.Axes[0]);
+            };
+            //model.Axes[1].AxisChanged += (sender, e) => ;
+            model.Axes[1].EndPosition = 0;
+            model.Axes[1].StartPosition = 1;
+            model.Axes[1].Zoom(0, 75);
 
             model.TextColor = OxyColor.FromArgb(140, 0, 0, 0);
             model.PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0);
@@ -152,27 +174,87 @@ namespace TradeBot
             return result;
         }
 
-        public async Task UpdateCandlesList()
+        public async Task<List<CandlePayload>> GetCandles(string figi, DateTime to, CandleInterval interval)
         {
-            maxCandlesSpan = CalculateMaxCandlesSpan();
+            TimeSpan period;
+            if (!intervalToMaxPeriod.TryGetValue(interval, out period))
+                throw new KeyNotFoundException();
+
+            var result = new List<CandlePayload>();
+            var candles = await context.MarketCandlesAsync(figi, to - period, to, interval);
+
+            for (int i = 0; i < candles.Candles.Count; ++i)
+                result.Add(candles.Candles[i]);
+
+            result.Reverse();
+            return result;
+        }
+
+        public async Task ResetSeries()
+        {
+            candles.Clear();
+            candlesSeries.Items.Clear();
+            c.Clear();
+            m = 0;
+            max = DateTime.Now;
+            min = max;
+
+            await LoadMoreCandles(model.Axes[1]);
+            model.Axes[1].Zoom(0, 75);
+
+            plotView.InvalidatePlot();
+        }
+
+        private async Task LoadMoreCandles(object sender)
+        {
+            if (isLoadingCandles || activeStock == null || context == null)
+                return;
+
+            var axis = sender as LinearAxis;
+            if (m > axis.ActualMaximum + 100)
+                return;
+            isLoadingCandles = true;
+
             TimeSpan period;
             if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
                 throw new KeyNotFoundException();
-
-            var newCandles = await GetFixedAmountOfCandles(activeStock.Figi, maxCandlesSpan, candleInterval, period);
-            candles = newCandles;
-        }
-
-        public int CalculateMaxCandlesSpan()
-        {
-            var result = candlesSpan;
-            foreach (var indicator in indicators)
+            if (max == min)
             {
-                if (indicator.CandlesNeeded > result)
-                    result = indicator.CandlesNeeded;
+                max = DateTime.Now;
+                min = max - period;
             }
-            return result;
+            var candles = await GetCandles(activeStock.Figi, min, candleInterval);
+            max = min;
+            min = max - period;
+
+            try
+            {
+                for (int i = 0; i < candles.Count; ++i)
+                {
+                    var candle = candles[i];
+                    candlesSeries.Items.Add(new HighLowItem(m + i, (double)candle.High, (double)candle.Low, (double)candle.Open, (double)candle.Close));
+                    c.Add(candle.Time);
+                }
+                m += candles.Count;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+            plotView.InvalidatePlot();
+            isLoadingCandles = false;
         }
+
+        //public async Task UpdateCandlesList()
+        //{
+        //    maxCandlesSpan = CalculateMaxCandlesSpan();
+        //    TimeSpan period;
+        //    if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
+        //        throw new KeyNotFoundException();
+
+        //    var newCandles = await GetFixedAmountOfCandles(activeStock.Figi, maxCandlesSpan, candleInterval, period);
+        //    candles = newCandles;
+        //}
 
         public async Task Simulate()
         {
@@ -203,19 +285,19 @@ namespace TradeBot
             indicator.priceIncrement = activeStock.MinPriceIncrement;
             indicators.Add(indicator);
 
-            await UpdateCandlesList();
+            //await UpdateCandlesList();
             UpdateIndicatorSeries(indicator);
         }
 
-        public void UpdateCandlesSeries()
-        {
-            candlesSeries.Items.Clear();
-            for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
-                candlesSeries.Items.Add(CandleToHighLowItem(i, candles[i]));
-            model.Axes[1].AbsoluteMaximum = candlesSpan + 10;
-            model.Axes[1].Zoom(candlesSpan - 75, candlesSpan);
-            plotView.InvalidatePlot();
-        }
+        //public void UpdateCandlesSeries()
+        //{
+        //    candlesSeries.Items.Clear();
+        //    for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
+        //        candlesSeries.Items.Add(CandleToHighLowItem(i, candles[i]));
+        //    model.Axes[1].AbsoluteMaximum = candlesSpan + 10;
+        //    model.Axes[1].Zoom(candlesSpan - 75, candlesSpan);
+        //    plotView.InvalidatePlot();
+        //}
 
         public void UpdateIndicatorsSeries()
         {
@@ -248,7 +330,7 @@ namespace TradeBot
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
 
-            UpdateCandlesSeries();
+            //UpdateCandlesSeries();
 
             foreach (var indicator in indicators)
                 indicator.ResetState();
@@ -260,7 +342,7 @@ namespace TradeBot
 
         private void AdjustYExtent(CandleStickSeries lserie, LinearAxis xaxis, LinearAxis yaxis)
         {
-            if (xaxis != null && yaxis != null && lserie.Items.Count != 0 && !isAddingCandles)
+            if (xaxis != null && yaxis != null && lserie.Items.Count != 0)
             {
                 double istart = xaxis.ActualMinimum;
                 double iend = xaxis.ActualMaximum;
@@ -284,6 +366,13 @@ namespace TradeBot
                 yaxis.Zoom(ymin - margin, ymax + margin);
                 yaxis.IsZoomEnabled = false;
             }
+        }
+
+        private async void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadMoreCandles(model.Axes[1]);
+            model.Axes[1].ZoomAtCenter(1);
+            plotView.InvalidatePlot();
         }
     }
 }

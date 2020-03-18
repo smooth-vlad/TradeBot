@@ -37,7 +37,7 @@ namespace TradeBot
             newItem.Content = new StockSelection(context, newItem);
             newItem.Header = "Instrument Selection";
             newItem.IsSelected = true;
-            newItem.MouseRightButtonDown += Tab_MouseRightButtonDown;
+            //newItem.MouseRightButtonDown += Tab_MouseRightButtonDown;
 
             tabControl.Items.Insert(tabControl.Items.Count - 1, newItem);
         }

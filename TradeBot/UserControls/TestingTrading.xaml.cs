@@ -44,7 +44,6 @@ namespace TradeBot
         {
             simulateButton.IsEnabled = value;
             intervalComboBox.IsEnabled = value;
-            periodTextBox.IsEnabled = value;
         }
 
         // ==================================================
@@ -70,7 +69,7 @@ namespace TradeBot
 
             tradingChart.candleInterval = interval;
 
-            await tradingChart.UpdateCandlesList();
+            //await tradingChart.UpdateCandlesList();
             tradingChart.OnCandlesValuesChanged();
         }
 
@@ -80,44 +79,6 @@ namespace TradeBot
             await tradingChart.Simulate();
             SetEverythingEnabled(true);
             MessageBox.Show("Testing ended");
-        }
-
-        private async void periodTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            periodErrorTextBlock.Text = string.Empty;
-
-            int period;
-            if (!int.TryParse(periodTextBox.Text.Trim(), out period))
-            {
-                periodErrorTextBlock.Text = "* Not a number";
-                periodTextBox.Focus();
-                return;
-            }
-
-            const int minPeriod = 10;
-            if (period < minPeriod)
-            {
-                periodErrorTextBlock.Text = string.Format("* Value should be >= {0}", minPeriod);
-                periodTextBox.Focus();
-                return;
-            }
-
-            if (tradingChart.candlesSpan == period)
-                return;
-
-            tradingChart.candlesSpan = period;
-
-            foreach (var indicator in tradingChart.indicators)
-                indicator.candlesSpan = tradingChart.candlesSpan;
-
-            await tradingChart.UpdateCandlesList();
-            tradingChart.OnCandlesValuesChanged();
-        }
-
-        private void periodTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (e.Key == System.Windows.Input.Key.Enter)
-                periodTextBox_LostFocus(this, new RoutedEventArgs());
         }
     }
 }
