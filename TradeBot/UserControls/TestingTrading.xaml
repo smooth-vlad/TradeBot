@@ -49,20 +49,6 @@
                         <TextBlock TextAlignment="Center" Foreground="#303030">Start Testing</TextBlock>
                     </Button>
 
-                    <Button x:Name="removeIndicatorsButton"
-                            Margin="0, 6"
-                            Background="#81D4FA"
-                            HorizontalAlignment="Left"
-                            Padding="40, 4"
-                            BorderThickness="0" Click="removeIndicatorsButton_Click">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"></Setter>
-                            </Style>
-                        </Button.Resources>
-                        <TextBlock TextAlignment="Center" Foreground="#303030">Remove Indicators</TextBlock>
-                    </Button>
-
                     <TextBlock x:Name="periodTextBlock" Opacity=".6" FontSize="13">Number of candles</TextBlock>
 
                     <TextBox x:Name="periodTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6"

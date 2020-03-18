@@ -42,7 +42,6 @@ namespace TradeBot
 
         private void SetEverythingEnabled(bool value)
         {
-            removeIndicatorsButton.IsEnabled = value;
             simulateButton.IsEnabled = value;
             intervalComboBox.IsEnabled = value;
             periodTextBox.IsEnabled = value;
@@ -51,11 +50,6 @@ namespace TradeBot
         // ==================================================
         // events
         // ==================================================
-
-        private void removeIndicatorsButton_Click(object sender, RoutedEventArgs e)
-        {
-            tradingChart.RemoveIndicators();
-        }
 
         private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

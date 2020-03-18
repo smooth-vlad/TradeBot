@@ -74,11 +74,6 @@ namespace TradeBot
             Dispatcher.Invoke(() => tradingChart.OnCandlesValuesChanged());
         }
 
-        private void resetIndicatorsButton_Click(object sender, RoutedEventArgs e)
-        {
-            tradingChart.RemoveIndicators();
-        }
-
         private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CandleInterval interval = CandleInterval.Minute;

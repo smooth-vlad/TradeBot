@@ -76,5 +76,20 @@ namespace TradeBot
             var tab = sender as TabItem;
             tabControl.Items.Remove(tab);
         }
+
+        private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
+        {
+            var tab = tabControl.SelectedContent;
+            if (tab.GetType() == typeof(RealTimeTrading))
+            {
+                var tab1 = tab as RealTimeTrading;
+                tab1.tradingChart.RemoveIndicators();
+            }
+            else if (tab.GetType() == typeof(TestingTrading))
+            {
+                var tab1 = tab as TestingTrading;
+                tab1.tradingChart.RemoveIndicators();
+            }
+        }
     }
 }

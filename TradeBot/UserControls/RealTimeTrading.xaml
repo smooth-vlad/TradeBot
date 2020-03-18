@@ -39,15 +39,6 @@
 
             <ScrollViewer Grid.Row="3">
                 <StackPanel VerticalAlignment="Center" Margin="25,3,25,4">
-                    <Button x:Name="resetIndicatorsButton" Margin="0, 6" Background="#81D4FA" HorizontalAlignment="Left" Padding="40, 4" BorderThickness="0" Click="resetIndicatorsButton_Click">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"></Setter>
-                            </Style>
-                        </Button.Resources>
-                        <TextBlock TextAlignment="Center" Foreground="#303030">Reset Indicators</TextBlock>
-                    </Button>
-
                     <TextBlock x:Name="periodTextBlock" Opacity=".6" FontSize="13">Number of candles</TextBlock>
 
                     <TextBox x:Name="periodTextBox" Foreground="#303030" FontSize="16" VerticalContentAlignment="Bottom" Margin="0, 6"
