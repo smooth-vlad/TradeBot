@@ -153,7 +153,7 @@ namespace TradeBot
                 return "";
             };
             xAxis.AxisChanged += XAxis_AxisChanged;
-            xAxis.Zoom(0, 75);
+            UpdateXAxis();
 
             plotView.Model = model;
 
@@ -218,6 +218,8 @@ namespace TradeBot
 
             plotView.InvalidatePlot();
         }
+
+        private void UpdateXAxis() => xAxis.ZoomAtCenter(1);
 
         private async Task LoadMoreCandles()
         {
@@ -359,7 +361,7 @@ namespace TradeBot
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadMoreCandles();
-            xAxis.ZoomAtCenter(1);
+            UpdateXAxis();
             plotView.InvalidatePlot();
         }
 
