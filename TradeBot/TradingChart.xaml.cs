@@ -132,7 +132,7 @@ namespace TradeBot
                         case CandleInterval.FourHours:
                         case CandleInterval.Day:
                         case CandleInterval.Week:
-                            return c[(int)d].ToString("dd MMMM yy");
+                            return c[(int)d].ToString("dd MMMM");
                         case CandleInterval.Month:
                             return c[(int)d].ToString("yyyy");
                     }
@@ -150,11 +150,14 @@ namespace TradeBot
             model.Axes[1].MajorGridlineStyle = LineStyle.Solid;
             model.Axes[1].TicklineColor = OxyColor.FromArgb(10, 0, 0, 0);
             model.Axes[1].TickStyle = TickStyle.Outside;
+            model.Axes[1].MaximumRange = 200;
+            model.Axes[1].MinimumRange = 15;
+            model.Axes[1].AbsoluteMinimum = -10;
             model.Axes[1].AxisChanged += async (sender, e) =>
             {
-                await LoadMoreCandles(sender);
-                AdjustYExtent(candlesSeries, (LinearAxis)model.Axes[1], (LinearAxis)model.Axes[0]);
-    };
+                await LoadMoreCandles(sender as LinearAxis);
+                AdjustYExtent(candlesSeries, model.Axes[1] as LinearAxis, model.Axes[0] as LinearAxis);
+            };
             model.Axes[1].EndPosition = 0;
             model.Axes[1].StartPosition = 1;
             model.Axes[1].Zoom(0, 75);
@@ -217,33 +220,35 @@ namespace TradeBot
             max = DateTime.Now;
             min = max;
 
-            await LoadMoreCandles(model.Axes[1]);
+            await LoadMoreCandles(model.Axes[1] as LinearAxis);
             model.Axes[1].Zoom(0, 75);
 
             plotView.InvalidatePlot();
         }
 
-        private async Task LoadMoreCandles(object sender)
+        private async Task LoadMoreCandles(LinearAxis axis)
         {
             if (isLoadingCandles || activeStock == null || context == null)
                 return;
 
-            var axis = sender as LinearAxis;
             if (m > axis.ActualMaximum + 100)
                 return;
             isLoadingCandles = true;
+            debug.Text = string.Format("Loading ended\nmax date - {0}, min date - {1}, number of candles - {2}", max, min, m);
 
             TimeSpan period;
             if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
-                throw new KeyNotFoundException();
-            if (max == min)
             {
-                max = DateTime.Now;
-                min = max - period;
+                isLoadingCandles = false;
+                throw new KeyNotFoundException();
             }
-            var candles = await GetCandles(activeStock.Figi, max, candleInterval);
-            max = min;
-            min = max - period;
+            var candles = await GetCandles(activeStock.Figi, min, candleInterval);
+            if (candles.Count == 0)
+            {
+                isLoadingCandles = false;
+                return;
+            }
+            min -= period;
 
             try
             {
@@ -257,10 +262,12 @@ namespace TradeBot
             }
             catch (Exception e)
             {
+                isLoadingCandles = false;
                 MessageBox.Show(e.Message);
             }
-            plotView.InvalidatePlot();
             isLoadingCandles = false;
+            debug.Text = string.Format("Loading ended\nmax date - {0}, min date - {1}, number of candles - {2}", max, min, m);
+            plotView.InvalidatePlot();
         }
 
         //public async Task UpdateCandlesList()
@@ -388,7 +395,7 @@ namespace TradeBot
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            await LoadMoreCandles(model.Axes[1]);
+            await LoadMoreCandles(model.Axes[1] as LinearAxis);
             model.Axes[1].ZoomAtCenter(1);
             plotView.InvalidatePlot();
         }
