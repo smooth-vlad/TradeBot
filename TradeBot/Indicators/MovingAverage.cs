@@ -163,8 +163,6 @@ namespace TradeBot
             }
         }
 
-        public double max;
-
         private void CalculateEMA()
         {
             bindedGraph.Points.Clear();

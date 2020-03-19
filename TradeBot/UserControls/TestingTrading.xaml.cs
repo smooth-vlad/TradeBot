@@ -69,8 +69,7 @@ namespace TradeBot
 
             tradingChart.candleInterval = interval;
 
-            //await tradingChart.UpdateCandlesList();
-            //tradingChart.OnCandlesValuesChanged();
+            await tradingChart.ResetSeries();
         }
 
         private async void simulateButton_Click(object sender, RoutedEventArgs e)

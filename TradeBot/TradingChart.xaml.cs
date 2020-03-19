@@ -288,6 +288,7 @@ namespace TradeBot
             indicators.Add(indicator);
 
             UpdateIndicatorSeries(indicator);
+            UpdateXAxis();
         }
 
         public void UpdateIndicatorsSeries()
@@ -303,6 +304,7 @@ namespace TradeBot
             if (!indicator.AreSeriesInitialized)
                 indicator.InitializeSeries(model.Series);
             indicator.UpdateSeries();
+
             plotView.InvalidatePlot();
         }
 
@@ -311,6 +313,7 @@ namespace TradeBot
             foreach (var indicator in indicators)
                 indicator.RemoveSeries(model.Series);
             indicators = new List<Indicator>();
+            UpdateXAxis();
             plotView.InvalidatePlot();
         }
 
@@ -318,6 +321,7 @@ namespace TradeBot
         {
             foreach (var indicator in indicators)
                 indicator.RecalculateSeries();
+            UpdateXAxis();
             plotView.InvalidatePlot();
         }
 
@@ -332,12 +336,28 @@ namespace TradeBot
                 if (ptlist.Count == 0)
                     return;
 
+                var lplist = new List<DataPoint>();
+
+                foreach (var series in model.Series)
+                {
+                    if (series.GetType() == typeof(LineSeries))
+                    {
+                        lplist.AddRange((series as LineSeries).Points.FindAll(p => p.X >= istart && p.X <= iend));
+                    }
+                }
+
                 double ymin = double.MaxValue;
                 double ymax = double.MinValue;
-                for (int i = 0; i < ptlist.Count; i++)
+                for (int i = 0; i < ptlist.Count; ++i)
                 {
                     ymin = Math.Min(ymin, ptlist[i].Low);
                     ymax = Math.Max(ymax, ptlist[i].High);
+                }
+
+                for (int i = 0; i < lplist.Count; ++i)
+                {
+                    ymin = Math.Min(ymin, lplist[i].Y);
+                    ymax = Math.Max(ymax, lplist[i].Y);
                 }
 
                 var extent = ymax - ymin;
