@@ -321,21 +321,6 @@ namespace TradeBot
             plotView.InvalidatePlot();
         }
 
-        //public void OnCandlesValuesChanged()
-        //{
-        //    buySeries.Points.Clear();
-        //    sellSeries.Points.Clear();
-
-        //    //UpdateCandlesSeries();
-
-        //    foreach (var indicator in indicators)
-        //        indicator.ResetState();
-
-        //    UpdateIndicatorsSeries();
-
-        //    CandlesChange?.Invoke();
-        //}
-
         private void AdjustYExtent()
         {
             if (xAxis != null && yAxis != null && candlesSeries.Items.Count != 0)

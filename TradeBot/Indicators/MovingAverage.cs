@@ -3,6 +3,7 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
+using System.Windows;
 using Tinkoff.Trading.OpenApi.Models;
 
 namespace TradeBot
@@ -162,8 +163,11 @@ namespace TradeBot
             }
         }
 
+        public double max;
+
         private void CalculateEMA()
         {
+            bindedGraph.Points.Clear();
             double multiplier = 2.0 / (period + 1.0);
             var EMA = new List<double>();
 
@@ -174,13 +178,13 @@ namespace TradeBot
                 EMA.Add(sum / period);
             }
 
-            for (int i = 1; i < Candles.Count - bindedGraph.Points.Count - period; ++i)
+            for (int i = 1; i < Candles.Count - period; ++i)
             {
                 EMA.Add((Candles[Candles.Count - period - i - 1].Close * multiplier) + EMA[i - 1] * (1 - multiplier));
             }
             for (int i = EMA.Count - 1; i >= 0; --i)
             {
-                bindedGraph.Points.Add(new DataPoint(bindedGraph.Points.Count - 1, EMA[i]));
+                bindedGraph.Points.Add(new DataPoint(bindedGraph.Points.Count, EMA[i]));
             }
         }
 

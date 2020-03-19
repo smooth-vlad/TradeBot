@@ -94,9 +94,6 @@ namespace TradeBot
             tradingChart.candleInterval = interval;
 
             await tradingChart.ResetSeries();
-
-            //await tradingChart.UpdateCandlesList();
-            //tradingChart.OnCandlesValuesChanged();
         }
     }
 }
