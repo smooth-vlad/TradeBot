@@ -36,7 +36,10 @@ namespace TradeBot
         private ScatterSeries buySeries;
         private ScatterSeries sellSeries;
 
-        List<DateTime> candlesDates = new List<DateTime>();
+        private LinearAxis xAxis;
+        private LinearAxis yAxis;
+
+        private List<DateTime> candlesDates = new List<DateTime>();
 
         private DateTime lastCandleDate; // on the right side
         private DateTime firstCandleDate; // on the left side
@@ -59,7 +62,7 @@ namespace TradeBot
                 PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0),
             };
 
-            model.Axes.Add(new LinearAxis
+            yAxis = new LinearAxis // y axis (left)
             {
                 Position = AxisPosition.Left,
                 IsPanEnabled = false,
@@ -70,9 +73,9 @@ namespace TradeBot
                 MajorGridlineStyle = LineStyle.Solid,
                 TicklineColor = OxyColor.FromArgb(10, 0, 0, 0),
                 TickStyle = TickStyle.Outside,
-            });
+            };
 
-            model.Axes.Add(new LinearAxis
+            xAxis = new LinearAxis // x axis (bottom)
             {
                 Position = AxisPosition.Bottom,
                 MajorGridlineStyle = LineStyle.Solid,
@@ -86,8 +89,10 @@ namespace TradeBot
                 MajorGridlineThickness = 0,
                 MinorGridlineThickness = 0,
                 MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0),
-            });
+            };
 
+            model.Axes.Add(yAxis);
+            model.Axes.Add(xAxis);
 
             candlesSeries = new CandleStickSeries
             {
@@ -147,13 +152,13 @@ namespace TradeBot
                 }
                 return "";
             };
-            model.Axes[1].LabelFormatter = formatLabel;
-            model.Axes[1].AxisChanged += async (sender, e) =>
+            xAxis.LabelFormatter = formatLabel;
+            xAxis.AxisChanged += async (sender, e) =>
             {
-                await LoadMoreCandles(sender as LinearAxis);
-                AdjustYExtent(candlesSeries, model.Axes[1] as LinearAxis, model.Axes[0] as LinearAxis);
+                await LoadMoreCandles();
+                AdjustYExtent();
             };
-            model.Axes[1].Zoom(0, 75);
+            xAxis.Zoom(0, 75);
 
             plotView.Model = model;
 
@@ -207,18 +212,18 @@ namespace TradeBot
             lastCandleDate = DateTime.Now;
             firstCandleDate = lastCandleDate;
 
-            await LoadMoreCandles(model.Axes[1] as LinearAxis);
-            model.Axes[1].Zoom(0, 75);
+            await LoadMoreCandles();
+            xAxis.Zoom(0, 75);
 
             plotView.InvalidatePlot();
         }
 
-        private async Task LoadMoreCandles(LinearAxis axis)
+        private async Task LoadMoreCandles()
         {
             if (isLoadingCandles || allCandlesLoaded || activeStock == null || context == null)
                 return;
 
-            if (loadedCandles > axis.ActualMaximum + 100)
+            if (loadedCandles > xAxis.ActualMaximum + 100)
                 return;
 
             isLoadingCandles = true;
@@ -322,14 +327,14 @@ namespace TradeBot
             CandlesChange?.Invoke();
         }
 
-        private void AdjustYExtent(CandleStickSeries series, LinearAxis xaxis, LinearAxis yaxis)
+        private void AdjustYExtent()
         {
-            if (xaxis != null && yaxis != null && series.Items.Count != 0)
+            if (xAxis != null && yAxis != null && candlesSeries.Items.Count != 0)
             {
-                double istart = xaxis.ActualMinimum;
-                double iend = xaxis.ActualMaximum;
+                double istart = xAxis.ActualMinimum;
+                double iend = xAxis.ActualMaximum;
 
-                var ptlist = series.Items.FindAll(p => p.X >= istart && p.X <= iend);
+                var ptlist = candlesSeries.Items.FindAll(p => p.X >= istart && p.X <= iend);
                 if (ptlist.Count == 0)
                     return;
 
@@ -344,16 +349,16 @@ namespace TradeBot
                 var extent = ymax - ymin;
                 var margin = extent * 0.1;
 
-                yaxis.IsZoomEnabled = true;
-                yaxis.Zoom(ymin - margin, ymax + margin);
-                yaxis.IsZoomEnabled = false;
+                yAxis.IsZoomEnabled = true;
+                yAxis.Zoom(ymin - margin, ymax + margin);
+                yAxis.IsZoomEnabled = false;
             }
         }
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            await LoadMoreCandles(model.Axes[1] as LinearAxis);
-            model.Axes[1].ZoomAtCenter(1);
+            await LoadMoreCandles();
+            xAxis.ZoomAtCenter(1);
             plotView.InvalidatePlot();
         }
 
