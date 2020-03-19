@@ -36,14 +36,14 @@ namespace TradeBot
         private ScatterSeries buySeries;
         private ScatterSeries sellSeries;
 
-        List<DateTime> c = new List<DateTime>();
+        List<DateTime> candlesDates = new List<DateTime>();
 
         private DateTime lastCandleDate; // on the right side
         private DateTime firstCandleDate; // on the left side
 
-        int loadedCandles = 0;
-
-        bool isLoadingCandles = false;
+        private int loadedCandles = 0;
+        private bool allCandlesLoaded = false;
+        private bool isLoadingCandles = false;
 
         public PlotModel model;
 
@@ -123,7 +123,7 @@ namespace TradeBot
 
             Func<double, string> formatLabel = delegate (double d)
             {
-                if (c.Count > d && d >= 0)
+                if (candlesDates.Count > d && d >= 0)
                 {
                     switch (candleInterval)
                     {
@@ -134,15 +134,15 @@ namespace TradeBot
                         case CandleInterval.TenMinutes:
                         case CandleInterval.QuarterHour:
                         case CandleInterval.HalfHour:
-                            return c[(int)d].ToString("HH:mm");
+                            return candlesDates[(int)d].ToString("HH:mm");
                         case CandleInterval.Hour:
                         case CandleInterval.TwoHours:
                         case CandleInterval.FourHours:
                         case CandleInterval.Day:
                         case CandleInterval.Week:
-                            return c[(int)d].ToString("dd MMMM");
+                            return candlesDates[(int)d].ToString("dd MMMM");
                         case CandleInterval.Month:
-                            return c[(int)d].ToString("yyyy");
+                            return candlesDates[(int)d].ToString("yyyy");
                     }
                 }
                 return "";
@@ -201,8 +201,9 @@ namespace TradeBot
         {
             candles.Clear();
             candlesSeries.Items.Clear();
-            c.Clear();
+            candlesDates.Clear();
             loadedCandles = 0;
+            allCandlesLoaded = false;
             lastCandleDate = DateTime.Now;
             firstCandleDate = lastCandleDate;
 
@@ -214,7 +215,7 @@ namespace TradeBot
 
         private async Task LoadMoreCandles(LinearAxis axis)
         {
-            if (isLoadingCandles || activeStock == null || context == null)
+            if (isLoadingCandles || allCandlesLoaded || activeStock == null || context == null)
                 return;
 
             if (loadedCandles > axis.ActualMaximum + 100)
@@ -225,41 +226,27 @@ namespace TradeBot
 
             var period = GetPeriod(candleInterval);
             var candles = await GetCandles(activeStock.Figi, firstCandleDate, candleInterval, period);
-            isLoadingCandles = false;
             if (candles.Count == 0)
-                return;
-            firstCandleDate -= period;
-
-            try
-            {
-                for (int i = 0; i < candles.Count; ++i)
-                {
-                    var candle = candles[i];
-                    candlesSeries.Items.Add(new HighLowItem(loadedCandles + i, (double)candle.High, (double)candle.Low, (double)candle.Open, (double)candle.Close));
-                    c.Add(candle.Time);
-                }
-                loadedCandles += candles.Count;
-            }
-            catch (Exception e)
             {
                 isLoadingCandles = false;
-                MessageBox.Show(e.Message);
+                allCandlesLoaded = true;
+                debug.Text = string.Format("Loading interrupted (all candles loaded)\nmax date - {0}, min date - {1}, number of candles - {2}", lastCandleDate, firstCandleDate, loadedCandles);
+                return;
             }
+            firstCandleDate -= period;
+
+            for (int i = 0; i < candles.Count; ++i)
+            {
+                var candle = candles[i];
+                candlesSeries.Items.Add(new HighLowItem(loadedCandles + i, (double)candle.High, (double)candle.Low, (double)candle.Open, (double)candle.Close));
+                candlesDates.Add(candle.Time);
+            }
+            loadedCandles += candles.Count;
+
+            debug.Text = string.Format("Loading ended\nmax date - {0}, min date - {1}, number of candles - {2}\ncandles loaded - {3}", lastCandleDate, firstCandleDate, loadedCandles, candles.Count);
             isLoadingCandles = false;
-            debug.Text = string.Format("Loading ended\nmax date - {0}, min date - {1}, number of candles - {2}", lastCandleDate, firstCandleDate, loadedCandles);
             plotView.InvalidatePlot();
         }
-
-        //public async Task UpdateCandlesList()
-        //{
-        //    maxCandlesSpan = CalculateMaxCandlesSpan();
-        //    TimeSpan period;
-        //    if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
-        //        throw new KeyNotFoundException();
-
-        //    var newCandles = await GetFixedAmountOfCandles(activeStock.Figi, maxCandlesSpan, candleInterval, period);
-        //    candles = newCandles;
-        //}
 
         public async Task Simulate()
         {
@@ -293,16 +280,6 @@ namespace TradeBot
             //await UpdateCandlesList();
             UpdateIndicatorSeries(indicator);
         }
-
-        //public void UpdateCandlesSeries()
-        //{
-        //    candlesSeries.Items.Clear();
-        //    for (int i = maxCandlesSpan - candlesSpan; i < maxCandlesSpan; ++i)
-        //        candlesSeries.Items.Add(CandleToHighLowItem(i, candles[i]));
-        //    model.Axes[1].AbsoluteMaximum = candlesSpan + 10;
-        //    model.Axes[1].Zoom(candlesSpan - 75, candlesSpan);
-        //    plotView.InvalidatePlot();
-        //}
 
         public void UpdateIndicatorsSeries()
         {
@@ -345,14 +322,14 @@ namespace TradeBot
             CandlesChange?.Invoke();
         }
 
-        private void AdjustYExtent(CandleStickSeries lserie, LinearAxis xaxis, LinearAxis yaxis)
+        private void AdjustYExtent(CandleStickSeries series, LinearAxis xaxis, LinearAxis yaxis)
         {
-            if (xaxis != null && yaxis != null && lserie.Items.Count != 0)
+            if (xaxis != null && yaxis != null && series.Items.Count != 0)
             {
                 double istart = xaxis.ActualMinimum;
                 double iend = xaxis.ActualMaximum;
 
-                var ptlist = lserie.Items.FindAll(p => p.X >= istart && p.X <= iend);
+                var ptlist = series.Items.FindAll(p => p.X >= istart && p.X <= iend);
                 if (ptlist.Count == 0)
                     return;
 
