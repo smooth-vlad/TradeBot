@@ -206,8 +206,6 @@ namespace TradeBot
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
 
-            RemoveIndicators();
-
             candlesSeries.Items.Clear();
             candlesDates.Clear();
 
@@ -218,6 +216,8 @@ namespace TradeBot
 
             await LoadMoreCandles();
             xAxis.Zoom(0, 75);
+
+            ResetIndicators();
 
             plotView.InvalidatePlot();
         }
@@ -308,11 +308,16 @@ namespace TradeBot
 
         public void RemoveIndicators()
         {
-            buySeries.Points.Clear();
-            sellSeries.Points.Clear();
             foreach (var indicator in indicators)
                 indicator.RemoveSeries(model.Series);
             indicators = new List<Indicator>();
+            plotView.InvalidatePlot();
+        }
+
+        public void ResetIndicators()
+        {
+            foreach (var indicator in indicators)
+                indicator.RecalculateSeries();
             plotView.InvalidatePlot();
         }
 

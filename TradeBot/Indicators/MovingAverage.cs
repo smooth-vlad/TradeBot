@@ -162,24 +162,22 @@ namespace TradeBot
             }
         }
 
-        //private List<double> CalculateEMA()
-        //{
-        //    var EMA = new List<double>(candlesSpan);
-        //    double multiplier = 2.0 / (period + 1.0);
-        //    EMA.Add(Candles[Candles.Count - candlesSpan].Close);
-        //    for (int i = 1; i < candlesSpan; ++i)
-        //    {
-        //        EMA.Add((Candles[Candles.Count - candlesSpan + i].Close * multiplier) + EMA[i - 1] * (1 - multiplier));
-        //    }
-        //    return EMA;
-        //}
+        private void CalculateEMA()
+        {
+            //double multiplier = 2.0 / (period + 1.0);
+            //EMA.Add(Candles[Candles.Count - candlesSpan].Close);
+            //for (int i = 1; i < candlesSpan; ++i)
+            //{
+            //    EMA.Add((Candles[Candles.Count - candlesSpan + i].Close * multiplier) + EMA[i - 1] * (1 - multiplier));
+            //}
+        }
 
         override public void UpdateSeries()
         {
             if (type == Type.Simple)
                 CalculateSMA();
-            //else if (type == Type.Exponential)
-            //    values = CalculateEMA();
+            else if (type == Type.Exponential)
+                CalculateEMA();
         }
 
         override public void InitializeSeries(ElementCollection<Series> series)
@@ -209,8 +207,13 @@ namespace TradeBot
 
         public override void RemoveSeries(ElementCollection<Series> series)
         {
-            if (bindedGraph != null)
-                series.Remove(bindedGraph);
+            series.Remove(bindedGraph);
+        }
+
+        public override void RecalculateSeries()
+        {
+            bindedGraph.Points.Clear();
+            UpdateSeries();
         }
     }
 }
