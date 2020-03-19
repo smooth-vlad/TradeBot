@@ -126,7 +126,7 @@ namespace TradeBot
             model.Series.Add(buySeries);
             model.Series.Add(sellSeries);
 
-            Func<double, string> formatLabel = delegate (double d)
+            xAxis.LabelFormatter = delegate (double d)
             {
                 if (candlesDates.Count > d && d >= 0)
                 {
@@ -152,12 +152,7 @@ namespace TradeBot
                 }
                 return "";
             };
-            xAxis.LabelFormatter = formatLabel;
-            xAxis.AxisChanged += async (sender, e) =>
-            {
-                await LoadMoreCandles();
-                AdjustYExtent();
-            };
+            xAxis.AxisChanged += XAxis_AxisChanged;
             xAxis.Zoom(0, 75);
 
             plotView.Model = model;
@@ -166,6 +161,12 @@ namespace TradeBot
             plotView.ActualController.BindMouseDown(OxyMouseButton.Right, PlotCommands.SnapTrack);
 
             DataContext = this;
+        }
+
+        private async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
+        {            
+            await LoadMoreCandles();
+            AdjustYExtent();
         }
 
         public static HighLowItem CandleToHighLowItem(double x, CandlePayload candlePayload)
