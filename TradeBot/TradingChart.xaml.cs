@@ -26,10 +26,7 @@ namespace TradeBot
         public event CandlesChangeHandler CandlesChange;
 
         public int candlesSpan = 75;
-        public int maxCandlesSpan { get; private set; }
         public CandleInterval candleInterval = CandleInterval.Minute;
-
-        private List<CandlePayload> candles = new List<CandlePayload>();
         public List<Indicator> indicators { get; private set; } = new List<Indicator>();
 
         private CandleStickSeries candlesSeries;
@@ -166,6 +163,7 @@ namespace TradeBot
         private async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
         {            
             await LoadMoreCandles();
+            UpdateIndicatorsSeries();
             AdjustYExtent();
         }
 
@@ -205,9 +203,14 @@ namespace TradeBot
 
         public async Task ResetSeries()
         {
-            candles.Clear();
+            buySeries.Points.Clear();
+            sellSeries.Points.Clear();
+
+            RemoveIndicators();
+
             candlesSeries.Items.Clear();
             candlesDates.Clear();
+
             loadedCandles = 0;
             allCandlesLoaded = false;
             lastCandleDate = DateTime.Now;
@@ -258,34 +261,32 @@ namespace TradeBot
 
         public async Task Simulate()
         {
-            buySeries.Points.Clear();
-            sellSeries.Points.Clear();
+            //buySeries.Points.Clear();
+            //sellSeries.Points.Clear();
 
-            await Task.Run(() =>
-            {
-                for (int i = 0; i < candlesSpan; ++i)
-                {
-                    var candle = candles[maxCandlesSpan - candlesSpan + i];
-                    foreach (var indicator in indicators)
-                    {
-                        indicator.UpdateState(i);
-                        if (indicator.IsBuySignal(i))
-                            buySeries.Points.Add(new ScatterPoint(i, (double)candle.Close));
-                        else if (indicator.IsSellSignal(i))
-                            sellSeries.Points.Add(new ScatterPoint(i, (double)candle.Close));
-                    }
-                }
-            });
-            plotView.InvalidatePlot();
+            //await Task.Run(() =>
+            //{
+            //    for (int i = 0; i < candlesSpan; ++i)
+            //    {
+            //        var candle = candles[maxCandlesSpan - candlesSpan + i];
+            //        foreach (var indicator in indicators)
+            //        {
+            //            indicator.UpdateState(i);
+            //            if (indicator.IsBuySignal(i))
+            //                buySeries.Points.Add(new ScatterPoint(i, (double)candle.Close));
+            //            else if (indicator.IsSellSignal(i))
+            //                sellSeries.Points.Add(new ScatterPoint(i, (double)candle.Close));
+            //        }
+            //    }
+            //});
+            //plotView.InvalidatePlot();
         }
 
         public async void AddIndicator(Indicator indicator)
         {
-            indicator.candlesSpan = candlesSpan;
-            indicator.priceIncrement = activeStock.MinPriceIncrement;
+            indicator.priceIncrement = (double)activeStock.MinPriceIncrement;
             indicators.Add(indicator);
 
-            //await UpdateCandlesList();
             UpdateIndicatorSeries(indicator);
         }
 
@@ -297,9 +298,9 @@ namespace TradeBot
 
         public void UpdateIndicatorSeries(Indicator indicator)
         {
-            indicator.Candles = candles;
+            indicator.Candles = candlesSeries.Items;
 
-            if (!indicator.AreGraphsInitialized)
+            if (!indicator.AreSeriesInitialized)
                 indicator.InitializeSeries(model.Series);
             indicator.UpdateSeries();
             plotView.InvalidatePlot();
@@ -315,20 +316,20 @@ namespace TradeBot
             plotView.InvalidatePlot();
         }
 
-        public void OnCandlesValuesChanged()
-        {
-            buySeries.Points.Clear();
-            sellSeries.Points.Clear();
+        //public void OnCandlesValuesChanged()
+        //{
+        //    buySeries.Points.Clear();
+        //    sellSeries.Points.Clear();
 
-            //UpdateCandlesSeries();
+        //    //UpdateCandlesSeries();
 
-            foreach (var indicator in indicators)
-                indicator.ResetState();
+        //    foreach (var indicator in indicators)
+        //        indicator.ResetState();
 
-            UpdateIndicatorsSeries();
+        //    UpdateIndicatorsSeries();
 
-            CandlesChange?.Invoke();
-        }
+        //    CandlesChange?.Invoke();
+        //}
 
         private void AdjustYExtent()
         {

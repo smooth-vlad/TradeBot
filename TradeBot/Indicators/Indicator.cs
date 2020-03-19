@@ -12,12 +12,10 @@ namespace TradeBot
 {
     public abstract class Indicator
     {
-        public List<CandlePayload> Candles { get; set; }
-        public int candlesSpan { get; set; }
-        public decimal priceIncrement;
-        protected bool areGraphsInitialized;
-        public bool AreGraphsInitialized { get => areGraphsInitialized; }
-        abstract public int CandlesNeeded { get; }
+        public List<HighLowItem> Candles { get; set; }
+        public double priceIncrement;
+        protected bool areSeriesInitialized;
+        public bool AreSeriesInitialized => areSeriesInitialized;
 
         public abstract void ResetState();
         public abstract void UpdateState(int rawCandleIndex);

@@ -46,21 +46,9 @@ namespace TradeBot
 
         private int? boughtCandle;
         private int? whenToSellIndex;
-        private decimal? whenToBuyPrice;
+        private double? whenToBuyPrice;
         private int? whenToBuyPriceSetIndex;
-        private decimal? stopLoss;
-
-        public override int CandlesNeeded
-        {
-            get
-            {
-                if (type == Type.Simple)
-                    return candlesSpan + period;
-                else if (type == Type.Exponential)
-                    return candlesSpan;
-                return candlesSpan;
-            }
-        }
+        private double? stopLoss;
 
         public MovingAverage(int period, int offset, Type type)
         {
@@ -72,13 +60,10 @@ namespace TradeBot
             this.type = type;
         }
 
-        override public bool IsBuySignal(int rawCandleIndex)
+        override public bool IsBuySignal(int candleIndex)
         {
             try
             {
-                int candlesStartIndex = Candles.Count - candlesSpan;
-                int candleIndex = candlesStartIndex + rawCandleIndex;
-
                 if (whenToBuyPrice != null)
                 {
                     if (Candles[candleIndex].Close > whenToBuyPrice)
@@ -86,7 +71,7 @@ namespace TradeBot
                         boughtCandle = candleIndex;
                         whenToBuyPrice = null;
                         whenToBuyPriceSetIndex = null;
-                        stopLoss = (decimal)bindedGraph.Points[rawCandleIndex].Y - priceIncrement * 10;
+                        stopLoss = bindedGraph.Points[candleIndex].Y - priceIncrement * 10;
                         return true;
                     }
                 }
@@ -98,13 +83,10 @@ namespace TradeBot
             }
         }
 
-        override public bool IsSellSignal(int rawCandleIndex)
+        override public bool IsSellSignal(int candleIndex)
         {
             try
             {
-                int candlesStartIndex = Candles.Count - candlesSpan;
-                int candleIndex = candlesStartIndex + rawCandleIndex;
-
                 if (Candles[candleIndex].Close < stopLoss ||
                     whenToSellIndex == candleIndex)
                 {
@@ -122,16 +104,13 @@ namespace TradeBot
             }
         }
 
-        override public void UpdateState(int rawCandleIndex)
+        override public void UpdateState(int candleIndex)
         {
             try
             {
-                int candlesStartIndex = Candles.Count - candlesSpan;
-                int candleIndex = candlesStartIndex + rawCandleIndex;
-
                 if (boughtCandle != null)
                 {
-                    if (whenToSellIndex == null && Candles[candleIndex].Close < (decimal)bindedGraph.Points[rawCandleIndex].Y)
+                    if (whenToSellIndex == null && Candles[candleIndex].Close < bindedGraph.Points[candleIndex].Y)
                     {
                         whenToSellIndex = candleIndex + 1;
                     }
@@ -150,18 +129,18 @@ namespace TradeBot
                     else
                     {
                         bool isCandleBig = true;
-                        decimal candleSize = Math.Abs(Candles[candleIndex].Close - Candles[candleIndex - 1].Close);
+                        double candleSize = Math.Abs(Candles[candleIndex].Close - Candles[candleIndex - 1].Close);
                         for (int i = 1; i < offset + 1; ++i)
                         {
-                            decimal thisCandleSize = Math.Abs(Candles[candleIndex - i].Close - Candles[candleIndex - i - 1].Close);
+                            double thisCandleSize = Math.Abs(Candles[candleIndex - i].Close - Candles[candleIndex - i - 1].Close);
                             if (thisCandleSize > candleSize)
                                 isCandleBig = false;
                         }
 
                         if (isCandleBig &&
-                            ((Candles[candleIndex - 1].Close - (decimal)bindedGraph.Points[rawCandleIndex - 1].Y) *
-                                (Candles[candleIndex].Close - (decimal)bindedGraph.Points[rawCandleIndex].Y) < 0) &&
-                            Candles[candleIndex].Close > (decimal)bindedGraph.Points[rawCandleIndex].Y)
+                            ((Candles[candleIndex - 1].Close - bindedGraph.Points[candleIndex - 1].Y) *
+                                (Candles[candleIndex].Close - bindedGraph.Points[candleIndex].Y) < 0) &&
+                            Candles[candleIndex].Close > bindedGraph.Points[candleIndex].Y)
                         {
                             whenToBuyPrice = Candles[candleIndex].High + priceIncrement * 2;
                             whenToBuyPriceSetIndex = candleIndex;
@@ -172,41 +151,35 @@ namespace TradeBot
             catch (Exception) { }
         }
 
-        private List<decimal> CalculateSMA()
+        private void CalculateSMA()
         {
-            var SMA = new List<decimal>(candlesSpan);
-            for (int i = Candles.Count - candlesSpan; i < Candles.Count; ++i)
+            for (int i = bindedGraph.Points.Count; i < Candles.Count - period; ++i)
             {
-                decimal sum = 0;
+                double sum = 0;
                 for (int j = 0; j < period; ++j)
-                    sum += Candles[i - j].Close;
-                SMA.Add(sum / period);
+                    sum += Candles[i + j].Close;
+                bindedGraph.Points.Add(new DataPoint(i, sum / period));
             }
-            return SMA;
         }
 
-        private List<decimal> CalculateEMA()
-        {
-            var EMA = new List<decimal>(candlesSpan);
-            double multiplier = 2.0 / (period + 1.0);
-            EMA.Add(Candles[Candles.Count - candlesSpan].Close);
-            for (int i = 1; i < candlesSpan; ++i)
-            {
-                EMA.Add((Candles[Candles.Count - candlesSpan + i].Close * (decimal)multiplier) + EMA[i - 1] * (1 - (decimal)multiplier));
-            }
-            return EMA;
-        }
+        //private List<double> CalculateEMA()
+        //{
+        //    var EMA = new List<double>(candlesSpan);
+        //    double multiplier = 2.0 / (period + 1.0);
+        //    EMA.Add(Candles[Candles.Count - candlesSpan].Close);
+        //    for (int i = 1; i < candlesSpan; ++i)
+        //    {
+        //        EMA.Add((Candles[Candles.Count - candlesSpan + i].Close * multiplier) + EMA[i - 1] * (1 - multiplier));
+        //    }
+        //    return EMA;
+        //}
 
         override public void UpdateSeries()
         {
-            List<decimal> values = new List<decimal>();
             if (type == Type.Simple)
-                values = CalculateSMA();
-            else if (type == Type.Exponential)
-                values = CalculateEMA();
-            bindedGraph.Points.Clear();
-            for (int i = 0; i < values.Count; ++i)
-                bindedGraph.Points.Add(new DataPoint(i, (double)values[i]));
+                CalculateSMA();
+            //else if (type == Type.Exponential)
+            //    values = CalculateEMA();
         }
 
         override public void InitializeSeries(ElementCollection<Series> series)
@@ -222,7 +195,7 @@ namespace TradeBot
                 Title = title,
             };
             series.Add(bindedGraph);
-            areGraphsInitialized = true;
+            areSeriesInitialized = true;
         }
 
         public override void ResetState()
