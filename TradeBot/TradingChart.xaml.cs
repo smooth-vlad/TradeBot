@@ -38,38 +38,63 @@ namespace TradeBot
 
         List<DateTime> c = new List<DateTime>();
 
-        private DateTime max;
-        private DateTime min;
+        private DateTime lastCandleDate; // on the right side
+        private DateTime firstCandleDate; // on the left side
 
-        int m = 0;
+        int loadedCandles = 0;
 
         bool isLoadingCandles = false;
 
-        public PlotModel model = new PlotModel();
-
-        public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
-            = new Dictionary<CandleInterval, TimeSpan>
-        {
-            { CandleInterval.Minute,        TimeSpan.FromDays(1)},
-            { CandleInterval.FiveMinutes,   TimeSpan.FromDays(1)},
-            { CandleInterval.QuarterHour,   TimeSpan.FromDays(1)},
-            { CandleInterval.HalfHour,      TimeSpan.FromDays(1)},
-            { CandleInterval.Hour,          TimeSpan.FromDays(7).Add(TimeSpan.FromHours(-1))},
-            { CandleInterval.Day,           TimeSpan.FromDays(364)},
-            { CandleInterval.Week,          TimeSpan.FromDays(364*2)},
-            { CandleInterval.Month,         TimeSpan.FromDays(364*10)},
-        };
+        public PlotModel model;
 
         public TradingChart()
         {
             InitializeComponent();
 
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, IsPanEnabled = false, IsZoomEnabled = false });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom });
+            lastCandleDate = firstCandleDate = DateTime.Now;
+
+            model = new PlotModel
+            {
+                TextColor = OxyColor.FromArgb(140, 0, 0, 0),
+                PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0),
+            };
+
+            model.Axes.Add(new LinearAxis
+            {
+                Position = AxisPosition.Left,
+                IsPanEnabled = false,
+                IsZoomEnabled = false,
+                MajorGridlineThickness = 2.5,
+                MinorGridlineThickness = 0,
+                MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0),
+                MajorGridlineStyle = LineStyle.Solid,
+                TicklineColor = OxyColor.FromArgb(10, 0, 0, 0),
+                TickStyle = TickStyle.Outside,
+            });
+
+            model.Axes.Add(new LinearAxis
+            {
+                Position = AxisPosition.Bottom,
+                MajorGridlineStyle = LineStyle.Solid,
+                TicklineColor = OxyColor.FromArgb(10, 0, 0, 0),
+                TickStyle = TickStyle.Outside,
+                MaximumRange = 200,
+                MinimumRange = 15,
+                AbsoluteMinimum = -10,
+                EndPosition = 0,
+                StartPosition = 1,
+                MajorGridlineThickness = 0,
+                MinorGridlineThickness = 0,
+                MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0),
+            });
+
 
             candlesSeries = new CandleStickSeries
             {
                 Title = "Candles",
+                DecreasingColor = OxyColor.FromRgb(230, 63, 60),
+                IncreasingColor = OxyColor.FromRgb(45, 128, 32),
+                StrokeThickness = 1,
             };
 
             buySeries = new ScatterSeries
@@ -92,26 +117,9 @@ namespace TradeBot
                 MarkerSize = 7.5,
             };
 
-            TimeSpan period;
-            if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
-                throw new KeyNotFoundException();
-            max = DateTime.Now;
-            min = max;
-
-            candlesSeries.DecreasingColor = OxyColor.FromRgb(230, 63, 60);
-            candlesSeries.IncreasingColor = OxyColor.FromRgb(45, 128, 32);
-            candlesSeries.StrokeThickness = 1;
-
             model.Series.Add(candlesSeries);
             model.Series.Add(buySeries);
             model.Series.Add(sellSeries);
-
-            model.Axes[0].MajorGridlineThickness = 2.5;
-            model.Axes[0].MinorGridlineThickness = 0;
-            model.Axes[0].MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0);
-            model.Axes[0].MajorGridlineStyle = LineStyle.Solid;
-            model.Axes[0].TicklineColor = OxyColor.FromArgb(10, 0, 0, 0);
-            model.Axes[0].TickStyle = TickStyle.Outside;
 
             Func<double, string> formatLabel = delegate (double d)
             {
@@ -136,34 +144,16 @@ namespace TradeBot
                         case CandleInterval.Month:
                             return c[(int)d].ToString("yyyy");
                     }
-                    return "";
                 }
-                else
-                {
-                    return "";
-                }
-        };
+                return "";
+            };
             model.Axes[1].LabelFormatter = formatLabel;
-            model.Axes[1].MajorGridlineThickness = 0;
-            model.Axes[1].MinorGridlineThickness = 0;
-            model.Axes[1].MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0);
-            model.Axes[1].MajorGridlineStyle = LineStyle.Solid;
-            model.Axes[1].TicklineColor = OxyColor.FromArgb(10, 0, 0, 0);
-            model.Axes[1].TickStyle = TickStyle.Outside;
-            model.Axes[1].MaximumRange = 200;
-            model.Axes[1].MinimumRange = 15;
-            model.Axes[1].AbsoluteMinimum = -10;
             model.Axes[1].AxisChanged += async (sender, e) =>
             {
                 await LoadMoreCandles(sender as LinearAxis);
                 AdjustYExtent(candlesSeries, model.Axes[1] as LinearAxis, model.Axes[0] as LinearAxis);
             };
-            model.Axes[1].EndPosition = 0;
-            model.Axes[1].StartPosition = 1;
             model.Axes[1].Zoom(0, 75);
-
-            model.TextColor = OxyColor.FromArgb(140, 0, 0, 0);
-            model.PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0);
 
             plotView.Model = model;
 
@@ -195,14 +185,10 @@ namespace TradeBot
             return result;
         }
 
-        public async Task<List<CandlePayload>> GetCandles(string figi, DateTime to, CandleInterval interval)
+        public async Task<List<CandlePayload>> GetCandles(string figi, DateTime to, CandleInterval interval, TimeSpan queryOffset)
         {
-            TimeSpan period;
-            if (!intervalToMaxPeriod.TryGetValue(interval, out period))
-                throw new KeyNotFoundException();
-
             var result = new List<CandlePayload>();
-            var candles = await context.MarketCandlesAsync(figi, to - period, to, interval);
+            var candles = await context.MarketCandlesAsync(figi, to - queryOffset, to, interval);
 
             for (int i = 0; i < candles.Candles.Count; ++i)
                 result.Add(candles.Candles[i]);
@@ -216,9 +202,9 @@ namespace TradeBot
             candles.Clear();
             candlesSeries.Items.Clear();
             c.Clear();
-            m = 0;
-            max = DateTime.Now;
-            min = max;
+            loadedCandles = 0;
+            lastCandleDate = DateTime.Now;
+            firstCandleDate = lastCandleDate;
 
             await LoadMoreCandles(model.Axes[1] as LinearAxis);
             model.Axes[1].Zoom(0, 75);
@@ -231,34 +217,28 @@ namespace TradeBot
             if (isLoadingCandles || activeStock == null || context == null)
                 return;
 
-            if (m > axis.ActualMaximum + 100)
+            if (loadedCandles > axis.ActualMaximum + 100)
                 return;
-            isLoadingCandles = true;
-            debug.Text = string.Format("Loading ended\nmax date - {0}, min date - {1}, number of candles - {2}", max, min, m);
 
-            TimeSpan period;
-            if (!intervalToMaxPeriod.TryGetValue(candleInterval, out period))
-            {
-                isLoadingCandles = false;
-                throw new KeyNotFoundException();
-            }
-            var candles = await GetCandles(activeStock.Figi, min, candleInterval);
+            isLoadingCandles = true;
+            debug.Text = string.Format("Loading started\nmax date - {0}, min date - {1}, number of candles - {2}", lastCandleDate, firstCandleDate, loadedCandles);
+
+            var period = GetPeriod(candleInterval);
+            var candles = await GetCandles(activeStock.Figi, firstCandleDate, candleInterval, period);
+            isLoadingCandles = false;
             if (candles.Count == 0)
-            {
-                isLoadingCandles = false;
                 return;
-            }
-            min -= period;
+            firstCandleDate -= period;
 
             try
             {
                 for (int i = 0; i < candles.Count; ++i)
                 {
                     var candle = candles[i];
-                    candlesSeries.Items.Add(new HighLowItem(m + i, (double)candle.High, (double)candle.Low, (double)candle.Open, (double)candle.Close));
+                    candlesSeries.Items.Add(new HighLowItem(loadedCandles + i, (double)candle.High, (double)candle.Low, (double)candle.Open, (double)candle.Close));
                     c.Add(candle.Time);
                 }
-                m += candles.Count;
+                loadedCandles += candles.Count;
             }
             catch (Exception e)
             {
@@ -266,7 +246,7 @@ namespace TradeBot
                 MessageBox.Show(e.Message);
             }
             isLoadingCandles = false;
-            debug.Text = string.Format("Loading ended\nmax date - {0}, min date - {1}, number of candles - {2}", max, min, m);
+            debug.Text = string.Format("Loading ended\nmax date - {0}, min date - {1}, number of candles - {2}", lastCandleDate, firstCandleDate, loadedCandles);
             plotView.InvalidatePlot();
         }
 
@@ -399,5 +379,26 @@ namespace TradeBot
             model.Axes[1].ZoomAtCenter(1);
             plotView.InvalidatePlot();
         }
-}
+
+        public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
+            = new Dictionary<CandleInterval, TimeSpan>
+        {
+            { CandleInterval.Minute,        TimeSpan.FromDays(1)},
+            { CandleInterval.FiveMinutes,   TimeSpan.FromDays(1)},
+            { CandleInterval.QuarterHour,   TimeSpan.FromDays(1)},
+            { CandleInterval.HalfHour,      TimeSpan.FromDays(1)},
+            { CandleInterval.Hour,          TimeSpan.FromDays(7).Add(TimeSpan.FromHours(-1))},
+            { CandleInterval.Day,           TimeSpan.FromDays(364)},
+            { CandleInterval.Week,          TimeSpan.FromDays(364*2)},
+            { CandleInterval.Month,         TimeSpan.FromDays(364*10)},
+        };
+
+        public TimeSpan GetPeriod(CandleInterval interval)
+        {
+            TimeSpan result;
+            if (!intervalToMaxPeriod.TryGetValue(interval, out result))
+                throw new KeyNotFoundException();
+            return result;
+        }
+    }
 }
