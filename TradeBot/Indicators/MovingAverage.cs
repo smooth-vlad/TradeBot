@@ -164,12 +164,24 @@ namespace TradeBot
 
         private void CalculateEMA()
         {
-            //double multiplier = 2.0 / (period + 1.0);
-            //EMA.Add(Candles[Candles.Count - candlesSpan].Close);
-            //for (int i = 1; i < candlesSpan; ++i)
-            //{
-            //    EMA.Add((Candles[Candles.Count - candlesSpan + i].Close * multiplier) + EMA[i - 1] * (1 - multiplier));
-            //}
+            double multiplier = 2.0 / (period + 1.0);
+            var EMA = new List<double>();
+
+            {
+                double sum = 0;
+                for (int j = 0; j < period; ++j)
+                    sum += Candles[Candles.Count - period + j].Close;
+                EMA.Add(sum / period);
+            }
+
+            for (int i = 1; i < Candles.Count - bindedGraph.Points.Count - period; ++i)
+            {
+                EMA.Add((Candles[Candles.Count - period - i - 1].Close * multiplier) + EMA[i - 1] * (1 - multiplier));
+            }
+            for (int i = EMA.Count - 1; i >= 0; --i)
+            {
+                bindedGraph.Points.Add(new DataPoint(bindedGraph.Points.Count - 1, EMA[i]));
+            }
         }
 
         override public void UpdateSeries()
