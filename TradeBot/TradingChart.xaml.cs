@@ -125,8 +125,8 @@ namespace TradeBot
 
             xAxis.LabelFormatter = delegate (double d)
             {
-                var c = candlesSeries.Items.FindIndex((v) => v.X == d);
-                if (c >= 0)
+                //var c = candlesSeries.Items.FindIndex((v) => v.X == d);
+                if (candlesSeries.Items.Count > (int)d && d >= 0)
                 {
                     switch (candleInterval)
                     {
@@ -137,15 +137,15 @@ namespace TradeBot
                         case CandleInterval.TenMinutes:
                         case CandleInterval.QuarterHour:
                         case CandleInterval.HalfHour:
-                            return candlesDates[c].ToString("HH:mm");
+                            return candlesDates[(int)d].ToString("HH:mm");
                         case CandleInterval.Hour:
                         case CandleInterval.TwoHours:
                         case CandleInterval.FourHours:
                         case CandleInterval.Day:
                         case CandleInterval.Week:
-                            return candlesDates[c].ToString("dd MMMM");
+                            return candlesDates[(int)d].ToString("dd MMMM");
                         case CandleInterval.Month:
-                            return candlesDates[c].ToString("yyyy");
+                            return candlesDates[(int)d].ToString("yyyy");
                     }
                 }
                 return "";
@@ -393,6 +393,30 @@ namespace TradeBot
             if (!intervalToMaxPeriod.TryGetValue(interval, out result))
                 throw new KeyNotFoundException();
             return result;
+        }
+
+        public async Task LoadNewCandles()
+        {
+            var candles = await GetCandles(activeStock.Figi, DateTime.Now, candleInterval, DateTime.Now.Subtract(lastCandleDate));
+            if (candles.Count == 0)
+                return;
+
+            lastCandleDate = DateTime.Now;
+
+            var c = new List<HighLowItem>();
+            var cd = new List<DateTime>();
+            for (int i = candles.Count - 1; i >= 0; --i)
+            {
+                var candle = candles[i];
+                c.Add(new HighLowItem(i, (double)candle.High, (double)candle.Low, (double)candle.Open, (double)candle.Close));
+                cd.Add(candle.Time);
+            }
+            candlesSeries.Items.ForEach((v) => v.X += candles.Count);
+            candlesSeries.Items.InsertRange(0, c);
+            candlesDates.InsertRange(0, cd);
+            // update indicator values
+
+            plotView.InvalidatePlot();
         }
 
         private void MovingAverage_Click(object sender, RoutedEventArgs e)

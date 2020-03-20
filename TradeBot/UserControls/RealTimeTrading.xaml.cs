@@ -66,18 +66,12 @@ namespace TradeBot
 
         private async void CandlesTimerElapsed()
         {
-            //Dispatcher.Invoke(() =>
-            //{
-            //    if (tradingChart.candlesSeries.Items.Count > 6)
-            //    {
-            //        var c = tradingChart.candlesSeries.Items[6];
-            //        tradingChart.candlesSeries.Items.Insert(0, new OxyPlot.Series.HighLowItem(tradingChart.candlesSeries.Items[0].X - 1,
-            //            c.High, c.Low, c.Open, c.Close));
-            //        tradingChart.candlesDates.Insert(0, DateTime.Now);
-            //        // update indicators values
-            //        tradingChart.plotView.InvalidatePlot();
-            //    }
-            //});
+            await tradingChart.LoadNewCandles();
+            //var c = tradingChart.candlesSeries.Items[6];
+            //tradingChart.candlesSeries.Items.Insert(0, new OxyPlot.Series.HighLowItem(tradingChart.candlesSeries.Items[0].X - 1,
+            //    c.High, c.Low, c.Open, c.Close));
+            //tradingChart.candlesDates.Insert(0, DateTime.Now);
+            // update indicators values
         }
 
         private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
