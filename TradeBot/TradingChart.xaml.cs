@@ -394,5 +394,19 @@ namespace TradeBot
                 throw new KeyNotFoundException();
             return result;
         }
+
+        private void MovingAverage_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new MovingAverageDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, dialog.Type));
+            }
+        }
+
+        private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveIndicators();
+        }
     }
 }

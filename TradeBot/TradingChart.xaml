@@ -15,6 +15,18 @@
         </Grid.RowDefinitions>
 
         <oxy:PlotView Grid.Row="0" x:Name="plotView" Model="{Binding Source=StaticResource Model}">
+            <oxy:PlotView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Add indicator">
+                        <MenuItem x:Name="MovingAverage" Header="Moving Average" Click="MovingAverage_Click"></MenuItem>
+                        <MenuItem x:Name="MACD" Header="MACD"></MenuItem>
+                        <MenuItem x:Name="RSI" Header="RSI"></MenuItem>
+                        <MenuItem x:Name="Momentum" Header="Momentum"></MenuItem>
+                        <MenuItem x:Name="Volume" Header="Volume"></MenuItem>
+                    </MenuItem>
+                    <MenuItem x:Name="RemoveIndicatorsButton" Header="Remove indicators" Click="RemoveIndicators_Click"></MenuItem>
+                </ContextMenu>
+            </oxy:PlotView.ContextMenu>
         </oxy:PlotView>
     </Grid>
 </UserControl>
