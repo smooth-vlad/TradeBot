@@ -12,15 +12,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <oxy:PlotView Grid.Row="0" x:Name="plotView" Model="{Binding Source=StaticResource Model}">
         </oxy:PlotView>
-        <TextBlock x:Name="debug"
-                   Grid.Row="1"
-                   Opacity=".6" FontSize="13">
-
-        </TextBlock>
     </Grid>
 </UserControl>

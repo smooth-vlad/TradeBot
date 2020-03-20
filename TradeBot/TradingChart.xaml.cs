@@ -42,7 +42,7 @@ namespace TradeBot
         private DateTime firstCandleDate; // on the left side
 
         private int loadedCandles = 0;
-        private bool allCandlesLoaded = false;
+        private int candlesLoadsFailed = 0;
         private bool isLoadingCandles = false;
 
         public PlotModel model;
@@ -64,7 +64,7 @@ namespace TradeBot
                 Position = AxisPosition.Left,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
-                MajorGridlineThickness = 2.5,
+                MajorGridlineThickness = 0,
                 MinorGridlineThickness = 0,
                 MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0),
                 MajorGridlineStyle = LineStyle.Solid,
@@ -83,7 +83,7 @@ namespace TradeBot
                 AbsoluteMinimum = -10,
                 EndPosition = 0,
                 StartPosition = 1,
-                MajorGridlineThickness = 0,
+                MajorGridlineThickness = 2,
                 MinorGridlineThickness = 0,
                 MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0),
             };
@@ -211,7 +211,7 @@ namespace TradeBot
             candlesDates.Clear();
 
             loadedCandles = 0;
-            allCandlesLoaded = false;
+            candlesLoadsFailed = 0;
             lastCandleDate = DateTime.Now;
             firstCandleDate = lastCandleDate;
 
@@ -227,25 +227,23 @@ namespace TradeBot
 
         private async Task LoadMoreCandles()
         {
-            if (isLoadingCandles || allCandlesLoaded || activeStock == null || context == null)
+            if (isLoadingCandles || candlesLoadsFailed >= 10 || activeStock == null || context == null)
                 return;
 
             if (loadedCandles > xAxis.ActualMaximum + 100)
                 return;
 
             isLoadingCandles = true;
-            debug.Text = string.Format("Loading started\nmax date - {0}, min date - {1}, number of candles - {2}", lastCandleDate, firstCandleDate, loadedCandles);
 
             var period = GetPeriod(candleInterval);
             var candles = await GetCandles(activeStock.Figi, firstCandleDate, candleInterval, period);
+            firstCandleDate -= period;
             if (candles.Count == 0)
             {
                 isLoadingCandles = false;
-                allCandlesLoaded = true;
-                debug.Text = string.Format("Loading interrupted (all candles loaded)\nmax date - {0}, min date - {1}, number of candles - {2}", lastCandleDate, firstCandleDate, loadedCandles);
+                candlesLoadsFailed += 1;
                 return;
             }
-            firstCandleDate -= period;
 
             for (int i = 0; i < candles.Count; ++i)
             {
@@ -255,7 +253,6 @@ namespace TradeBot
             }
             loadedCandles += candles.Count;
 
-            debug.Text = string.Format("Loading ended\nmax date - {0}, min date - {1}, number of candles - {2}\ncandles loaded - {3}", lastCandleDate, firstCandleDate, loadedCandles, candles.Count);
             isLoadingCandles = false;
             plotView.InvalidatePlot();
         }
@@ -283,7 +280,7 @@ namespace TradeBot
             plotView.InvalidatePlot();
         }
 
-        public async void AddIndicator(Indicator indicator)
+        public void AddIndicator(Indicator indicator)
         {
             indicator.priceIncrement = (double)activeStock.MinPriceIncrement;
             indicators.Add(indicator);

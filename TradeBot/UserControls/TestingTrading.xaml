@@ -22,23 +22,22 @@
             </Grid.OpacityMask>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="60*"></RowDefinition>
-                <RowDefinition Height="5*"/>
-                <RowDefinition Height="35*"></RowDefinition>
+                <RowDefinition Height="80*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Border x:Name="CardBorder" Grid.Row="0" Grid.RowSpan="4" CornerRadius="5" Background="White" />
+            <Border x:Name="CardBorder" Grid.Row="0" Grid.RowSpan="3" CornerRadius="5" Background="White" />
 
-            <Border Grid.Row="0" Grid.RowSpan="3" Background="#81D4FA" ></Border>
+            <Border Grid.Row="0" Grid.RowSpan="2" Background="#81D4FA" ></Border>
 
             <TextBlock x:Name="chartNameTextBlock" Grid.Row="0" TextAlignment="Center" Padding="0, 0, 0, 20" Foreground="#303030" FontSize="18">Instrument</TextBlock>
 
             <local:TradingChart x:Name="tradingChart"
-                    Grid.Row="1" Grid.RowSpan="2">
+                    Grid.Row="1">
                 
             </local:TradingChart>
 
-            <ScrollViewer Grid.Row="3">
+            <ScrollViewer Grid.Row="2">
                 <StackPanel VerticalAlignment="Center" Margin="25 3 25 4">
                     <Button x:Name="simulateButton" Margin="0, 6" Background="#4ba3c7" HorizontalAlignment="Left" Padding="40, 4" BorderThickness="0" Click="simulateButton_Click">
                         <Button.Resources>
