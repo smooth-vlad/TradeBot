@@ -51,6 +51,12 @@ namespace TradeBot
                 tickerTextBox.Focus();
                 return;
             }
+            catch (Exception)
+            {
+                tickerErrorTextBlock.Text = "* Unexpected error. Please, try again";
+                tickerTextBox.Focus();
+                return;
+            }
 
             parent.Header = activeStock.Name;
 

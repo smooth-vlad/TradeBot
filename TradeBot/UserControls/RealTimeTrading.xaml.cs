@@ -21,8 +21,6 @@ namespace TradeBot
 
         private System.Threading.Timer candlesTimer;
 
-        private bool updatingCandlesNow = false;
-
         public RealTimeTrading(Context context, MarketInstrument activeStock)
         {
             InitializeComponent();
@@ -45,7 +43,7 @@ namespace TradeBot
             candlesTimer = new System.Threading.Timer((e) => CandlesTimerElapsed(),
                 null,
                 TimeSpan.Zero,
-                TimeSpan.FromSeconds(45));
+                TimeSpan.FromSeconds(5));
 
             DataContext = this;
         }
@@ -68,10 +66,18 @@ namespace TradeBot
 
         private async void CandlesTimerElapsed()
         {
-            if (updatingCandlesNow)
-                return;
-            //await tradingChart.UpdateCandlesList();
-            //Dispatcher.Invoke(() => tradingChart.OnCandlesValuesChanged());
+            //Dispatcher.Invoke(() =>
+            //{
+            //    if (tradingChart.candlesSeries.Items.Count > 6)
+            //    {
+            //        var c = tradingChart.candlesSeries.Items[6];
+            //        tradingChart.candlesSeries.Items.Insert(0, new OxyPlot.Series.HighLowItem(tradingChart.candlesSeries.Items[0].X - 1,
+            //            c.High, c.Low, c.Open, c.Close));
+            //        tradingChart.candlesDates.Insert(0, DateTime.Now);
+            //        // update indicators values
+            //        tradingChart.plotView.InvalidatePlot();
+            //    }
+            //});
         }
 
         private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

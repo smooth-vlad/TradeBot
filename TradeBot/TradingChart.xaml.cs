@@ -125,7 +125,8 @@ namespace TradeBot
 
             xAxis.LabelFormatter = delegate (double d)
             {
-                if (candlesDates.Count > d && d >= 0)
+                var c = candlesSeries.Items.FindIndex((v) => v.X == d);
+                if (c >= 0)
                 {
                     switch (candleInterval)
                     {
@@ -136,15 +137,15 @@ namespace TradeBot
                         case CandleInterval.TenMinutes:
                         case CandleInterval.QuarterHour:
                         case CandleInterval.HalfHour:
-                            return candlesDates[(int)d].ToString("HH:mm");
+                            return candlesDates[c].ToString("HH:mm");
                         case CandleInterval.Hour:
                         case CandleInterval.TwoHours:
                         case CandleInterval.FourHours:
                         case CandleInterval.Day:
                         case CandleInterval.Week:
-                            return candlesDates[(int)d].ToString("dd MMMM");
+                            return candlesDates[c].ToString("dd MMMM");
                         case CandleInterval.Month:
-                            return candlesDates[(int)d].ToString("yyyy");
+                            return candlesDates[c].ToString("yyyy");
                     }
                 }
                 return "";
@@ -261,25 +262,25 @@ namespace TradeBot
 
         public async Task Simulate()
         {
-            //buySeries.Points.Clear();
-            //sellSeries.Points.Clear();
+            buySeries.Points.Clear();
+            sellSeries.Points.Clear();
 
-            //await Task.Run(() =>
-            //{
-            //    for (int i = 0; i < candlesSpan; ++i)
-            //    {
-            //        var candle = candles[maxCandlesSpan - candlesSpan + i];
-            //        foreach (var indicator in indicators)
-            //        {
-            //            indicator.UpdateState(i);
-            //            if (indicator.IsBuySignal(i))
-            //                buySeries.Points.Add(new ScatterPoint(i, (double)candle.Close));
-            //            else if (indicator.IsSellSignal(i))
-            //                sellSeries.Points.Add(new ScatterPoint(i, (double)candle.Close));
-            //        }
-            //    }
-            //});
-            //plotView.InvalidatePlot();
+            await Task.Run(() =>
+            {
+                for (int i = candlesSeries.Items.Count - 1; i >= 0; --i)
+                {
+                    var candle = candlesSeries.Items[i];
+                    foreach (var indicator in indicators)
+                    {
+                        indicator.UpdateState(i);
+                        if (indicator.IsBuySignal(i))
+                            buySeries.Points.Add(new ScatterPoint(i, candle.Close));
+                        else if (indicator.IsSellSignal(i))
+                            sellSeries.Points.Add(new ScatterPoint(i, candle.Close));
+                    }
+                }
+            });
+            plotView.InvalidatePlot();
         }
 
         public async void AddIndicator(Indicator indicator)

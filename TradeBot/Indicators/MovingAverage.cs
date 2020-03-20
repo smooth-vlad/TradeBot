@@ -113,7 +113,7 @@ namespace TradeBot
                 {
                     if (whenToSellIndex == null && Candles[candleIndex].Close < bindedGraph.Points[candleIndex].Y)
                     {
-                        whenToSellIndex = candleIndex + 1;
+                        whenToSellIndex = candleIndex - 1;
                     }
                 }
                 else
@@ -130,16 +130,16 @@ namespace TradeBot
                     else
                     {
                         bool isCandleBig = true;
-                        double candleSize = Math.Abs(Candles[candleIndex].Close - Candles[candleIndex - 1].Close);
+                        double candleSize = Math.Abs(Candles[candleIndex].Close - Candles[candleIndex + 1].Close);
                         for (int i = 1; i < offset + 1; ++i)
                         {
-                            double thisCandleSize = Math.Abs(Candles[candleIndex - i].Close - Candles[candleIndex - i - 1].Close);
+                            double thisCandleSize = Math.Abs(Candles[candleIndex + i].Close - Candles[candleIndex + i + 1].Close);
                             if (thisCandleSize > candleSize)
                                 isCandleBig = false;
                         }
 
                         if (isCandleBig &&
-                            ((Candles[candleIndex - 1].Close - bindedGraph.Points[candleIndex - 1].Y) *
+                            ((Candles[candleIndex + 1].Close - bindedGraph.Points[candleIndex + 1].Y) *
                                 (Candles[candleIndex].Close - bindedGraph.Points[candleIndex].Y) < 0) &&
                             Candles[candleIndex].Close > bindedGraph.Points[candleIndex].Y)
                         {
