@@ -215,10 +215,15 @@ namespace TradeBot
             lastCandleDate = DateTime.Now;
             firstCandleDate = lastCandleDate;
 
-            await LoadMoreCandles();
-            xAxis.Zoom(0, 75);
+            while (loadedCandles < xAxis.ActualMaximum && candlesLoadsFailed < 10)
+            {
+                await LoadMoreCandles();
+            }
+
 
             ResetIndicators();
+
+            UpdateXAxis();
 
             plotView.InvalidatePlot();
         }
