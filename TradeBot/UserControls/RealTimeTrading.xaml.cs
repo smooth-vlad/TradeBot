@@ -66,12 +66,7 @@ namespace TradeBot
 
         private async void CandlesTimerElapsed()
         {
-            await tradingChart.LoadNewCandles();
-            //var c = tradingChart.candlesSeries.Items[6];
-            //tradingChart.candlesSeries.Items.Insert(0, new OxyPlot.Series.HighLowItem(tradingChart.candlesSeries.Items[0].X - 1,
-            //    c.High, c.Low, c.Open, c.Close));
-            //tradingChart.candlesDates.Insert(0, DateTime.Now);
-            // update indicators values
+            //await tradingChart.LoadNewCandles();
         }
 
         private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -93,7 +88,7 @@ namespace TradeBot
 
             tradingChart.candleInterval = interval;
 
-            await tradingChart.ResetSeries();
+            tradingChart.ResetSeries();
         }
     }
 }

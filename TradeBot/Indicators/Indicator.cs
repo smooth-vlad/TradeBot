@@ -23,7 +23,7 @@ namespace TradeBot
         public abstract bool IsSellSignal(int rawCandleIndex);
 
         public abstract void UpdateSeries();
-        public abstract void RecalculateSeries();
+        public abstract void ResetSeries();
         public abstract void RemoveSeries(ElementCollection<Series> series);
         public abstract void InitializeSeries(ElementCollection<Series> series);
     }

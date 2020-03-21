@@ -11,6 +11,7 @@ using System.Diagnostics;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using System.Threading;
 
 namespace TradeBot
 {
@@ -43,9 +44,10 @@ namespace TradeBot
 
         private int loadedCandles = 0;
         private int candlesLoadsFailed = 0;
-        private bool isLoadingCandles = false;
 
         public PlotModel model;
+
+        private Task candlesLoadingTask;
 
         public TradingChart()
         {
@@ -125,7 +127,6 @@ namespace TradeBot
 
             xAxis.LabelFormatter = delegate (double d)
             {
-                //var c = candlesSeries.Items.FindIndex((v) => v.X == d);
                 if (candlesSeries.Items.Count > (int)d && d >= 0)
                 {
                     switch (candleInterval)
@@ -151,7 +152,6 @@ namespace TradeBot
                 return "";
             };
             xAxis.AxisChanged += XAxis_AxisChanged;
-            UpdateXAxis();
 
             plotView.Model = model;
 
@@ -162,32 +162,30 @@ namespace TradeBot
         }
 
         private async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
-        {            
-            await LoadMoreCandles();
-            UpdateIndicatorsSeries();
+        {
+            await LoadMoreCandlesAndUpdateSeries();
+        }
+
+        private async Task LoadMoreCandlesAndUpdateSeries()
+        {
+            if (candlesLoadingTask != null)
+                await candlesLoadingTask;
+
+            while (loadedCandles < xAxis.ActualMaximum && candlesLoadsFailed < 10)
+            {
+                candlesLoadingTask = LoadMoreCandles();
+                await candlesLoadingTask;
+            }
+            foreach (var indicator in indicators)
+                indicator.UpdateSeries();
             AdjustYExtent();
+
+            plotView.InvalidatePlot();
         }
 
         public static HighLowItem CandleToHighLowItem(double x, CandlePayload candlePayload)
         {
             return new HighLowItem(x, (double)candlePayload.High, (double)candlePayload.Low, (double)candlePayload.Open, (double)candlePayload.Close);
-        }
-
-        public async Task<List<CandlePayload>> GetFixedAmountOfCandles(string figi, int amount, CandleInterval interval, TimeSpan queryOffset)
-        {
-            var result = new List<CandlePayload>(amount);
-            var to = DateTime.Now;
-
-            while (result.Count < amount)
-            {
-                var candles = await context.MarketCandlesAsync(figi, to - queryOffset, to, interval);
-
-                for (int i = candles.Candles.Count - 1; i >= 0 && result.Count < amount; --i)
-                    result.Add(candles.Candles[i]);
-                to = to - queryOffset;
-            }
-            result.Reverse();
-            return result;
         }
 
         public async Task<List<CandlePayload>> GetCandles(string figi, DateTime to, CandleInterval interval, TimeSpan queryOffset)
@@ -202,7 +200,7 @@ namespace TradeBot
             return result;
         }
 
-        public async Task ResetSeries()
+        public async void ResetSeries()
         {
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
@@ -215,37 +213,31 @@ namespace TradeBot
             lastCandleDate = DateTime.Now;
             firstCandleDate = lastCandleDate;
 
-            while (loadedCandles < xAxis.ActualMaximum && candlesLoadsFailed < 10)
+            foreach (var indicator in indicators)
             {
-                await LoadMoreCandles();
+                indicator.ResetState();
+                indicator.ResetSeries();
             }
 
+            await LoadMoreCandlesAndUpdateSeries();
 
-            ResetIndicators();
-
-            UpdateXAxis();
+            xAxis.Zoom(0, 75);
 
             plotView.InvalidatePlot();
         }
 
-        private void UpdateXAxis() => xAxis.ZoomAtCenter(1);
-
         private async Task LoadMoreCandles()
         {
-            if (isLoadingCandles || candlesLoadsFailed >= 10 || activeStock == null || context == null)
+            if (activeStock == null || context == null ||
+                candlesLoadsFailed >= 10 ||
+                loadedCandles > xAxis.ActualMaximum + 100)
                 return;
-
-            if (loadedCandles > xAxis.ActualMaximum + 100)
-                return;
-
-            isLoadingCandles = true;
 
             var period = GetPeriod(candleInterval);
             var candles = await GetCandles(activeStock.Figi, firstCandleDate, candleInterval, period);
             firstCandleDate -= period;
             if (candles.Count == 0)
             {
-                isLoadingCandles = false;
                 candlesLoadsFailed += 1;
                 return;
             }
@@ -253,13 +245,12 @@ namespace TradeBot
             for (int i = 0; i < candles.Count; ++i)
             {
                 var candle = candles[i];
-                candlesSeries.Items.Add(new HighLowItem(loadedCandles + i, (double)candle.High, (double)candle.Low, (double)candle.Open, (double)candle.Close));
+                candlesSeries.Items.Add(CandleToHighLowItem(loadedCandles + i, candle));
                 candlesDates.Add(candle.Time);
             }
             loadedCandles += candles.Count;
 
-            isLoadingCandles = false;
-            plotView.InvalidatePlot();
+            candlesLoadsFailed = 0;
         }
 
         public async Task Simulate()
@@ -267,7 +258,10 @@ namespace TradeBot
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
 
-            await Task.Run(() =>
+            foreach (var indicator in indicators)
+                indicator.ResetState();
+
+            await Task.Factory.StartNew(() =>
             {
                 for (int i = candlesSeries.Items.Count - 1; i >= 0; --i)
                 {
@@ -288,22 +282,15 @@ namespace TradeBot
         public void AddIndicator(Indicator indicator)
         {
             indicator.priceIncrement = (double)activeStock.MinPriceIncrement;
+            indicator.Candles = candlesSeries.Items;
             indicators.Add(indicator);
 
             UpdateIndicatorSeries(indicator);
-            UpdateXAxis();
-        }
-
-        public void UpdateIndicatorsSeries()
-        {
-            foreach (var indicator in indicators)
-                UpdateIndicatorSeries(indicator);
+            AdjustYExtent();
         }
 
         public void UpdateIndicatorSeries(Indicator indicator)
         {
-            indicator.Candles = candlesSeries.Items;
-
             if (!indicator.AreSeriesInitialized)
                 indicator.InitializeSeries(model.Series);
             indicator.UpdateSeries();
@@ -316,15 +303,7 @@ namespace TradeBot
             foreach (var indicator in indicators)
                 indicator.RemoveSeries(model.Series);
             indicators = new List<Indicator>();
-            UpdateXAxis();
-            plotView.InvalidatePlot();
-        }
-
-        public void ResetIndicators()
-        {
-            foreach (var indicator in indicators)
-                indicator.RecalculateSeries();
-            UpdateXAxis();
+            AdjustYExtent();
             plotView.InvalidatePlot();
         }
 
@@ -372,13 +351,6 @@ namespace TradeBot
             }
         }
 
-        private async void UserControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            await LoadMoreCandles();
-            UpdateXAxis();
-            plotView.InvalidatePlot();
-        }
-
         public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
             = new Dictionary<CandleInterval, TimeSpan>
         {
@@ -402,6 +374,8 @@ namespace TradeBot
 
         public async Task LoadNewCandles()
         {
+            if (DateTime.Now.Subtract(lastCandleDate) < TimeSpan.FromSeconds(5))
+                return;
             var candles = await GetCandles(activeStock.Figi, DateTime.Now, candleInterval, DateTime.Now.Subtract(lastCandleDate));
             if (candles.Count == 0)
                 return;
@@ -413,7 +387,7 @@ namespace TradeBot
             for (int i = candles.Count - 1; i >= 0; --i)
             {
                 var candle = candles[i];
-                c.Add(new HighLowItem(i, (double)candle.High, (double)candle.Low, (double)candle.Open, (double)candle.Close));
+                c.Add(CandleToHighLowItem(i, candle));
                 cd.Add(candle.Time);
             }
             candlesSeries.Items.ForEach((v) => v.X += candles.Count);

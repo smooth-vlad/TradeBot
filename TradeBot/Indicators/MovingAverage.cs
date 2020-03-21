@@ -166,6 +166,9 @@ namespace TradeBot
         private void CalculateEMA()
         {
             bindedGraph.Points.Clear();
+            if (Candles.Count < period)
+                return;
+
             double multiplier = 2.0 / (period + 1.0);
             var EMA = new List<double>();
 
@@ -224,10 +227,9 @@ namespace TradeBot
             series.Remove(bindedGraph);
         }
 
-        public override void RecalculateSeries()
+        public override void ResetSeries()
         {
             bindedGraph.Points.Clear();
-            UpdateSeries();
         }
     }
 }
