@@ -46,7 +46,7 @@ namespace TradeBot
 
         public PlotModel model;
 
-        private Task loadingCandlesTask;
+        public Task loadingCandlesTask { get; private set; }
 
         #region IntervalToMaxPeriod
 
@@ -77,7 +77,7 @@ namespace TradeBot
         {
             InitializeComponent();
 
-            lastCandleDate = firstCandleDate = DateTime.Now;
+            lastCandleDate = firstCandleDate = DateTime.Now - GetPeriod(candleInterval);
 
             model = new PlotModel
             {
@@ -217,7 +217,7 @@ namespace TradeBot
 
             loadedCandles = 0;
             candlesLoadsFailed = 0;
-            lastCandleDate = DateTime.Now;
+            lastCandleDate = DateTime.Now - GetPeriod(candleInterval);
             firstCandleDate = lastCandleDate;
 
             foreach (var indicator in indicators)
@@ -309,19 +309,58 @@ namespace TradeBot
             plotView.InvalidatePlot();
         }
 
+        private TimeSpan CandleIntervalToTimeSpan(CandleInterval interval)
+        {
+            switch (interval)
+            {
+                case CandleInterval.Minute:
+                    return TimeSpan.FromMinutes(1);
+                case CandleInterval.TwoMinutes:
+                    return TimeSpan.FromMinutes(2);
+                case CandleInterval.ThreeMinutes:
+                    return TimeSpan.FromMinutes(3);
+                case CandleInterval.FiveMinutes:
+                    return TimeSpan.FromMinutes(5);
+                case CandleInterval.TenMinutes:
+                    return TimeSpan.FromMinutes(10);
+                case CandleInterval.QuarterHour:
+                    return TimeSpan.FromMinutes(15);
+                case CandleInterval.HalfHour:
+                    return TimeSpan.FromMinutes(30);
+                case CandleInterval.Hour:
+                    return TimeSpan.FromMinutes(60);
+                case CandleInterval.TwoHours:
+                    return TimeSpan.FromHours(2);
+                case CandleInterval.FourHours:
+                    return TimeSpan.FromHours(4);
+                case CandleInterval.Day:
+                    return TimeSpan.FromHours(24);
+                case CandleInterval.Week:
+                    return TimeSpan.FromDays(7);
+                case CandleInterval.Month:
+                    return TimeSpan.FromDays(30);
+            }
+            throw new ArgumentOutOfRangeException();
+        }
+
+        public TimeSpan ts = TimeSpan.FromSeconds(0);
+
         public async Task LoadNewCandles()
         {
-            if (DateTime.Now.Subtract(lastCandleDate) < TimeSpan.FromSeconds(5))
-                return;
-            var candles = await GetCandles(activeStock.Figi, DateTime.Now, candleInterval, DateTime.Now.Subtract(lastCandleDate));
+            if (ts.TotalSeconds == 0)
+                ts = CandleIntervalToTimeSpan(candleInterval);
+
+            var candles = await GetCandles(activeStock.Figi, lastCandleDate + ts, candleInterval, ts);
+            ts += CandleIntervalToTimeSpan(candleInterval);
             if (candles.Count == 0)
                 return;
 
-            lastCandleDate = DateTime.Now;
+            lastCandleDate += ts;
+            ts = CandleIntervalToTimeSpan(candleInterval);
 
             var c = new List<HighLowItem>();
             var cd = new List<DateTime>();
-            for (int i = candles.Count - 1; i >= 0; --i)
+            for (int i = 0; i < candles.Count; ++i)
             {
                 var candle = candles[i];
                 c.Add(CandleToHighLowItem(i, candle));
@@ -330,11 +369,12 @@ namespace TradeBot
             candlesSeries.Items.ForEach((v) => v.X += candles.Count);
             candlesSeries.Items.InsertRange(0, c);
             candlesDates.InsertRange(0, cd);
-            // update indicator values
+            // update indicators values
 
+            AdjustYExtent();
             plotView.InvalidatePlot();
 
-            CandlesChange();
+            //CandlesChange();
         }
 
         private void AdjustYExtent()

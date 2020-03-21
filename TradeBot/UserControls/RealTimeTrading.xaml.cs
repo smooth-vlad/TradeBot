@@ -43,7 +43,7 @@ namespace TradeBot
             candlesTimer = new System.Threading.Timer((e) => CandlesTimerElapsed(),
                 null,
                 TimeSpan.Zero,
-                TimeSpan.FromSeconds(5));
+                TimeSpan.FromSeconds(1));
 
             DataContext = this;
         }
@@ -66,7 +66,10 @@ namespace TradeBot
 
         private async void CandlesTimerElapsed()
         {
-            //await tradingChart.LoadNewCandles();
+            if (tradingChart.loadingCandlesTask == null)
+                return;
+            await tradingChart.loadingCandlesTask;
+            await tradingChart.LoadNewCandles();
         }
 
         private void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -87,6 +90,7 @@ namespace TradeBot
                 return;
 
             tradingChart.candleInterval = interval;
+            tradingChart.ts = TimeSpan.FromSeconds(0);
 
             tradingChart.ResetSeries();
         }
