@@ -26,7 +26,6 @@ namespace TradeBot
         public delegate void CandlesChangeHandler();
         public event CandlesChangeHandler CandlesChange;
 
-        public int candlesSpan = 75;
         public CandleInterval candleInterval = CandleInterval.Minute;
         public List<Indicator> indicators { get; private set; } = new List<Indicator>();
 
@@ -47,7 +46,32 @@ namespace TradeBot
 
         public PlotModel model;
 
-        private Task candlesLoadingTask;
+        private Task loadingCandlesTask;
+
+        #region IntervalToMaxPeriod
+
+        public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
+            = new Dictionary<CandleInterval, TimeSpan>
+        {
+            { CandleInterval.Minute,        TimeSpan.FromDays(1)},
+            { CandleInterval.FiveMinutes,   TimeSpan.FromDays(1)},
+            { CandleInterval.QuarterHour,   TimeSpan.FromDays(1)},
+            { CandleInterval.HalfHour,      TimeSpan.FromDays(1)},
+            { CandleInterval.Hour,          TimeSpan.FromDays(7).Add(TimeSpan.FromHours(-1))},
+            { CandleInterval.Day,           TimeSpan.FromDays(364)},
+            { CandleInterval.Week,          TimeSpan.FromDays(364*2)},
+            { CandleInterval.Month,         TimeSpan.FromDays(364*10)},
+        };
+
+        public TimeSpan GetPeriod(CandleInterval interval)
+        {
+            TimeSpan result;
+            if (!intervalToMaxPeriod.TryGetValue(interval, out result))
+                throw new KeyNotFoundException();
+            return result;
+        }
+
+        #endregion
 
         public TradingChart()
         {
@@ -163,41 +187,24 @@ namespace TradeBot
 
         private async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
         {
-            await LoadMoreCandlesAndUpdateSeries();
+            if (loadingCandlesTask != null)
+                await loadingCandlesTask;
+
+            loadingCandlesTask = LoadMoreCandlesAndUpdateSeries();
+            await loadingCandlesTask;
         }
 
         private async Task LoadMoreCandlesAndUpdateSeries()
         {
-            if (candlesLoadingTask != null)
-                await candlesLoadingTask;
-
             while (loadedCandles < xAxis.ActualMaximum && candlesLoadsFailed < 10)
             {
-                candlesLoadingTask = LoadMoreCandles();
-                await candlesLoadingTask;
+                await LoadMoreCandles();
             }
             foreach (var indicator in indicators)
                 indicator.UpdateSeries();
             AdjustYExtent();
 
             plotView.InvalidatePlot();
-        }
-
-        public static HighLowItem CandleToHighLowItem(double x, CandlePayload candlePayload)
-        {
-            return new HighLowItem(x, (double)candlePayload.High, (double)candlePayload.Low, (double)candlePayload.Open, (double)candlePayload.Close);
-        }
-
-        public async Task<List<CandlePayload>> GetCandles(string figi, DateTime to, CandleInterval interval, TimeSpan queryOffset)
-        {
-            var result = new List<CandlePayload>();
-            var candles = await context.MarketCandlesAsync(figi, to - queryOffset, to, interval);
-
-            for (int i = 0; i < candles.Candles.Count; ++i)
-                result.Add(candles.Candles[i]);
-
-            result.Reverse();
-            return result;
         }
 
         public async void ResetSeries()
@@ -285,15 +292,10 @@ namespace TradeBot
             indicator.Candles = candlesSeries.Items;
             indicators.Add(indicator);
 
-            UpdateIndicatorSeries(indicator);
-            AdjustYExtent();
-        }
+            indicator.InitializeSeries(model.Series);
 
-        public void UpdateIndicatorSeries(Indicator indicator)
-        {
-            if (!indicator.AreSeriesInitialized)
-                indicator.InitializeSeries(model.Series);
             indicator.UpdateSeries();
+            AdjustYExtent();
 
             plotView.InvalidatePlot();
         }
@@ -305,6 +307,34 @@ namespace TradeBot
             indicators = new List<Indicator>();
             AdjustYExtent();
             plotView.InvalidatePlot();
+        }
+
+        public async Task LoadNewCandles()
+        {
+            if (DateTime.Now.Subtract(lastCandleDate) < TimeSpan.FromSeconds(5))
+                return;
+            var candles = await GetCandles(activeStock.Figi, DateTime.Now, candleInterval, DateTime.Now.Subtract(lastCandleDate));
+            if (candles.Count == 0)
+                return;
+
+            lastCandleDate = DateTime.Now;
+
+            var c = new List<HighLowItem>();
+            var cd = new List<DateTime>();
+            for (int i = candles.Count - 1; i >= 0; --i)
+            {
+                var candle = candles[i];
+                c.Add(CandleToHighLowItem(i, candle));
+                cd.Add(candle.Time);
+            }
+            candlesSeries.Items.ForEach((v) => v.X += candles.Count);
+            candlesSeries.Items.InsertRange(0, c);
+            candlesDates.InsertRange(0, cd);
+            // update indicator values
+
+            plotView.InvalidatePlot();
+
+            CandlesChange();
         }
 
         private void AdjustYExtent()
@@ -351,52 +381,26 @@ namespace TradeBot
             }
         }
 
-        public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
-            = new Dictionary<CandleInterval, TimeSpan>
+        public static HighLowItem CandleToHighLowItem(double x, CandlePayload candlePayload)
         {
-            { CandleInterval.Minute,        TimeSpan.FromDays(1)},
-            { CandleInterval.FiveMinutes,   TimeSpan.FromDays(1)},
-            { CandleInterval.QuarterHour,   TimeSpan.FromDays(1)},
-            { CandleInterval.HalfHour,      TimeSpan.FromDays(1)},
-            { CandleInterval.Hour,          TimeSpan.FromDays(7).Add(TimeSpan.FromHours(-1))},
-            { CandleInterval.Day,           TimeSpan.FromDays(364)},
-            { CandleInterval.Week,          TimeSpan.FromDays(364*2)},
-            { CandleInterval.Month,         TimeSpan.FromDays(364*10)},
-        };
+            return new HighLowItem(x, (double)candlePayload.High, (double)candlePayload.Low, (double)candlePayload.Open, (double)candlePayload.Close);
+        }
 
-        public TimeSpan GetPeriod(CandleInterval interval)
+        public async Task<List<CandlePayload>> GetCandles(string figi, DateTime to, CandleInterval interval, TimeSpan queryOffset)
         {
-            TimeSpan result;
-            if (!intervalToMaxPeriod.TryGetValue(interval, out result))
-                throw new KeyNotFoundException();
+            var result = new List<CandlePayload>();
+            var candles = await context.MarketCandlesAsync(figi, to - queryOffset, to, interval);
+
+            for (int i = 0; i < candles.Candles.Count; ++i)
+                result.Add(candles.Candles[i]);
+
+            result.Reverse();
             return result;
         }
 
-        public async Task LoadNewCandles()
-        {
-            if (DateTime.Now.Subtract(lastCandleDate) < TimeSpan.FromSeconds(5))
-                return;
-            var candles = await GetCandles(activeStock.Figi, DateTime.Now, candleInterval, DateTime.Now.Subtract(lastCandleDate));
-            if (candles.Count == 0)
-                return;
-
-            lastCandleDate = DateTime.Now;
-
-            var c = new List<HighLowItem>();
-            var cd = new List<DateTime>();
-            for (int i = candles.Count - 1; i >= 0; --i)
-            {
-                var candle = candles[i];
-                c.Add(CandleToHighLowItem(i, candle));
-                cd.Add(candle.Time);
-            }
-            candlesSeries.Items.ForEach((v) => v.X += candles.Count);
-            candlesSeries.Items.InsertRange(0, c);
-            candlesDates.InsertRange(0, cd);
-            // update indicator values
-
-            plotView.InvalidatePlot();
-        }
+        // ================================
+        // =========  Events ==============
+        // ================================
 
         private void MovingAverage_Click(object sender, RoutedEventArgs e)
         {

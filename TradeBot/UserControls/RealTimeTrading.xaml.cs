@@ -56,10 +56,10 @@ namespace TradeBot
         {
             foreach (var indicator in tradingChart.indicators)
             {
-                indicator.UpdateState(tradingChart.candlesSpan - 1);
-                if (indicator.IsBuySignal(tradingChart.candlesSpan - 1))
+                indicator.UpdateState(0);
+                if (indicator.IsBuySignal(0))
                     MessageBox.Show("It's time to buy the instrument");
-                if (indicator.IsSellSignal(tradingChart.candlesSpan - 1))
+                if (indicator.IsSellSignal(0))
                     MessageBox.Show("It's time to sell the instrument");
             }
         }
@@ -69,7 +69,7 @@ namespace TradeBot
             //await tradingChart.LoadNewCandles();
         }
 
-        private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CandleInterval interval = CandleInterval.Minute;
             bool intervalFound = false;
