@@ -26,5 +26,7 @@ namespace TradeBot
         public abstract void ResetSeries();
         public abstract void RemoveSeries(ElementCollection<Series> series);
         public abstract void InitializeSeries(ElementCollection<Series> series);
+
+        public abstract void OnNewCandlesAdded(int count);
     }
 }

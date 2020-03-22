@@ -38,15 +38,15 @@ namespace TradeBot
 
         private List<DateTime> candlesDates = new List<DateTime>();
 
-        private DateTime lastCandleDate; // on the right side
-        private DateTime firstCandleDate; // on the left side
+        public DateTime LastCandleDate { get; private set; } // on the right side
+        public DateTime FirstCandleDate { get; private set; } // on the left side
 
         private int loadedCandles = 0;
         private int candlesLoadsFailed = 0;
 
         public PlotModel model;
 
-        public Task loadingCandlesTask { get; private set; }
+        public Task LoadingCandlesTask { get; private set; }
 
         #region IntervalToMaxPeriod
 
@@ -77,7 +77,7 @@ namespace TradeBot
         {
             InitializeComponent();
 
-            lastCandleDate = firstCandleDate = DateTime.Now - GetPeriod(candleInterval);
+            LastCandleDate = FirstCandleDate = DateTime.Now - GetPeriod(candleInterval);
 
             model = new PlotModel
             {
@@ -187,11 +187,11 @@ namespace TradeBot
 
         private async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
         {
-            if (loadingCandlesTask != null)
-                await loadingCandlesTask;
+            if (LoadingCandlesTask != null)
+                await LoadingCandlesTask;
 
-            loadingCandlesTask = LoadMoreCandlesAndUpdateSeries();
-            await loadingCandlesTask;
+            LoadingCandlesTask = LoadMoreCandlesAndUpdateSeries();
+            await LoadingCandlesTask;
         }
 
         private async Task LoadMoreCandlesAndUpdateSeries()
@@ -217,8 +217,8 @@ namespace TradeBot
 
             loadedCandles = 0;
             candlesLoadsFailed = 0;
-            lastCandleDate = DateTime.Now - GetPeriod(candleInterval);
-            firstCandleDate = lastCandleDate;
+            LastCandleDate = DateTime.Now - GetPeriod(candleInterval);
+            FirstCandleDate = LastCandleDate;
 
             foreach (var indicator in indicators)
             {
@@ -241,8 +241,8 @@ namespace TradeBot
                 return;
 
             var period = GetPeriod(candleInterval);
-            var candles = await GetCandles(activeStock.Figi, firstCandleDate, candleInterval, period);
-            firstCandleDate -= period;
+            var candles = await GetCandles(activeStock.Figi, FirstCandleDate, candleInterval, period);
+            FirstCandleDate -= period;
             if (candles.Count == 0)
             {
                 candlesLoadsFailed += 1;
@@ -345,8 +345,8 @@ namespace TradeBot
 
         public async Task LoadNewCandles()
         {
-            var candles = await GetCandles(activeStock.Figi, lastCandleDate + CandleIntervalToTimeSpan(candleInterval), candleInterval, CandleIntervalToTimeSpan(candleInterval));
-            lastCandleDate += CandleIntervalToTimeSpan(candleInterval);
+            var candles = await GetCandles(activeStock.Figi, LastCandleDate + CandleIntervalToTimeSpan(candleInterval), candleInterval, CandleIntervalToTimeSpan(candleInterval));
+            LastCandleDate += CandleIntervalToTimeSpan(candleInterval);
             if (candles.Count == 0)
                 return;
 
@@ -361,12 +361,15 @@ namespace TradeBot
             candlesSeries.Items.ForEach((v) => v.X += candles.Count);
             candlesSeries.Items.InsertRange(0, c);
             candlesDates.InsertRange(0, cd);
-            // update indicators values
+            foreach (var indicator in indicators)
+            {
+                indicator.OnNewCandlesAdded(candles.Count);
+            }
 
             AdjustYExtent();
             plotView.InvalidatePlot();
 
-            //CandlesChange();
+            CandlesChange();
         }
 
         private void AdjustYExtent()
