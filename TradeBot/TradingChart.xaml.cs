@@ -76,6 +76,7 @@ namespace TradeBot
             {
                 TextColor = OxyColor.FromArgb(140, 0, 0, 0),
                 PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0),
+                LegendPosition = LegendPosition.LeftTop,
             };
 
             yAxis = new LinearAxis // y axis (left)
