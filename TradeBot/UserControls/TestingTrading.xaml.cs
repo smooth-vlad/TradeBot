@@ -50,24 +50,22 @@ namespace TradeBot
         // events
         // ==================================================
 
-        private async void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            CandleInterval interval = CandleInterval.Minute;
-            bool intervalFound = false;
+            CandleInterval? interval = null;
             var selectedInterval = intervalComboBox.SelectedItem.ToString();
             foreach (var k in TradingChart.intervalToMaxPeriod.Keys)
             {
                 if (k.ToString() == selectedInterval)
                 {
                     interval = k;
-                    intervalFound = true;
                     break;
                 }
             }
-            if (!intervalFound)
+            if (interval == null)
                 return;
 
-            tradingChart.candleInterval = interval;
+            tradingChart.candleInterval = interval.Value;
 
             tradingChart.ResetSeries();
         }
@@ -75,7 +73,7 @@ namespace TradeBot
         private async void simulateButton_Click(object sender, RoutedEventArgs e)
         {
             SetEverythingEnabled(false);
-            await tradingChart.Simulate();
+            await tradingChart.UpdateTestingSignals();
             SetEverythingEnabled(true);
             MessageBox.Show("Testing ended");
         }

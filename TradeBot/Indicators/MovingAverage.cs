@@ -1,10 +1,7 @@
 ﻿using OxyPlot;
-using OxyPlot.Axes;
 using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using Tinkoff.Trading.OpenApi.Models;
 
 namespace TradeBot
 {
@@ -43,10 +40,9 @@ namespace TradeBot
         private int offset;
         private Type type;
 
-        private LineSeries bindedSeries;
-        private (int left, int right) valuesBounds;
+        private LineSeries series;
 
-        private int? boughtCandle;
+        private int? boughtCandleIndex;
         private int? whenToSellIndex;
         private double? whenToBuyPrice;
         private int? whenToBuyPriceSetIndex;
@@ -64,133 +60,119 @@ namespace TradeBot
 
         override public bool IsBuySignal(int candleIndex)
         {
-            try
+            if (candles.Count <= candleIndex)
+                return false;
+
+            if (whenToBuyPrice != null)
             {
-                if (whenToBuyPrice != null)
+                if (candles[candleIndex].Close > whenToBuyPrice)
                 {
-                    if (Candles[candleIndex].Close > whenToBuyPrice)
-                    {
-                        boughtCandle = candleIndex;
-                        whenToBuyPrice = null;
-                        whenToBuyPriceSetIndex = null;
-                        stopLoss = bindedSeries.Points[candleIndex].Y - priceIncrement * 10;
-                        return true;
-                    }
+                    boughtCandleIndex = candleIndex;
+                    whenToBuyPrice = null;
+                    whenToBuyPriceSetIndex = null;
+                    stopLoss = series.Points[candleIndex].Y - priceIncrement * 10;
+                    return true;
                 }
-                return false;
             }
-            catch (Exception)
-            {
-                return false;
-            }
+            return false;
         }
 
         override public bool IsSellSignal(int candleIndex)
         {
-            try
-            {
-                if (Candles[candleIndex].Close < stopLoss ||
-                    whenToSellIndex == candleIndex)
-                {
-                    boughtCandle = null;
-                    stopLoss = null;
-                    whenToSellIndex = null;
-                    return true;
-                }
+            if (candles.Count <= candleIndex)
+                return false;
 
-                return false;
-            }
-            catch (Exception)
+            if (candles[candleIndex].Close < stopLoss ||
+                whenToSellIndex == candleIndex)
             {
-                return false;
+                boughtCandleIndex = null;
+                stopLoss = null;
+                whenToSellIndex = null;
+                return true;
             }
+
+            return false;
         }
 
         override public void UpdateState(int candleIndex)
         {
-            try
+            if (candles.Count <= candleIndex)
+                return;
+
+            if (boughtCandleIndex != null)
             {
-                if (boughtCandle != null)
+                if (whenToSellIndex == null && candles[candleIndex].Close < series.Points[candleIndex].Y)
                 {
-                    if (whenToSellIndex == null && Candles[candleIndex].Close < bindedSeries.Points[candleIndex].Y)
+                    whenToSellIndex = candleIndex - 1;
+                }
+            }
+            else
+            {
+                if (whenToBuyPrice != null)
+                {
+                    if (candles[candleIndex].Close < whenToBuyPrice &&
+                        candleIndex - whenToBuyPriceSetIndex > 10)
                     {
-                        whenToSellIndex = candleIndex - 1;
+                        whenToBuyPrice = null;
+                        whenToBuyPriceSetIndex = null;
                     }
                 }
-                else
+                else if (candles.Count > candleIndex + offset + 1 && series.Points.Count > candleIndex + 1)
                 {
-                    if (whenToBuyPrice != null)
+                    bool isCandleBig = true;
+                    double candleSize = Math.Abs(candles[candleIndex].Close - candles[candleIndex + 1].Close);
+                    for (int i = 1; i < offset + 1; ++i)
                     {
-                        if (Candles[candleIndex].Close < whenToBuyPrice &&
-                            candleIndex - whenToBuyPriceSetIndex > 10)
-                        {
-                            whenToBuyPrice = null;
-                            whenToBuyPriceSetIndex = null;
-                        }
+                        double thisCandleSize = Math.Abs(candles[candleIndex + i].Close - candles[candleIndex + i + 1].Close);
+                        if (thisCandleSize > candleSize)
+                            isCandleBig = false;
                     }
-                    else
-                    {
-                        bool isCandleBig = true;
-                        double candleSize = Math.Abs(Candles[candleIndex].Close - Candles[candleIndex + 1].Close);
-                        for (int i = 1; i < offset + 1; ++i)
-                        {
-                            double thisCandleSize = Math.Abs(Candles[candleIndex + i].Close - Candles[candleIndex + i + 1].Close);
-                            if (thisCandleSize > candleSize)
-                                isCandleBig = false;
-                        }
 
-                        if (isCandleBig &&
-                            ((Candles[candleIndex + 1].Close - bindedSeries.Points[candleIndex + 1].Y) *
-                                (Candles[candleIndex].Close - bindedSeries.Points[candleIndex].Y) < 0) &&
-                            Candles[candleIndex].Close > bindedSeries.Points[candleIndex].Y)
-                        {
-                            whenToBuyPrice = Candles[candleIndex].High + priceIncrement * 2;
-                            whenToBuyPriceSetIndex = candleIndex;
-                        }
+                    if (isCandleBig &&
+                        ((candles[candleIndex + 1].Close - series.Points[candleIndex + 1].Y) *
+                            (candles[candleIndex].Close - series.Points[candleIndex].Y) < 0) &&
+                        candles[candleIndex].Close > series.Points[candleIndex].Y)
+                    {
+                        whenToBuyPrice = candles[candleIndex].High + priceIncrement * 2;
+                        whenToBuyPriceSetIndex = candleIndex;
                     }
                 }
             }
-            catch (Exception) { }
         }
 
         private void CalculateSMA()
         {
-            bindedSeries.Points.Clear();
+            series.Points.Clear();
 
-            for (int i = 0; i < Candles.Count - period; ++i)
-            {
-                double sum = 0;
-                for (int j = 0; j < period; ++j)
-                    sum += Candles[i + j].Close;
-                bindedSeries.Points.Add(new DataPoint(i, sum / period));
-            }
+            for (int i = 0; i < candles.Count - period; ++i)
+                series.Points.Add(new DataPoint(i, CalculateAverage(i)));
         }
 
         private void CalculateEMA()
         {
-            bindedSeries.Points.Clear();
+            series.Points.Clear();
 
-            if (Candles.Count < period)
+            if (candles.Count < period)
                 return;
 
             double multiplier = 2.0 / (period + 1.0);
             var EMA = new List<double>();
 
-            {
-                double sum = 0;
-                for (int j = 0; j < period; ++j)
-                    sum += Candles[Candles.Count - period + j].Close;
-                EMA.Add(sum / period);
-            }
+            EMA.Add(CalculateAverage(candles.Count - period));
 
-            for (int i = 1; i < Candles.Count - period; ++i)
-            {
-                EMA.Add((Candles[Candles.Count - period - i - 1].Close * multiplier) + EMA[i - 1] * (1 - multiplier));
-            }
+            for (int i = 1; i < candles.Count - period; ++i)
+                EMA.Add((candles[candles.Count - period - i - 1].Close * multiplier) + EMA[i - 1] * (1 - multiplier));
+
             for (int i = EMA.Count - 1; i >= 0; --i)
-            {
-                bindedSeries.Points.Add(new DataPoint(bindedSeries.Points.Count, EMA[i]));
-            }
+                series.Points.Add(new DataPoint(series.Points.Count, EMA[i]));
+        }
+
+        private double CalculateAverage(int startIndex)
+        {
+            double sum = 0;
+            for (int j = 0; j < period; ++j)
+                sum += candles[startIndex + j].Close;
+            return sum / period;
         }
 
         override public void UpdateSeries()
@@ -203,23 +185,26 @@ namespace TradeBot
 
         override public void InitializeSeries(ElementCollection<Series> series)
         {
+            if (AreSeriesInitialized)
+                return;
+
             string title = string.Empty;
             if (type == Type.Simple)
                 title = string.Format("Simple Moving Average {0}", period);
             else if (type == Type.Exponential)
                 title = string.Format("Exponential Moving Average {0}", period);
 
-            bindedSeries = new LineSeries
+            this.series = new LineSeries
             {
                 Title = title,
             };
-            series.Add(bindedSeries);
-            areSeriesInitialized = true;
+            series.Add(this.series);
+            AreSeriesInitialized = true;
         }
 
         public override void ResetState()
         {
-            boughtCandle = null;
+            boughtCandleIndex = null;
             whenToSellIndex = null;
             whenToBuyPrice = null;
             whenToBuyPriceSetIndex = null;
@@ -228,19 +213,17 @@ namespace TradeBot
 
         public override void RemoveSeries(ElementCollection<Series> series)
         {
-            series.Remove(bindedSeries);
+            series.Remove(this.series);
         }
 
         public override void ResetSeries()
         {
-            bindedSeries.Points.Clear();
+            series.Points.Clear();
         }
 
         public override void OnNewCandlesAdded(int count)
         {
-            UpdateSeries();
-
-            if (boughtCandle.HasValue) boughtCandle += count;
+            if (boughtCandleIndex.HasValue) boughtCandleIndex += count;
             if (whenToBuyPriceSetIndex.HasValue) whenToBuyPriceSetIndex += count;
             if (whenToSellIndex.HasValue) whenToSellIndex += count;
         }

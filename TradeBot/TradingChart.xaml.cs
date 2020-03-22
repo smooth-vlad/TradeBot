@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
 using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
 using System.Windows.Controls;
-using System.Diagnostics;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
-using System.Threading;
 
 namespace TradeBot
 {
@@ -23,11 +19,8 @@ namespace TradeBot
         public Context context;
         public MarketInstrument activeStock;
 
-        public delegate void CandlesChangeHandler();
-        public event CandlesChangeHandler CandlesChange;
-
         public CandleInterval candleInterval = CandleInterval.Minute;
-        public List<Indicator> indicators { get; private set; } = new List<Indicator>();
+        private List<Indicator> indicators = new List<Indicator>();
 
         private CandleStickSeries candlesSeries;
         private ScatterSeries buySeries;
@@ -132,7 +125,7 @@ namespace TradeBot
                 MarkerFill = OxyColor.FromRgb(207, 105, 255),
                 MarkerStroke = OxyColor.FromRgb(55, 55, 55),
                 MarkerStrokeThickness = 1,
-                MarkerSize = 7.5,
+                MarkerSize = 6,
             };
 
             sellSeries = new ScatterSeries
@@ -142,7 +135,7 @@ namespace TradeBot
                 MarkerFill = OxyColor.FromRgb(255, 248, 82),
                 MarkerStroke = OxyColor.FromRgb(55, 55, 55),
                 MarkerStrokeThickness = 1,
-                MarkerSize = 7.5,
+                MarkerSize = 6,
             };
 
             model.Series.Add(candlesSeries);
@@ -261,7 +254,7 @@ namespace TradeBot
             candlesLoadsFailed = 0;
         }
 
-        public async Task Simulate()
+        public async Task UpdateTestingSignals()
         {
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
@@ -287,10 +280,24 @@ namespace TradeBot
             plotView.InvalidatePlot();
         }
 
+        public void UpdateRealTimeSignals()
+        {
+            var candle = candlesSeries.Items[0];
+            foreach (var indicator in indicators)
+            {
+                indicator.UpdateState(0);
+                if (indicator.IsBuySignal(0))
+                    buySeries.Points.Add(new ScatterPoint(0, candle.Close));
+                else if (indicator.IsSellSignal(0))
+                    sellSeries.Points.Add(new ScatterPoint(0, candle.Close));
+            }
+            plotView.InvalidatePlot();
+        }
+
         public void AddIndicator(Indicator indicator)
         {
             indicator.priceIncrement = (double)activeStock.MinPriceIncrement;
-            indicator.Candles = candlesSeries.Items;
+            indicator.candles = candlesSeries.Items;
             indicators.Add(indicator);
 
             indicator.InitializeSeries(model.Series);
@@ -364,6 +371,7 @@ namespace TradeBot
             candlesDates.InsertRange(0, cd);
             foreach (var indicator in indicators)
             {
+                indicator.UpdateSeries();
                 indicator.OnNewCandlesAdded(candles.Count);
             }
             loadedCandles += candles.Count;
@@ -371,7 +379,22 @@ namespace TradeBot
             AdjustYExtent();
             plotView.InvalidatePlot();
 
-            CandlesChange();
+            // move buy points by candles.Count
+            var s = new List<ScatterPoint>(buySeries.Points.Count);
+            foreach (var point in buySeries.Points)
+                s.Add(new ScatterPoint(point.X + candles.Count, point.Y, point.Size, point.Value, point.Tag));
+            buySeries.Points.Clear();
+            buySeries.Points.AddRange(s);
+
+            // move sell points by candles.Count
+            s = new List<ScatterPoint>(sellSeries.Points.Count);
+            foreach (var point in sellSeries.Points)
+                s.Add(new ScatterPoint(point.X + candles.Count, point.Y, point.Size, point.Value, point.Tag));
+            sellSeries.Points.Clear();
+            sellSeries.Points.AddRange(s);
+
+            UpdateRealTimeSignals();
+            plotView.InvalidatePlot();
         }
 
         private void AdjustYExtent()

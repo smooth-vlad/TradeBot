@@ -6,7 +6,6 @@
          xmlns:local="clr-namespace:TradeBot"
          mc:Ignorable="d"
          Title="TradeBot"
-         Width="800" Height="600"
          Background="#F9F9F9">
     <local:AuthPage x:Name="authPage">
 
