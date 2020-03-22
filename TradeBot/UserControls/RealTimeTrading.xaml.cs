@@ -72,8 +72,7 @@ namespace TradeBot
             if (tradingChart.LoadingCandlesTask == null || !tradingChart.LoadingCandlesTask.IsCompleted)
                 return;
 
-            tradingChart.LoadingCandlesTask2 = tradingChart.LoadNewCandles();
-            await tradingChart.LoadingCandlesTask2;
+            await tradingChart.LoadNewCandles();
         }
 
         private void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
