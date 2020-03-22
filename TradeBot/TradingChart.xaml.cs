@@ -334,29 +334,21 @@ namespace TradeBot
                 case CandleInterval.FourHours:
                     return TimeSpan.FromHours(4);
                 case CandleInterval.Day:
-                    return TimeSpan.FromHours(24);
+                    return TimeSpan.FromDays(1);
                 case CandleInterval.Week:
                     return TimeSpan.FromDays(7);
                 case CandleInterval.Month:
-                    return TimeSpan.FromDays(30);
+                    return TimeSpan.FromDays(31);
             }
             throw new ArgumentOutOfRangeException();
         }
 
-        public TimeSpan ts = TimeSpan.FromSeconds(0);
-
         public async Task LoadNewCandles()
         {
-            if (ts.TotalSeconds == 0)
-                ts = CandleIntervalToTimeSpan(candleInterval);
-
-            var candles = await GetCandles(activeStock.Figi, lastCandleDate + ts, candleInterval, ts);
-            ts += CandleIntervalToTimeSpan(candleInterval);
+            var candles = await GetCandles(activeStock.Figi, lastCandleDate + CandleIntervalToTimeSpan(candleInterval), candleInterval, CandleIntervalToTimeSpan(candleInterval));
+            lastCandleDate += CandleIntervalToTimeSpan(candleInterval);
             if (candles.Count == 0)
                 return;
-
-            lastCandleDate += ts;
-            ts = CandleIntervalToTimeSpan(candleInterval);
 
             var c = new List<HighLowItem>();
             var cd = new List<DateTime>();

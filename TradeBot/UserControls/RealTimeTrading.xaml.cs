@@ -90,7 +90,6 @@ namespace TradeBot
                 return;
 
             tradingChart.candleInterval = interval;
-            tradingChart.ts = TimeSpan.FromSeconds(0);
 
             tradingChart.ResetSeries();
         }
