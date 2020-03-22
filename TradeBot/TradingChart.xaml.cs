@@ -187,8 +187,8 @@ namespace TradeBot
 
         private async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
         {
-            if (LoadingCandlesTask != null)
-                await LoadingCandlesTask;
+            if (LoadingCandlesTask == null || !LoadingCandlesTask.IsCompleted)
+                return;
 
             LoadingCandlesTask = LoadMoreCandlesAndUpdateSeries();
             await LoadingCandlesTask;
@@ -226,7 +226,8 @@ namespace TradeBot
                 indicator.ResetSeries();
             }
 
-            await LoadMoreCandlesAndUpdateSeries();
+            LoadingCandlesTask = LoadMoreCandlesAndUpdateSeries();
+            await LoadingCandlesTask;
 
             xAxis.Zoom(0, 75);
 
@@ -365,6 +366,7 @@ namespace TradeBot
             {
                 indicator.OnNewCandlesAdded(candles.Count);
             }
+            loadedCandles += candles.Count;
 
             AdjustYExtent();
             plotView.InvalidatePlot();

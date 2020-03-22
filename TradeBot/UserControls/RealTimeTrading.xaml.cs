@@ -64,19 +64,16 @@ namespace TradeBot
             }
         }
 
-        private Task loadingCandlesTask;
-
         private async void CandlesTimerElapsed()
         {
             if (tradingChart.LastCandleDate > DateTime.Now)
                 return;
 
-            if (tradingChart.LoadingCandlesTask != null)
-                await tradingChart.LoadingCandlesTask;
-            if (loadingCandlesTask != null)
-                await loadingCandlesTask;
-            loadingCandlesTask = tradingChart.LoadNewCandles();
-            await loadingCandlesTask;
+            if (tradingChart.LoadingCandlesTask == null || !tradingChart.LoadingCandlesTask.IsCompleted)
+                return;
+
+            tradingChart.LoadingCandlesTask2 = tradingChart.LoadNewCandles();
+            await tradingChart.LoadingCandlesTask2;
         }
 
         private void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
