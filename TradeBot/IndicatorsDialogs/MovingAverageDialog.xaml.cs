@@ -19,16 +19,22 @@ namespace TradeBot
     /// </summary>
     public partial class MovingAverageDialog : Window
     {
+        public enum CalculationMethod
+        {
+            Simple,
+            Exponential,
+        }
+
         public int Period { get; private set; }
         public int Offset { get; private set; }
-        public MovingAverage.Type Type { get; private set; }
+        public CalculationMethod Type { get; private set; }
 
         public MovingAverageDialog()
         {
             InitializeComponent();
 
-            typeComboBox.Items.Add(MovingAverage.Type.Simple.ToString());
-            typeComboBox.Items.Add(MovingAverage.Type.Exponential.ToString());
+            typeComboBox.Items.Add(CalculationMethod.Simple.ToString());
+            typeComboBox.Items.Add(CalculationMethod.Exponential.ToString());
             typeComboBox.SelectedIndex = 0;
         }
 
@@ -66,7 +72,7 @@ namespace TradeBot
 
             Period = period;
             Offset = offset;
-            Type = (MovingAverage.Type)typeComboBox.SelectedIndex;
+            Type = (CalculationMethod)typeComboBox.SelectedIndex;
             DialogResult = true;
         }
 

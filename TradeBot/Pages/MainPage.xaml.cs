@@ -39,27 +39,5 @@ namespace TradeBot
 
             e.Handled = true;
         }
-
-        private void MovingAverage_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new MovingAverageDialog();
-            if (dialog.ShowDialog() == true)
-            {
-                var tab = tabControl.SelectedContent;
-                if (tab.GetType() == typeof(RealTimeTrading))
-                    (tab as RealTimeTrading).tradingChart.AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, dialog.Type));
-                else if (tab.GetType() == typeof(TestingTrading))
-                    (tab as TestingTrading).tradingChart.AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, dialog.Type));
-            }
-        }
-
-        private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
-        {
-            var tab = tabControl.SelectedContent;
-            if (tab.GetType() == typeof(RealTimeTrading))
-                (tab as RealTimeTrading).tradingChart.RemoveIndicators();
-            else if (tab.GetType() == typeof(TestingTrading))
-                (tab as TestingTrading).tradingChart.RemoveIndicators();
-        }
     }
 }

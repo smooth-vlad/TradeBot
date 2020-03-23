@@ -75,6 +75,9 @@
     <Compile Include="IndicatorsDialogs\MovingAverageDialog.xaml.cs">
       <DependentUpon>MovingAverageDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Indicators\MovingAverageCalculation\ExponentialMACalculation.cs" />
+    <Compile Include="Indicators\MovingAverageCalculation\IMACalculation.cs" />
+    <Compile Include="Indicators\MovingAverageCalculation\SimpleMACalculation.cs" />
     <Compile Include="Pages\AuthPage.xaml.cs">
       <DependentUpon>AuthPage.xaml</DependentUpon>
     </Compile>

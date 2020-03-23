@@ -8,6 +8,8 @@ using System.Windows.Controls;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace TradeBot
 {
@@ -400,46 +402,36 @@ namespace TradeBot
 
         private void AdjustYExtent()
         {
-            if (xAxis != null && yAxis != null && candlesSeries.Items.Count != 0)
+            var ptlist = candlesSeries.Items.FindAll(p => p.X >= xAxis.ActualMinimum && p.X <= xAxis.ActualMaximum);
+            if (ptlist.Count == 0)
+                return;
+
+            var lplist = new List<DataPoint>();
+
+            foreach (var series in model.Series)
+                if (series.GetType() == typeof(LineSeries))
+                    lplist.AddRange((series as LineSeries).Points.FindAll(p => p.X >= xAxis.ActualMinimum && p.X <= xAxis.ActualMaximum));
+
+            double ymin = double.MaxValue;
+            double ymax = double.MinValue;
+            for (int i = 0; i < ptlist.Count; ++i)
             {
-                double istart = xAxis.ActualMinimum;
-                double iend = xAxis.ActualMaximum;
-
-                var ptlist = candlesSeries.Items.FindAll(p => p.X >= istart && p.X <= iend);
-                if (ptlist.Count == 0)
-                    return;
-
-                var lplist = new List<DataPoint>();
-
-                foreach (var series in model.Series)
-                {
-                    if (series.GetType() == typeof(LineSeries))
-                    {
-                        lplist.AddRange((series as LineSeries).Points.FindAll(p => p.X >= istart && p.X <= iend));
-                    }
-                }
-
-                double ymin = double.MaxValue;
-                double ymax = double.MinValue;
-                for (int i = 0; i < ptlist.Count; ++i)
-                {
-                    ymin = Math.Min(ymin, ptlist[i].Low);
-                    ymax = Math.Max(ymax, ptlist[i].High);
-                }
-
-                for (int i = 0; i < lplist.Count; ++i)
-                {
-                    ymin = Math.Min(ymin, lplist[i].Y);
-                    ymax = Math.Max(ymax, lplist[i].Y);
-                }
-
-                var extent = ymax - ymin;
-                var margin = extent * 0.1;
-
-                yAxis.IsZoomEnabled = true;
-                yAxis.Zoom(ymin - margin, ymax + margin);
-                yAxis.IsZoomEnabled = false;
+                ymin = Math.Min(ymin, ptlist[i].Low);
+                ymax = Math.Max(ymax, ptlist[i].High);
             }
+
+            for (int i = 0; i < lplist.Count; ++i)
+            {
+                ymin = Math.Min(ymin, lplist[i].Y);
+                ymax = Math.Max(ymax, lplist[i].Y);
+            }
+
+            var extent = ymax - ymin;
+            var margin = extent * 0.1;
+
+            yAxis.IsZoomEnabled = true;
+            yAxis.Zoom(ymin - margin, ymax + margin);
+            yAxis.IsZoomEnabled = false;
         }
 
         public static HighLowItem CandleToHighLowItem(double x, CandlePayload candlePayload)
@@ -468,7 +460,20 @@ namespace TradeBot
             var dialog = new MovingAverageDialog();
             if (dialog.ShowDialog() == true)
             {
-                AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, dialog.Type));
+                IMACalculation calculationMethod;
+                switch (dialog.Type)
+                {
+                    case MovingAverageDialog.CalculationMethod.Simple:
+                        calculationMethod = new SimpleMACalculation(dialog.Period);
+                        break;
+                    case MovingAverageDialog.CalculationMethod.Exponential:
+                        calculationMethod = new ExponentialMACalculation(dialog.Period);
+                        break;
+                    default:
+                        calculationMethod = new SimpleMACalculation(dialog.Period);
+                        break;
+                }
+                AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, calculationMethod));
             }
         }
 
