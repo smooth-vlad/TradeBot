@@ -35,6 +35,8 @@ namespace TradeBot
 
         private List<DateTime> candlesDates = new List<DateTime>();
 
+        private Queue<List<Indicator.Signal>> lastSignals = new Queue<List<Indicator.Signal>>(3);
+
         public DateTime LastCandleDate { get; private set; } // on the right side
         public DateTime FirstCandleDate { get; private set; } // on the left side
 
@@ -312,26 +314,13 @@ namespace TradeBot
         {
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
+            lastSignals.Clear();
 
             await Task.Factory.StartNew(() =>
             {
                 for (int i = candlesSeries.Items.Count - 1; i >= 0; --i)
                 {
-                    var candle = candlesSeries.Items[i];
-                    foreach (var indicator in indicators)
-                    {
-                        switch (indicator.GetSignal(i))
-                        {
-                            case Indicator.Signal.Buy:
-                                buySeries.Points.Add(new ScatterPoint(i, candle.Close));
-                                break;
-                            case Indicator.Signal.Sell:
-                                sellSeries.Points.Add(new ScatterPoint(i, candle.Close));
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                    UpdateSignals(i);
                 }
             });
             plotView.InvalidatePlot();
@@ -339,23 +328,48 @@ namespace TradeBot
 
         public void UpdateRealTimeSignals()
         {
-            var candle = candlesSeries.Items[0];
-            foreach (var indicator in indicators)
-            {
-                switch (indicator.GetSignal(0))
-                {
-                    case Indicator.Signal.Buy:
-                        buySeries.Points.Add(new ScatterPoint(0, candle.Close));
-                        break;
-                    case Indicator.Signal.Sell:
-                        sellSeries.Points.Add(new ScatterPoint(0, candle.Close));
-                        break;
-                    default:
-                        break;
-                }
-            }
+            UpdateSignals(0);
             plotView.InvalidatePlot();
             xAxis1.PlotModel.PlotView.InvalidatePlot();
+        }
+
+        private void UpdateSignals(int i)
+        {
+            var candle = candlesSeries.Items[i];
+            var signals = new List<Indicator.Signal>();
+
+            if (lastSignals.Count >= 3)
+                lastSignals.Dequeue();
+            lastSignals.Enqueue(signals);
+
+            foreach (var indicator in indicators)
+            {
+                var rawSignal = indicator.GetSignal(i);
+
+                if (rawSignal.HasValue)
+                {
+                    var signal = rawSignal.Value;
+                    signals.Add(signal);
+                }
+            }
+
+            float value = 0.0f;
+            float multiplier = 1.0f;
+            foreach (var signalsList in lastSignals)
+            {
+                foreach (var signal in signalsList)
+                {
+                    if (signal.type == Indicator.Signal.SignalType.Buy)
+                        value += signal.weight * multiplier;
+                    else
+                        value -= signal.weight * multiplier;
+                }
+                multiplier /= 2;
+            }
+            if (value > 0)
+                buySeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 12));
+            else if (value < 0)
+                sellSeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 12));
         }
 
         public void AddIndicator(Indicator indicator)

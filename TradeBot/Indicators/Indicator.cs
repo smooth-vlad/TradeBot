@@ -6,10 +6,22 @@ namespace TradeBot
 {
     public abstract class Indicator
     {
-        public enum Signal
+        public struct Signal
         {
-            Buy,
-            Sell,
+            public enum SignalType
+            {
+                Buy,
+                Sell,
+            }
+
+            public SignalType type;
+            public float weight;
+
+            public Signal(SignalType type, float weight)
+            {
+                this.type = type;
+                this.weight = weight;
+            }
         }
 
         public List<HighLowItem> candles;

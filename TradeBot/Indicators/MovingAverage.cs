@@ -30,7 +30,7 @@ namespace TradeBot
     //            Поставить ордер на 2 пункта выше от максимума
     public class MovingAverage : Indicator
     {
-        private IMACalculation calculationMethod;
+        private IMACalculation movingAverageCalculation;
 
         private int period;
         private int offset;
@@ -46,7 +46,7 @@ namespace TradeBot
 
             this.period = period;
             this.offset = offset;
-            this.calculationMethod = calculationMethod;
+            this.movingAverageCalculation = calculationMethod;
         }
 
         override public Signal? GetSignal(int currentCandleIndex)
@@ -55,29 +55,22 @@ namespace TradeBot
                 return null;
 
             bool isCandleBigEnough = true;
-            //double candleSize = Math.Abs(candles[currentCandleIndex].Close - candles[currentCandleIndex + 1].Close);
-            //for (int i = 1; i < offset + 1; ++i)
-            //{
-            //    double thisCandleSize = Math.Abs(candles[currentCandleIndex + i].Close - candles[currentCandleIndex + i + 1].Close);
-            //    if (thisCandleSize > candleSize)
-            //        isCandleBigEnough = false;
-            //}
 
             if (isCandleBigEnough &&
                 ((candles[currentCandleIndex + 1].Close - series.Points[currentCandleIndex + 1].Y) *
                     (candles[currentCandleIndex].Close - series.Points[currentCandleIndex].Y) < 0))
             {
                 if (candles[currentCandleIndex].Close > series.Points[currentCandleIndex].Y)
-                    return Signal.Buy;
+                    return new Signal(Signal.SignalType.Buy, 0.6f);
                 else
-                    return Signal.Sell;
+                    return new Signal(Signal.SignalType.Sell, 0.6f);
             }
             return null;
         }
 
         override public void UpdateSeries()
         {
-            calculationMethod.Calculate(delegate (int index) { return candles[index].Close; }, candles.Count, period, series);
+            movingAverageCalculation.Calculate(delegate (int index) { return candles[index].Close; }, candles.Count, period, series);
         }
 
         override public void InitializeSeries(ElementCollection<Series> series)
@@ -87,7 +80,7 @@ namespace TradeBot
 
             this.series = new LineSeries
             {
-                Title = calculationMethod.Title,
+                Title = movingAverageCalculation.Title,
             };
             series.Add(this.series);
             AreSeriesInitialized = true;

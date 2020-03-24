@@ -6,7 +6,7 @@ namespace TradeBot
 {
     class MACD : Indicator
     {
-        private IMACalculation calculationMethod;
+        private IMACalculation movingAverageCalculation;
 
         private int shortPeriod;
         private int longPeriod;
@@ -25,7 +25,7 @@ namespace TradeBot
             if (calculationMethod == null)
                 throw new ArgumentNullException();
 
-            this.calculationMethod = calculationMethod;
+            this.movingAverageCalculation = calculationMethod;
             this.shortPeriod = shortPeriod;
             this.longPeriod = longPeriod;
             this.differencePeriod = differencePeriod;
@@ -33,16 +33,14 @@ namespace TradeBot
 
         override public void UpdateSeries()
         {
-            calculationMethod.Calculate(delegate (int index) { return candles[index].Close; }, candles.Count, shortPeriod, shortMASeries);
-            calculationMethod.Calculate(delegate (int index) { return candles[index].Close; }, candles.Count, longPeriod, longMASeries);
+            movingAverageCalculation.Calculate(delegate (int index) { return candles[index].Close; }, candles.Count, shortPeriod, shortMASeries);
+            movingAverageCalculation.Calculate(delegate (int index) { return candles[index].Close; }, candles.Count, longPeriod, longMASeries);
 
             MACDSeries.Points.Clear();
             for (int i = 0; i < candles.Count - longPeriod; ++i)
-            {
                 MACDSeries.Points.Add(new DataPoint(i, shortMASeries.Points[i].Y - longMASeries.Points[i].Y));
-            }
 
-            calculationMethod.Calculate(delegate(int index) { return MACDSeries.Points[index].Y; }, MACDSeries.Points.Count, differencePeriod, signalSeries);
+            movingAverageCalculation.Calculate(delegate(int index) { return MACDSeries.Points[index].Y; }, MACDSeries.Points.Count, differencePeriod, signalSeries);
         }
 
         override public void InitializeSeries(ElementCollection<Series> series)
@@ -92,9 +90,9 @@ namespace TradeBot
                     (MACDSeries.Points[currentCandleIndex].Y - signalSeries.Items[currentCandleIndex].Value) < 0)
             {
                 if (MACDSeries.Points[currentCandleIndex].Y > signalSeries.Items[currentCandleIndex].Value)
-                    return Signal.Buy;
+                    return new Signal(Signal.SignalType.Buy, 1.0f);
                 else
-                    return Signal.Sell;
+                    return new Signal(Signal.SignalType.Sell, 1.0f);
             }
 
             return null;
