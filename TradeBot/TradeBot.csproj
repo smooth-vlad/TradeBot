@@ -75,6 +75,7 @@
     <Compile Include="IndicatorsDialogs\MovingAverageDialog.xaml.cs">
       <DependentUpon>MovingAverageDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Indicators\MACD.cs" />
     <Compile Include="Indicators\MovingAverageCalculation\ExponentialMACalculation.cs" />
     <Compile Include="Indicators\MovingAverageCalculation\IMACalculation.cs" />
     <Compile Include="Indicators\MovingAverageCalculation\SimpleMACalculation.cs" />

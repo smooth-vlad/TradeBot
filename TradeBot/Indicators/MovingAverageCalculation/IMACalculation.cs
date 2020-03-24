@@ -1,9 +1,6 @@
-﻿using OxyPlot.Series;
+﻿using OxyPlot;
+using OxyPlot.Series;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradeBot
 {
@@ -11,6 +8,7 @@ namespace TradeBot
     {
         string Title { get; }
 
-        void Calculate(List<HighLowItem> candles, LineSeries series);
+        void Calculate(Func<int, double> value, int count, int period, LineSeries series);
+        void Calculate(Func<int, double> value, int count, int period, HistogramSeries series);
     }
 }

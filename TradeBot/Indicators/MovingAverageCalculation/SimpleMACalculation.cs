@@ -1,37 +1,34 @@
 ﻿using OxyPlot;
 using OxyPlot.Series;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradeBot
 {
     public class SimpleMACalculation : IMACalculation
     {
-        private int period;
+        public string Title => "Simple Moving Average";
 
-        public string Title => string.Format("Simple Moving Average {0}", period);
-
-        public SimpleMACalculation(int period)
-        {
-            this.period = period;
-        }
-
-        public void Calculate(List<HighLowItem> candles, LineSeries series)
+        public void Calculate(Func<int, double> value, int count, int period, LineSeries series)
         {
             series.Points.Clear();
 
-            for (int i = 0; i < candles.Count - period; ++i)
-                series.Points.Add(new DataPoint(i, CalculateAverage(candles, period, i)));
+            for (int i = 0; i < count - period; ++i)
+                series.Points.Add(new DataPoint(i, CalculateAverage(value, period, i)));
         }
 
-        public static double CalculateAverage(List<HighLowItem> candles, int period, int startIndex)
+        public void Calculate(Func<int, double> value, int count, int period, HistogramSeries series)
+        {
+            series.Items.Clear();
+
+            for (int i = 0; i < count - period; ++i)
+                series.Items.Add(new HistogramItem(i + 0.1, i + 0.9, CalculateAverage(value, period, i), 1));
+        }
+
+        public static double CalculateAverage(Func<int, double> value, int period, int startIndex)
         {
             double sum = 0;
             for (int j = 0; j < period; ++j)
-                sum += candles[startIndex + j].Close;
+                sum += value(startIndex + j);
             return sum / period;
         }
     }
