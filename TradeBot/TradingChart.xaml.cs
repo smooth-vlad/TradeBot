@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Tinkoff.Trading.OpenApi.Network;
@@ -24,18 +25,18 @@ namespace TradeBot
         public CandleInterval candleInterval = CandleInterval.Minute;
         private List<Indicator> indicators = new List<Indicator>();
 
-        private CandleStickSeries candlesSeries;
-        private ScatterSeries buySeries;
-        private ScatterSeries sellSeries;
+        private readonly CandleStickSeries candlesSeries;
+        private readonly ScatterSeries buySeries;
+        private readonly ScatterSeries sellSeries;
 
-        private LinearAxis xAxis;
-        private LinearAxis xAxis1;
-        private LinearAxis yAxis;
-        private LinearAxis yAxis1;
+        private readonly LinearAxis xAxis;
+        private readonly LinearAxis xAxis1;
+        private readonly LinearAxis yAxis;
+        private readonly LinearAxis yAxis1;
 
-        private List<DateTime> candlesDates = new List<DateTime>();
+        private readonly List<DateTime> candlesDates = new List<DateTime>();
 
-        private Queue<List<Indicator.Signal>> lastSignals = new Queue<List<Indicator.Signal>>(3);
+        private readonly Queue<List<Indicator.Signal>> lastSignals = new Queue<List<Indicator.Signal>>(3);
 
         public DateTime LastCandleDate { get; private set; } // on the right side
         public DateTime FirstCandleDate { get; private set; } // on the left side
@@ -43,7 +44,7 @@ namespace TradeBot
         private int loadedCandles = 0;
         private int candlesLoadsFailed = 0;
 
-        public PlotModel model;
+        private readonly PlotModel model;
 
         public Task LoadingCandlesTask { get; private set; }
 
@@ -64,8 +65,7 @@ namespace TradeBot
 
         public TimeSpan GetPeriod(CandleInterval interval)
         {
-            TimeSpan result;
-            if (!intervalToMaxPeriod.TryGetValue(interval, out result))
+            if (!intervalToMaxPeriod.TryGetValue(interval, out var result))
                 throw new KeyNotFoundException();
             return result;
         }
@@ -151,38 +151,36 @@ namespace TradeBot
 
             xAxis.LabelFormatter = delegate (double d)
             {
-                if (candlesSeries.Items.Count > (int)d && d >= 0)
+                if (candlesSeries.Items.Count <= (int) d || !(d >= 0)) return "";
+                switch (candleInterval)
                 {
-                    switch (candleInterval)
-                    {
-                        case CandleInterval.Minute:
-                        case CandleInterval.TwoMinutes:
-                        case CandleInterval.ThreeMinutes:
-                        case CandleInterval.FiveMinutes:
-                        case CandleInterval.TenMinutes:
-                        case CandleInterval.QuarterHour:
-                        case CandleInterval.HalfHour:
-                            return candlesDates[(int)d].ToString("HH:mm");
-                        case CandleInterval.Hour:
-                        case CandleInterval.TwoHours:
-                        case CandleInterval.FourHours:
-                        case CandleInterval.Day:
-                        case CandleInterval.Week:
-                            return candlesDates[(int)d].ToString("dd MMMM");
-                        case CandleInterval.Month:
-                            return candlesDates[(int)d].ToString("yyyy");
-                    }
+                    case CandleInterval.Minute:
+                    case CandleInterval.TwoMinutes:
+                    case CandleInterval.ThreeMinutes:
+                    case CandleInterval.FiveMinutes:
+                    case CandleInterval.TenMinutes:
+                    case CandleInterval.QuarterHour:
+                    case CandleInterval.HalfHour:
+                        return candlesDates[(int)d].ToString("HH:mm");
+                    case CandleInterval.Hour:
+                    case CandleInterval.TwoHours:
+                    case CandleInterval.FourHours:
+                    case CandleInterval.Day:
+                    case CandleInterval.Week:
+                        return candlesDates[(int)d].ToString("dd MMMM");
+                    case CandleInterval.Month:
+                        return candlesDates[(int)d].ToString("yyyy");
                 }
                 return "";
             };
             xAxis.AxisChanged += XAxis_AxisChanged;
 
-            plotView.Model = model;
+            PlotView.Model = model;
 
-            plotView.ActualController.BindMouseDown(OxyMouseButton.Left, PlotCommands.PanAt);
-            plotView.ActualController.BindMouseDown(OxyMouseButton.Right, PlotCommands.SnapTrack);
+            PlotView.ActualController.BindMouseDown(OxyMouseButton.Left, PlotCommands.PanAt);
+            PlotView.ActualController.BindMouseDown(OxyMouseButton.Right, PlotCommands.SnapTrack);
 
-            plotView1.Model = new PlotModel
+            PlotView1.Model = new PlotModel
             {
                 TextColor = OxyColor.FromArgb(140, 0, 0, 0),
                 PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0),
@@ -215,10 +213,10 @@ namespace TradeBot
                 MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0),
             };
 
-            plotView1.ActualController.UnbindAll();
+            PlotView1.ActualController.UnbindAll();
 
-            plotView1.Model.Axes.Add(xAxis1);
-            plotView1.Model.Axes.Add(yAxis1);
+            PlotView1.Model.Axes.Add(xAxis1);
+            PlotView1.Model.Axes.Add(yAxis1);
 
             DataContext = this;
         }
@@ -239,7 +237,7 @@ namespace TradeBot
 
         private async Task LoadMoreCandlesAndUpdateSeries()
         {
-            bool loaded = false;
+            var loaded = false;
             while (loadedCandles < xAxis.ActualMaximum && candlesLoadsFailed < 10)
             {
                 await LoadMoreCandles();
@@ -252,7 +250,7 @@ namespace TradeBot
                 AdjustYExtent(xAxis, yAxis, model);
                 AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel, false);
             }
-            plotView.InvalidatePlot();
+            PlotView.InvalidatePlot();
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
@@ -279,7 +277,7 @@ namespace TradeBot
 
             xAxis.Zoom(0, 75);
 
-            plotView.InvalidatePlot();
+            PlotView.InvalidatePlot();
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
@@ -323,13 +321,13 @@ namespace TradeBot
                     UpdateSignals(i);
                 }
             });
-            plotView.InvalidatePlot();
+            PlotView.InvalidatePlot();
         }
 
         public void UpdateRealTimeSignals()
         {
             UpdateSignals(0);
-            plotView.InvalidatePlot();
+            PlotView.InvalidatePlot();
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
@@ -342,19 +340,12 @@ namespace TradeBot
                 lastSignals.Dequeue();
             lastSignals.Enqueue(signals);
 
-            foreach (var indicator in indicators)
-            {
-                var rawSignal = indicator.GetSignal(i);
+            signals.AddRange(
+                from indicator in indicators select indicator.GetSignal(i) into rawSignal
+                where rawSignal.HasValue select rawSignal.Value);
 
-                if (rawSignal.HasValue)
-                {
-                    var signal = rawSignal.Value;
-                    signals.Add(signal);
-                }
-            }
-
-            float value = 0.0f;
-            float multiplier = 1.0f;
+            var value = 0.0f;
+            var multiplier = 1.0f;
             foreach (var signalsList in lastSignals)
             {
                 foreach (var signal in signalsList)
@@ -378,16 +369,13 @@ namespace TradeBot
             indicator.candles = candlesSeries.Items;
             indicators.Add(indicator);
 
-            if (indicator.GetType() == typeof(MACD))
-                indicator.InitializeSeries(xAxis1.PlotModel.Series);
-            else
-                indicator.InitializeSeries(model.Series);
+            indicator.InitializeSeries(indicator.GetType() == typeof(Macd) ? xAxis1.PlotModel.Series : model.Series);
 
             indicator.UpdateSeries();
             AdjustYExtent(xAxis, yAxis, model);
             AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel, false);
 
-            plotView.InvalidatePlot();
+            PlotView.InvalidatePlot();
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
@@ -395,15 +383,12 @@ namespace TradeBot
         {
             foreach (var indicator in indicators)
             {
-                if (indicator.GetType() == typeof(MACD))
-                    indicator.RemoveSeries(xAxis1.PlotModel.Series);
-                else
-                    indicator.RemoveSeries(model.Series);
+                indicator.RemoveSeries(indicator.GetType() == typeof(Macd) ? xAxis1.PlotModel.Series : model.Series);
             }
             indicators = new List<Indicator>();
             AdjustYExtent(xAxis, yAxis, model);
             AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel, false);
-            plotView.InvalidatePlot();
+            PlotView.InvalidatePlot();
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
@@ -450,7 +435,7 @@ namespace TradeBot
 
             var c = new List<HighLowItem>();
             var cd = new List<DateTime>();
-            for (int i = 0; i < candles.Count; ++i)
+            for (var i = 0; i < candles.Count; ++i)
             {
                 var candle = candles[i];
                 c.Add(CandleToHighLowItem(i, candle));
@@ -467,25 +452,25 @@ namespace TradeBot
             loadedCandles += candles.Count;
 
             AdjustYExtent(xAxis, yAxis, model);
-            plotView.InvalidatePlot();
+            PlotView.InvalidatePlot();
 
             // move buy points by candles.Count
             var s = new List<ScatterPoint>(buySeries.Points.Count);
-            foreach (var point in buySeries.Points)
-                s.Add(new ScatterPoint(point.X + candles.Count, point.Y, point.Size, point.Value, point.Tag));
+            s.AddRange(buySeries.Points.Select(
+                point => new ScatterPoint(point.X + candles.Count, point.Y, point.Size, point.Value, point.Tag)));
             buySeries.Points.Clear();
             buySeries.Points.AddRange(s);
 
             // move sell points by candles.Count
             s = new List<ScatterPoint>(sellSeries.Points.Count);
-            foreach (var point in sellSeries.Points)
-                s.Add(new ScatterPoint(point.X + candles.Count, point.Y, point.Size, point.Value, point.Tag));
+            s.AddRange(sellSeries.Points.Select(
+                point => new ScatterPoint(point.X + candles.Count, point.Y, point.Size, point.Value, point.Tag)));
             sellSeries.Points.Clear();
             sellSeries.Points.AddRange(s);
 
             UpdateRealTimeSignals();
 
-            plotView.InvalidatePlot();
+            PlotView.InvalidatePlot();
             AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel, false);
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
@@ -511,28 +496,28 @@ namespace TradeBot
                     hplist.AddRange((series as HistogramSeries).Items.FindAll(p => p.RangeStart >= x.ActualMinimum && p.RangeStart <= x.ActualMaximum));
             }
 
-            double ymin = double.MaxValue;
-            double ymax = double.MinValue;
+            var ymin = double.MaxValue;
+            var ymax = double.MinValue;
 
             if (includeCandles)
             {
-                for (int i = 0; i < ptlist.Count; ++i)
+                foreach (var t in ptlist)
                 {
-                    ymin = Math.Min(ymin, ptlist[i].Low);
-                    ymax = Math.Max(ymax, ptlist[i].High);
+                    ymin = Math.Min(ymin, t.Low);
+                    ymax = Math.Max(ymax, t.High);
                 }
             }
 
-            for (int i = 0; i < lplist.Count; ++i)
+            foreach (var t in lplist)
             {
-                ymin = Math.Min(ymin, lplist[i].Y);
-                ymax = Math.Max(ymax, lplist[i].Y);
+                ymin = Math.Min(ymin, t.Y);
+                ymax = Math.Max(ymax, t.Y);
             }
 
-            for (int i = 0; i < hplist.Count; ++i)
+            foreach (var t in hplist)
             {
-                ymin = Math.Min(ymin, hplist[i].Value);
-                ymax = Math.Max(ymax, hplist[i].Value);
+                ymin = Math.Min(ymin, t.Value);
+                ymax = Math.Max(ymax, t.Value);
             }
 
             if (ymin == double.MaxValue || ymax == double.MinValue)
@@ -553,11 +538,9 @@ namespace TradeBot
 
         public async Task<List<CandlePayload>> GetCandles(string figi, DateTime to, CandleInterval interval, TimeSpan queryOffset)
         {
-            var result = new List<CandlePayload>();
             var candles = await context.MarketCandlesAsync(figi, to - queryOffset, to, interval);
 
-            for (int i = 0; i < candles.Candles.Count; ++i)
-                result.Add(candles.Candles[i]);
+            var result = candles.Candles.ToList();
 
             result.Reverse();
             return result;
@@ -570,23 +553,21 @@ namespace TradeBot
         private void MovingAverage_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new MovingAverageDialog();
-            if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog() != true) return;
+            IMaCalculation calculationMethod;
+            switch (dialog.Type)
             {
-                IMACalculation calculationMethod;
-                switch (dialog.Type)
-                {
-                    case MovingAverageDialog.CalculationMethod.Simple:
-                        calculationMethod = new SimpleMACalculation();
-                        break;
-                    case MovingAverageDialog.CalculationMethod.Exponential:
-                        calculationMethod = new ExponentialMACalculation();
-                        break;
-                    default:
-                        calculationMethod = new SimpleMACalculation();
-                        break;
-                }
-                AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, calculationMethod));
+                case MovingAverageDialog.CalculationMethod.Simple:
+                    calculationMethod = new SimpleMaCalculation();
+                    break;
+                case MovingAverageDialog.CalculationMethod.Exponential:
+                    calculationMethod = new ExponentialMaCalculation();
+                    break;
+                default:
+                    calculationMethod = new SimpleMaCalculation();
+                    break;
             }
+            AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, calculationMethod));
         }
 
         private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
@@ -596,7 +577,7 @@ namespace TradeBot
 
         private void MACD_Click(object sender, RoutedEventArgs e)
         {
-            AddIndicator(new MACD(new ExponentialMACalculation(), 12, 26, 9));
+            AddIndicator(new Macd(new ExponentialMaCalculation(), 12, 26, 9));
         }
     }
 }

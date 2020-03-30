@@ -42,8 +42,7 @@ namespace TradeBot
         {
             periodErrorTextBlock.Text = string.Empty;
             offsetErrorTextBlock.Text = string.Empty;
-            int period;
-            if (!int.TryParse(periodTextBox.Text.Trim(), out period))
+            if (!int.TryParse(periodTextBox.Text.Trim(), out var period))
             {
                 periodErrorTextBlock.Text = "* Not a number";
                 periodTextBox.Focus();
@@ -56,8 +55,7 @@ namespace TradeBot
                 return;
             }
 
-            int offset;
-            if (!int.TryParse(offsetTextBox.Text.Trim(), out offset))
+            if (!int.TryParse(offsetTextBox.Text.Trim(), out var offset))
             {
                 offsetErrorTextBlock.Text = "* Not a number";
                 offsetTextBox.Focus();

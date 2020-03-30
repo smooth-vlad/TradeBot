@@ -30,50 +30,44 @@ namespace TradeBot
     //            Поставить ордер на 2 пункта выше от максимума
     public class MovingAverage : Indicator
     {
-        private IMACalculation movingAverageCalculation;
+        private readonly IMaCalculation movingAverageCalculation;
 
-        private int period;
-        private int offset;
+        private readonly int period;
+        private readonly int offset;
 
         private LineSeries series;
 
-        public MovingAverage(int period, int offset, IMACalculation calculationMethod)
+        public MovingAverage(int period, int offset, IMaCalculation calculationMethod)
         {
             if (period < 1 || offset < 0)
                 throw new ArgumentOutOfRangeException();
-            if (calculationMethod == null)
-                throw new ArgumentNullException();
 
             this.period = period;
             this.offset = offset;
-            this.movingAverageCalculation = calculationMethod;
+            this.movingAverageCalculation = calculationMethod ?? throw new ArgumentNullException();
         }
 
-        override public Signal? GetSignal(int currentCandleIndex)
+        public override Signal? GetSignal(int currentCandleIndex)
         {
             if (currentCandleIndex > candles.Count - period - offset)
                 return null;
 
-            bool isCandleBigEnough = true;
-
-            if (isCandleBigEnough &&
-                ((candles[currentCandleIndex + 1].Close - series.Points[currentCandleIndex + 1].Y) *
-                    (candles[currentCandleIndex].Close - series.Points[currentCandleIndex].Y) < 0))
+            if ((candles[currentCandleIndex + 1].Close - series.Points[currentCandleIndex + 1].Y) *
+                 (candles[currentCandleIndex].Close - series.Points[currentCandleIndex].Y) < 0)
             {
-                if (candles[currentCandleIndex].Close > series.Points[currentCandleIndex].Y)
-                    return new Signal(Signal.SignalType.Buy, 0.6f);
-                else
-                    return new Signal(Signal.SignalType.Sell, 0.6f);
+                return candles[currentCandleIndex].Close > series.Points[currentCandleIndex].Y ?
+                    new Signal(Signal.SignalType.Buy, 0.6f) :
+                    new Signal(Signal.SignalType.Sell, 0.6f);
             }
             return null;
         }
 
-        override public void UpdateSeries()
+        public override void UpdateSeries()
         {
-            movingAverageCalculation.Calculate(delegate (int index) { return candles[index].Close; }, candles.Count, period, series);
+            movingAverageCalculation.Calculate(index => candles[index].Close, candles.Count, period, series);
         }
 
-        override public void InitializeSeries(ElementCollection<Series> series)
+        public override void InitializeSeries(ElementCollection<Series> series)
         {
             if (AreSeriesInitialized)
                 return;

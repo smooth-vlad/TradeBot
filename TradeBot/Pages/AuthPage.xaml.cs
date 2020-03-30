@@ -26,9 +26,9 @@ namespace TradeBot
             tokenErrorTextBlock.Text = string.Empty;
             try
             {
-                SandboxConnection connection = ConnectionFactory.GetSandboxConnection(tokenTextBox.Text.Trim());
-                MarketInstrumentList allegedStocks = await connection.Context.MarketStocksAsync();
-                Connect.Invoke(connection.Context);
+                var connection = ConnectionFactory.GetSandboxConnection(tokenTextBox.Text.Trim());
+                var allegedStocks = await connection.Context.MarketStocksAsync();
+                Connect?.Invoke(connection.Context);
             }
             catch (Exception)
             {

@@ -4,7 +4,7 @@ using System;
 
 namespace TradeBot
 {
-    public interface IMACalculation
+    public interface IMaCalculation
     {
         string Title { get; }
 

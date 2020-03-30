@@ -10,7 +10,7 @@ namespace TradeBot
     /// </summary>
     public partial class MainPage : Page
     {
-        private Context context;
+        private readonly Context context;
 
         public MainPage(Context context)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Tinkoff.Trading.OpenApi.Network;
 using Tinkoff.Trading.OpenApi.Models;
 using System.Windows.Controls;
@@ -61,13 +62,11 @@ namespace TradeBot
         {
             CandleInterval? interval = null;
             var selectedInterval = intervalComboBox.SelectedItem.ToString();
-            foreach (var k in TradingChart.intervalToMaxPeriod.Keys)
+            foreach (var k in
+                TradingChart.intervalToMaxPeriod.Keys.Where(k => k.ToString() == selectedInterval))
             {
-                if (k.ToString() == selectedInterval)
-                {
-                    interval = k;
-                    break;
-                }
+                interval = k;
+                break;
             }
             if (interval == null)
                 return;

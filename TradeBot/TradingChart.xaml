@@ -14,13 +14,13 @@
             <RowDefinition Height="150"/>
         </Grid.RowDefinitions>
 
-        <oxy:PlotView Grid.Row="0" x:Name="plotView" Model="{Binding Source=StaticResource Model}">
+        <oxy:PlotView Grid.Row="0" x:Name="PlotView" Model="{Binding Source=StaticResource Model}">
             <oxy:PlotView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Add indicator">
                         <MenuItem x:Name="MovingAverage" Header="Moving Average" Click="MovingAverage_Click"></MenuItem>
-                        <MenuItem x:Name="MACD" Header="MACD" Click="MACD_Click"></MenuItem>
-                        <MenuItem x:Name="RSI" Header="RSI"></MenuItem>
+                        <MenuItem x:Name="Macd" Header="MACD" Click="MACD_Click"></MenuItem>
+                        <MenuItem x:Name="Rsi" Header="RSI"></MenuItem>
                         <MenuItem x:Name="Momentum" Header="Momentum"></MenuItem>
                         <MenuItem x:Name="Volume" Header="Volume"></MenuItem>
                     </MenuItem>
@@ -28,7 +28,7 @@
                 </ContextMenu>
             </oxy:PlotView.ContextMenu>
         </oxy:PlotView>
-        <oxy:PlotView Grid.Row="1" x:Name="plotView1" Model="{Binding Source=StaticResource Model}">
+        <oxy:PlotView Grid.Row="1" x:Name="PlotView1" Model="{Binding Source=StaticResource Model}">
         </oxy:PlotView>
     </Grid>
 </UserControl>

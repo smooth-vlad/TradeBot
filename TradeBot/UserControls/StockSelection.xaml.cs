@@ -22,8 +22,8 @@ namespace TradeBot
     /// </summary>
     public partial class StockSelection : UserControl
     {
-        private Context context;
-        private TabItem parent;
+        private readonly Context context;
+        private readonly TabItem parent;
 
         public StockSelection(Context context, TabItem parent)
         {
@@ -40,7 +40,7 @@ namespace TradeBot
             MarketInstrument activeStock;
             try
             {
-                MarketInstrumentList allegedStocks = await context.MarketStocksAsync();
+                var allegedStocks = await context.MarketStocksAsync();
                 activeStock = allegedStocks.Instruments.Find(x => x.Ticker == tickerTextBox.Text);
                 if (activeStock == null)
                     throw new NullReferenceException();
