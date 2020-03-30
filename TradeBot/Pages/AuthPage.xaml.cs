@@ -21,7 +21,7 @@ namespace TradeBot
             tokenTextBox.Focus();
         }
 
-        private async void authButton_Click(object sender, RoutedEventArgs e)
+        async void authButton_Click(object sender, RoutedEventArgs e)
         {
             tokenErrorTextBlock.Text = string.Empty;
             try

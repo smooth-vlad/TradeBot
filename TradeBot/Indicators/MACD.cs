@@ -4,18 +4,18 @@ using System;
 
 namespace TradeBot
 {
-    class Macd : Indicator
+    internal class Macd : Indicator
     {
-        private readonly IMaCalculation movingAverageCalculation;
+        readonly IMaCalculation movingAverageCalculation;
 
-        private readonly int shortPeriod;
-        private readonly int longPeriod;
-        private readonly int differencePeriod;
+        readonly int shortPeriod;
+        readonly int longPeriod;
+        readonly int differencePeriod;
 
-        private LineSeries shortMaSeries;
-        private LineSeries longMaSeries;
-        private LineSeries macdSeries;
-        private HistogramSeries signalSeries;
+        LineSeries shortMaSeries;
+        LineSeries longMaSeries;
+        LineSeries macdSeries;
+        HistogramSeries signalSeries;
 
         public Macd(IMaCalculation calculationMethod, int shortPeriod, int longPeriod, int differencePeriod)
         {

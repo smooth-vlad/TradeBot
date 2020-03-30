@@ -24,7 +24,7 @@ namespace TradeBot
             authPage.Connect += AuthPage_Connect;
         }
 
-        private void AuthPage_Connect(Context context)
+        void AuthPage_Connect(Context context)
         {
             Context = context;
             Content = new MainPage(Context);

@@ -16,8 +16,8 @@ namespace TradeBot
     /// </summary>
     public partial class TestingTrading : UserControl
     {
-        private Context context;
-        private MarketInstrument activeStock;
+        Context context;
+        MarketInstrument activeStock;
 
         public TestingTrading(Context context, MarketInstrument activeStock)
         {
@@ -40,7 +40,7 @@ namespace TradeBot
             DataContext = this;
         }
 
-        private void SetEverythingEnabled(bool value)
+        void SetEverythingEnabled(bool value)
         {
             simulateButton.IsEnabled = value;
             intervalComboBox.IsEnabled = value;
@@ -50,7 +50,7 @@ namespace TradeBot
         // events
         // ==================================================
 
-        private void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CandleInterval? interval = null;
             var selectedInterval = intervalComboBox.SelectedItem.ToString();
@@ -68,7 +68,7 @@ namespace TradeBot
             tradingChart.ResetSeries();
         }
 
-        private async void simulateButton_Click(object sender, RoutedEventArgs e)
+        async void simulateButton_Click(object sender, RoutedEventArgs e)
         {
             SetEverythingEnabled(false);
             await tradingChart.UpdateTestingSignals();

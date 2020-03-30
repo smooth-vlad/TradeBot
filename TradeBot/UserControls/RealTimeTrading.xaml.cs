@@ -12,10 +12,10 @@ namespace TradeBot
     /// </summary>
     public partial class RealTimeTrading : UserControl
     {
-        private Context context;
-        private MarketInstrument activeStock;
+        Context context;
+        MarketInstrument activeStock;
 
-        private Timer candlesTimer;
+        Timer candlesTimer;
 
         public RealTimeTrading(Context context, MarketInstrument activeStock)
         {
@@ -47,7 +47,7 @@ namespace TradeBot
         // events
         // ==================================================
 
-        private async void CandlesTimerElapsed()
+        async void CandlesTimerElapsed()
         {
             if (tradingChart.LastCandleDate > DateTime.Now)
                 return;
@@ -58,7 +58,7 @@ namespace TradeBot
             await tradingChart.LoadNewCandles();
         }
 
-        private void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CandleInterval? interval = null;
             var selectedInterval = intervalComboBox.SelectedItem.ToString();

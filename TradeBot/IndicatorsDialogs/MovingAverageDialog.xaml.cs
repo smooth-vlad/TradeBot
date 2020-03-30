@@ -38,7 +38,7 @@ namespace TradeBot
             typeComboBox.SelectedIndex = 0;
         }
 
-        private void addButton_Click(object sender, RoutedEventArgs e)
+        void addButton_Click(object sender, RoutedEventArgs e)
         {
             periodErrorTextBlock.Text = string.Empty;
             offsetErrorTextBlock.Text = string.Empty;
@@ -74,7 +74,7 @@ namespace TradeBot
             DialogResult = true;
         }
 
-        private void cancelButton_Click(object sender, RoutedEventArgs e)
+        void cancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
         }

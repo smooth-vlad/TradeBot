@@ -10,7 +10,7 @@ namespace TradeBot
     /// </summary>
     public partial class MainPage : Page
     {
-        private readonly Context context;
+        readonly Context context;
 
         public MainPage(Context context)
         {
@@ -20,7 +20,7 @@ namespace TradeBot
             AddStockSelectionTab();
         }
 
-        private void AddStockSelectionTab()
+        void AddStockSelectionTab()
         {
             var newItem = new TabItem();
             newItem.Content = new StockSelection(context, newItem);
@@ -30,7 +30,7 @@ namespace TradeBot
             tabControl.Items.Insert(tabControl.Items.Count - 1, newItem);
         }
 
-        private void AddTabButton_Selected(object sender, RoutedEventArgs e)
+        void AddTabButton_Selected(object sender, RoutedEventArgs e)
         {
             AddStockSelectionTab();
 

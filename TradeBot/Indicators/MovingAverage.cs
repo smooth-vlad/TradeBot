@@ -30,12 +30,12 @@ namespace TradeBot
     //            Поставить ордер на 2 пункта выше от максимума
     public class MovingAverage : Indicator
     {
-        private readonly IMaCalculation movingAverageCalculation;
+        readonly IMaCalculation movingAverageCalculation;
 
-        private readonly int period;
-        private readonly int offset;
+        readonly int period;
+        readonly int offset;
 
-        private LineSeries series;
+        LineSeries series;
 
         public MovingAverage(int period, int offset, IMaCalculation calculationMethod)
         {

@@ -22,8 +22,8 @@ namespace TradeBot
     /// </summary>
     public partial class StockSelection : UserControl
     {
-        private readonly Context context;
-        private readonly TabItem parent;
+        readonly Context context;
+        readonly TabItem parent;
 
         public StockSelection(Context context, TabItem parent)
         {
@@ -33,7 +33,7 @@ namespace TradeBot
             this.parent = parent;
         }
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        async void Button_Click(object sender, RoutedEventArgs e)
         {
             tickerErrorTextBlock.Text = string.Empty;
 

@@ -23,28 +23,28 @@ namespace TradeBot
         public MarketInstrument activeStock;
 
         public CandleInterval candleInterval = CandleInterval.Minute;
-        private List<Indicator> indicators = new List<Indicator>();
+        List<Indicator> indicators = new List<Indicator>();
 
-        private readonly CandleStickSeries candlesSeries;
-        private readonly ScatterSeries buySeries;
-        private readonly ScatterSeries sellSeries;
+        readonly CandleStickSeries candlesSeries;
+        readonly ScatterSeries buySeries;
+        readonly ScatterSeries sellSeries;
 
-        private readonly LinearAxis xAxis;
-        private readonly LinearAxis xAxis1;
-        private readonly LinearAxis yAxis;
-        private readonly LinearAxis yAxis1;
+        readonly LinearAxis xAxis;
+        readonly LinearAxis xAxis1;
+        readonly LinearAxis yAxis;
+        readonly LinearAxis yAxis1;
 
-        private readonly List<DateTime> candlesDates = new List<DateTime>();
+        readonly List<DateTime> candlesDates = new List<DateTime>();
 
-        private readonly Queue<List<Indicator.Signal>> lastSignals = new Queue<List<Indicator.Signal>>(3);
+        readonly Queue<List<Indicator.Signal>> lastSignals = new Queue<List<Indicator.Signal>>(3);
 
         public DateTime LastCandleDate { get; private set; } // on the right side
         public DateTime FirstCandleDate { get; private set; } // on the left side
 
-        private int loadedCandles = 0;
-        private int candlesLoadsFailed = 0;
+        int loadedCandles = 0;
+        int candlesLoadsFailed = 0;
 
-        private readonly PlotModel model;
+        readonly PlotModel model;
 
         public Task LoadingCandlesTask { get; private set; }
 
@@ -221,7 +221,7 @@ namespace TradeBot
             DataContext = this;
         }
 
-        private async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
+        async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
         {
             if (LoadingCandlesTask == null || !LoadingCandlesTask.IsCompleted)
                 return;
@@ -235,7 +235,7 @@ namespace TradeBot
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
-        private async Task LoadMoreCandlesAndUpdateSeries()
+        async Task LoadMoreCandlesAndUpdateSeries()
         {
             var loaded = false;
             while (loadedCandles < xAxis.ActualMaximum && candlesLoadsFailed < 10)
@@ -281,7 +281,7 @@ namespace TradeBot
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
-        private async Task LoadMoreCandles()
+        async Task LoadMoreCandles()
         {
             if (activeStock == null || context == null ||
                 candlesLoadsFailed >= 10 ||
@@ -331,7 +331,7 @@ namespace TradeBot
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
-        private void UpdateSignals(int i)
+        void UpdateSignals(int i)
         {
             var candle = candlesSeries.Items[i];
             var signals = new List<Indicator.Signal>();
@@ -344,6 +344,15 @@ namespace TradeBot
                 from indicator in indicators select indicator.GetSignal(i) into rawSignal
                 where rawSignal.HasValue select rawSignal.Value);
 
+            var value = CalculateSignalValue();
+            if (value > 0)
+                buySeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 12));
+            else if (value < 0)
+                sellSeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 12));
+        }
+
+        float CalculateSignalValue()
+        {
             var value = 0.0f;
             var multiplier = 1.0f;
             foreach (var signalsList in lastSignals)
@@ -355,12 +364,11 @@ namespace TradeBot
                     else
                         value -= signal.weight * multiplier;
                 }
+
                 multiplier /= 2;
             }
-            if (value > 0)
-                buySeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 12));
-            else if (value < 0)
-                sellSeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 12));
+
+            return value;
         }
 
         public void AddIndicator(Indicator indicator)
@@ -392,7 +400,7 @@ namespace TradeBot
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
-        private TimeSpan CandleIntervalToTimeSpan(CandleInterval interval)
+        TimeSpan CandleIntervalToTimeSpan(CandleInterval interval)
         {
             switch (interval)
             {
@@ -475,7 +483,7 @@ namespace TradeBot
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
-        private void AdjustYExtent(LinearAxis x, LinearAxis y, PlotModel m, bool includeCandles = true)
+        void AdjustYExtent(LinearAxis x, LinearAxis y, PlotModel m, bool includeCandles = true)
         {
             var ptlist = new List<HighLowItem>();
             if (includeCandles)
@@ -550,7 +558,7 @@ namespace TradeBot
         // =========  Events ==============
         // ================================
 
-        private void MovingAverage_Click(object sender, RoutedEventArgs e)
+        void MovingAverage_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new MovingAverageDialog();
             if (dialog.ShowDialog() != true) return;
@@ -570,12 +578,12 @@ namespace TradeBot
             AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, calculationMethod));
         }
 
-        private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
+        void RemoveIndicators_Click(object sender, RoutedEventArgs e)
         {
             RemoveIndicators();
         }
 
-        private void MACD_Click(object sender, RoutedEventArgs e)
+        void MACD_Click(object sender, RoutedEventArgs e)
         {
             AddIndicator(new Macd(new ExponentialMaCalculation(), 12, 26, 9));
         }
