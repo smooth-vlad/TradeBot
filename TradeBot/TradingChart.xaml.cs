@@ -45,7 +45,7 @@ namespace TradeBot
         {
             InitializeComponent();
 
-            LastCandleDate = FirstCandleDate = DateTime.Now - GetPeriod(candleInterval);
+            LastCandleDate = FirstCandleDate = DateTime.Now;
 
             model = new PlotModel
             {
@@ -241,7 +241,7 @@ namespace TradeBot
 
             loadedCandles = 0;
             candlesLoadsFailed = 0;
-            LastCandleDate = DateTime.Now - GetPeriod(candleInterval);
+            LastCandleDate = DateTime.Now;
             FirstCandleDate = LastCandleDate;
 
             foreach (var indicator in indicators) indicator.ResetSeries();
@@ -263,7 +263,8 @@ namespace TradeBot
                 return;
 
             var period = GetPeriod(candleInterval);
-            var candles = await GetCandles(activeStock.Figi, FirstCandleDate, candleInterval, period);
+            var candles = await GetCandles(activeStock.Figi, FirstCandleDate - period, 
+                FirstCandleDate, candleInterval);
             FirstCandleDate -= period;
             if (candles.Count == 0)
             {
@@ -408,11 +409,21 @@ namespace TradeBot
 
         public async Task LoadNewCandles()
         {
-            var candles = await GetCandles(activeStock.Figi, LastCandleDate + CandleIntervalToTimeSpan(candleInterval),
-                candleInterval, CandleIntervalToTimeSpan(candleInterval));
-            LastCandleDate += CandleIntervalToTimeSpan(candleInterval);
+            List<CandlePayload> candles;
+            try
+            {
+                candles = await GetCandles(activeStock.Figi, LastCandleDate,
+                    DateTime.Now, candleInterval);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
             if (candles.Count == 0)
                 return;
+            
+            LastCandleDate = DateTime.Now;
 
             var c = new List<HighLowItem>();
             var cd = new List<DateTime>();
@@ -513,10 +524,9 @@ namespace TradeBot
                 (double) candlePayload.Open, (double) candlePayload.Close);
         }
 
-        public async Task<List<CandlePayload>> GetCandles(string figi, DateTime to, CandleInterval interval,
-            TimeSpan queryOffset)
+        public async Task<List<CandlePayload>> GetCandles(string figi, DateTime from, DateTime to, CandleInterval interval)
         {
-            var candles = await context.MarketCandlesAsync(figi, to - queryOffset, to, interval);
+            var candles = await context.MarketCandlesAsync(figi, from, to, interval);
 
             var result = candles.Candles.ToList();
 

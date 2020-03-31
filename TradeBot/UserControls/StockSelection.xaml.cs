@@ -71,7 +71,7 @@ namespace TradeBot
             cv.Filter = s =>
                 ((string) s).IndexOf(TickerComboBox.Text, StringComparison.OrdinalIgnoreCase) >= 0;
 
-            TickerComboBox.IsDropDownOpen = cv.Count < 50;
+            TickerComboBox.IsDropDownOpen = cv.Count < 100;
             tb.SelectionLength = 0;
             tb.SelectionStart = tb.Text.Length;
         }

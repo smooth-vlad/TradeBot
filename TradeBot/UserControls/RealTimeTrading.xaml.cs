@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using System.Windows;
 using System.Windows.Controls;
 using Tinkoff.Trading.OpenApi.Models;
 using Tinkoff.Trading.OpenApi.Network;
@@ -38,7 +39,7 @@ namespace TradeBot
             candlesTimer = new Timer(e => CandlesTimerElapsed(),
                 null,
                 TimeSpan.Zero,
-                TimeSpan.FromSeconds(0.25));
+                TimeSpan.FromSeconds(30));
 
             DataContext = this;
         }
@@ -49,11 +50,9 @@ namespace TradeBot
 
         async void CandlesTimerElapsed()
         {
-            if (TradingChart.LastCandleDate > DateTime.Now)
+            if (TradingChart.LoadingCandlesTask == null)
                 return;
-
-            if (TradingChart.LoadingCandlesTask == null || !TradingChart.LoadingCandlesTask.IsCompleted)
-                return;
+            await TradingChart.LoadingCandlesTask;
 
             await TradingChart.LoadNewCandles();
         }
