@@ -10,9 +10,6 @@
       Background="#D9D9D9">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-        </Grid.RowDefinitions>
 
         <TabControl x:Name="TabControl" Grid.Row="0">
             <TabItem x:Name="AddTabButton" Selector.Selected="AddTabButton_Selected"

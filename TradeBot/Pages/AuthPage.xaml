@@ -8,9 +8,6 @@
       Title="AuthPage">
 
     <Grid Height="Auto" Width="Auto">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
         <Grid Margin="30, 30, 30, 30"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               Width="350">

@@ -9,9 +9,6 @@
              Background="#F9F9F9">
 
     <Grid Height="Auto" Width="Auto">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
 
         <Grid Margin="30, 30, 30, 30" VerticalAlignment="Center" HorizontalAlignment="Center"
               Width="400">
@@ -101,7 +98,8 @@
                           TextBoxBase.TextChanged="TickerComboBox_OnTextChanged"
                           IsTextSearchEnabled="False"
                           IsEditable="True"
-                          VerticalAlignment="Top" />
+                          VerticalAlignment="Top">
+                </ComboBox>
 
                 <Button x:Name="SelectButton"
                         Margin="0, 6"

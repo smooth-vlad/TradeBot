@@ -9,11 +9,8 @@
              Background="#F9F9F9">
 
     <Grid Height="Auto" Width="Auto">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
 
-        <Grid Margin="30, 30, 30, 30">
+        <Grid Margin="30">
             <Grid.Effect>
                 <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Performance" Opacity=".2"
                                   ShadowDepth="1" />

@@ -50,7 +50,7 @@ namespace TradeBot
                     parent.Content = new TestingTrading(context, activeInstrument);
                 }
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 InstrumentErrorTextBlock.Text = "* Pick an instrument first";
                 TickerComboBox.IsDropDownOpen = true;
