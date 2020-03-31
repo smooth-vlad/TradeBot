@@ -1,0 +1,140 @@
+﻿<Window x:Class="TradeBot.MacdDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TradeBot"
+        mc:Ignorable="d"
+        Title="Add 'MACD' indicator" Height="500" Width="400"
+        ResizeMode="CanMinimize">
+    <Grid Margin="10">
+
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="ShortPeriodTextBlock"
+                           Opacity=".6"
+                           FontSize="13"
+                           VerticalAlignment="Center">
+                    Short Period
+                </TextBlock>
+                <TextBlock x:Name="ShortPeriodErrorTextBlock"
+                           Opacity=".6"
+                           FontSize="13"
+                           Margin="5 0 0 0"
+                           VerticalAlignment="Center"
+                           Foreground="Red" />
+            </StackPanel>
+
+            <TextBox x:Name="ShortPeriodTextBox"
+                     Foreground="#303030"
+                     FontSize="16"
+                     VerticalContentAlignment="Bottom"
+                     Margin="0, 6">
+                <TextBox.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5" />
+                    </Style>
+                </TextBox.Resources>
+                12
+            </TextBox>
+            
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="LongPeriodTextBlock"
+                           Opacity=".6"
+                           FontSize="13"
+                           VerticalAlignment="Center">
+                    Long Period
+                </TextBlock>
+                <TextBlock x:Name="LongPeriodErrorTextBlock"
+                           Opacity=".6"
+                           FontSize="13"
+                           Margin="5 0 0 0"
+                           VerticalAlignment="Center"
+                           Foreground="Red" />
+            </StackPanel>
+
+            <TextBox x:Name="LongPeriodTextBox"
+                     Foreground="#303030"
+                     FontSize="16"
+                     VerticalContentAlignment="Bottom"
+                     Margin="0, 6">
+                <TextBox.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5" />
+                    </Style>
+                </TextBox.Resources>
+                26
+            </TextBox>
+            
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="HistogramPeriodTextBlock"
+                           Opacity=".6"
+                           FontSize="13"
+                           VerticalAlignment="Center">
+                    Histogram Period
+                </TextBlock>
+                <TextBlock x:Name="HistogramPeriodErrorTextBlock"
+                           Opacity=".6"
+                           FontSize="13"
+                           Margin="5 0 0 0"
+                           VerticalAlignment="Center"
+                           Foreground="Red" />
+            </StackPanel>
+
+            <TextBox x:Name="HistogramPeriodTextBox"
+                     Foreground="#303030"
+                     FontSize="16"
+                     VerticalContentAlignment="Bottom"
+                     Margin="0, 6">
+                <TextBox.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5" />
+                    </Style>
+                </TextBox.Resources>
+                9
+            </TextBox>
+
+            <TextBlock x:Name="TypeTextBlock"
+                       Opacity=".6"
+                       FontSize="13"
+                       VerticalAlignment="Center">
+                Moving Average Calculation Method
+            </TextBlock>
+
+            <ComboBox x:Name="TypeComboBox"
+                      IsReadOnly="True" />
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom">
+                <Button x:Name="AddButton"
+                        Margin="10, 12"
+                        Background="#81D4FA"
+                        Padding="40, 4"
+                        BorderThickness="0"
+                        Click="addButton_Click">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5" />
+                        </Style>
+                    </Button.Resources>
+                    <TextBlock TextAlignment="Center" Foreground="#303030">Add</TextBlock>
+                </Button>
+
+                <Button x:Name="CancelButton"
+                        Margin="10, 12"
+                        Background="#81D4FA"
+                        Padding="40, 4"
+                        BorderThickness="0"
+                        Click="cancelButton_Click">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5" />
+                        </Style>
+                    </Button.Resources>
+                    <TextBlock TextAlignment="Center" Foreground="#303030">Cancel</TextBlock>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

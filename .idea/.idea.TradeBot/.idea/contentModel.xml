@@ -21,6 +21,8 @@
           </e>
         </e>
         <e p="IndicatorsDialogs" t="Include">
+          <e p="MacdDialog.xaml" t="Include" />
+          <e p="MacdDialog.xaml.cs" t="Include" />
           <e p="MovingAverageDialog.xaml" t="Include" />
           <e p="MovingAverageDialog.xaml.cs" t="Include" />
         </e>

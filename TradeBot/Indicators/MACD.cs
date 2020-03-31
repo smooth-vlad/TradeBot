@@ -8,9 +8,9 @@ namespace TradeBot
     {
         readonly int differencePeriod;
         readonly int longPeriod;
-        readonly IMaCalculation movingAverageCalculation;
-
         readonly int shortPeriod;
+        readonly IMaCalculation movingAverageCalculation;
+        
         LineSeries longMaSeries;
         LineSeries macdSeries;
 

@@ -372,41 +372,6 @@ namespace TradeBot
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
-        static TimeSpan CandleIntervalToTimeSpan(CandleInterval interval)
-        {
-            switch (interval)
-            {
-                case CandleInterval.Minute:
-                    return TimeSpan.FromMinutes(1);
-                case CandleInterval.TwoMinutes:
-                    return TimeSpan.FromMinutes(2);
-                case CandleInterval.ThreeMinutes:
-                    return TimeSpan.FromMinutes(3);
-                case CandleInterval.FiveMinutes:
-                    return TimeSpan.FromMinutes(5);
-                case CandleInterval.TenMinutes:
-                    return TimeSpan.FromMinutes(10);
-                case CandleInterval.QuarterHour:
-                    return TimeSpan.FromMinutes(15);
-                case CandleInterval.HalfHour:
-                    return TimeSpan.FromMinutes(30);
-                case CandleInterval.Hour:
-                    return TimeSpan.FromMinutes(60);
-                case CandleInterval.TwoHours:
-                    return TimeSpan.FromHours(2);
-                case CandleInterval.FourHours:
-                    return TimeSpan.FromHours(4);
-                case CandleInterval.Day:
-                    return TimeSpan.FromDays(1);
-                case CandleInterval.Week:
-                    return TimeSpan.FromDays(7);
-                case CandleInterval.Month:
-                    return TimeSpan.FromDays(31);
-            }
-
-            throw new ArgumentOutOfRangeException();
-        }
-
         public async Task LoadNewCandles()
         {
             List<CandlePayload> candles;
@@ -558,15 +523,32 @@ namespace TradeBot
 
             AddIndicator(new MovingAverage(dialog.Period, calculationMethod));
         }
+        
+        void MACD_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new MacdDialog();
+            if (dialog.ShowDialog() != true) return;
+            IMaCalculation calculationMethod;
+            switch (dialog.Type)
+            {
+                case MacdDialog.CalculationMethod.Simple:
+                    calculationMethod = new SimpleMaCalculation();
+                    break;
+                case MacdDialog.CalculationMethod.Exponential:
+                    calculationMethod = new ExponentialMaCalculation();
+                    break;
+                default:
+                    calculationMethod = new SimpleMaCalculation();
+                    break;
+            }
+
+            AddIndicator(new Macd(
+                calculationMethod, dialog.ShortPeriod, dialog.LongPeriod, dialog.HistogramPeriod));
+        }
 
         void RemoveIndicators_Click(object sender, RoutedEventArgs e)
         {
             RemoveIndicators();
-        }
-
-        void MACD_Click(object sender, RoutedEventArgs e)
-        {
-            AddIndicator(new Macd(new ExponentialMaCalculation(), 12, 26, 9));
         }
 
         #region IntervalToMaxPeriod
