@@ -30,25 +30,23 @@ namespace TradeBot
     public class MovingAverage : Indicator
     {
         readonly IMaCalculation movingAverageCalculation;
-        readonly int offset;
 
         readonly int period;
 
         LineSeries series;
 
-        public MovingAverage(int period, int offset, IMaCalculation calculationMethod)
+        public MovingAverage(int period, IMaCalculation calculationMethod)
         {
-            if (period < 1 || offset < 0)
+            if (period < 1)
                 throw new ArgumentOutOfRangeException();
 
             this.period = period;
-            this.offset = offset;
             movingAverageCalculation = calculationMethod ?? throw new ArgumentNullException();
         }
 
         public override Signal? GetSignal(int currentCandleIndex)
         {
-            if (currentCandleIndex > candles.Count - period - offset)
+            if (currentCandleIndex > candles.Count - period)
                 return null;
 
             if ((candles[currentCandleIndex + 1].Close - series.Points[currentCandleIndex + 1].Y) *

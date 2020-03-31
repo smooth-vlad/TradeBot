@@ -556,7 +556,7 @@ namespace TradeBot
                     break;
             }
 
-            AddIndicator(new MovingAverage(dialog.Period, dialog.Offset, calculationMethod));
+            AddIndicator(new MovingAverage(dialog.Period, calculationMethod));
         }
 
         void RemoveIndicators_Click(object sender, RoutedEventArgs e)
