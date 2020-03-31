@@ -1,7 +1,6 @@
-﻿using OxyPlot;
+﻿using System;
+using OxyPlot;
 using OxyPlot.Series;
-using System;
-using System.Collections.Generic;
 
 namespace TradeBot
 {
@@ -31,9 +30,9 @@ namespace TradeBot
     public class MovingAverage : Indicator
     {
         readonly IMaCalculation movingAverageCalculation;
+        readonly int offset;
 
         readonly int period;
-        readonly int offset;
 
         LineSeries series;
 
@@ -44,7 +43,7 @@ namespace TradeBot
 
             this.period = period;
             this.offset = offset;
-            this.movingAverageCalculation = calculationMethod ?? throw new ArgumentNullException();
+            movingAverageCalculation = calculationMethod ?? throw new ArgumentNullException();
         }
 
         public override Signal? GetSignal(int currentCandleIndex)
@@ -53,12 +52,13 @@ namespace TradeBot
                 return null;
 
             if ((candles[currentCandleIndex + 1].Close - series.Points[currentCandleIndex + 1].Y) *
-                 (candles[currentCandleIndex].Close - series.Points[currentCandleIndex].Y) < 0)
+                (candles[currentCandleIndex].Close - series.Points[currentCandleIndex].Y) < 0)
             {
-                return candles[currentCandleIndex].Close > series.Points[currentCandleIndex].Y ?
-                    new Signal(Signal.SignalType.Buy, 0.6f) :
-                    new Signal(Signal.SignalType.Sell, 0.6f);
+                return candles[currentCandleIndex].Close > series.Points[currentCandleIndex].Y
+                    ? new Signal(Signal.SignalType.Buy, 0.6f)
+                    : new Signal(Signal.SignalType.Sell, 0.6f);
             }
+
             return null;
         }
 
@@ -74,7 +74,7 @@ namespace TradeBot
 
             this.series = new LineSeries
             {
-                Title = movingAverageCalculation.Title,
+                Title = movingAverageCalculation.Title
             };
             series.Add(this.series);
             AreSeriesInitialized = true;

@@ -1,6 +1,6 @@
-﻿using OxyPlot;
+﻿using System;
+using OxyPlot;
 using OxyPlot.Series;
-using System;
 
 namespace TradeBot
 {

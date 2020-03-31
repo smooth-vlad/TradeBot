@@ -1,10 +1,7 @@
-﻿using OxyPlot;
-using OxyPlot.Series;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OxyPlot;
+using OxyPlot.Series;
 
 namespace TradeBot
 {
@@ -24,7 +21,7 @@ namespace TradeBot
 
 
             for (var i = 1; i < count - period; ++i)
-                ema.Add((value(count - period - i - 1) * multiplier) + ema[i - 1] * (1 - multiplier));
+                ema.Add(value(count - period - i - 1) * multiplier + ema[i - 1] * (1 - multiplier));
 
             for (var i = ema.Count - 1; i >= 0; --i)
                 series.Points.Add(new DataPoint(series.Points.Count, ema[i]));
@@ -42,7 +39,7 @@ namespace TradeBot
 
 
             for (var i = 1; i < count - period; ++i)
-                ema.Add((value(count - period - i - 1) * multiplier) + ema[i - 1] * (1 - multiplier));
+                ema.Add(value(count - period - i - 1) * multiplier + ema[i - 1] * (1 - multiplier));
 
             for (var i = ema.Count - 1; i >= 0; --i)
                 series.Items.Add(new HistogramItem(series.Items.Count + 0.1, series.Items.Count + 0.9, ema[i], 1));

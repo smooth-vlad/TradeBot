@@ -1,12 +1,11 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using Tinkoff.Trading.OpenApi.Network;
 
 namespace TradeBot
 {
     /// <summary>
-    /// Логика взаимодействия для MainPage.xaml
+    ///     Логика взаимодействия для MainPage.xaml
     /// </summary>
     public partial class MainPage : Page
     {
@@ -27,7 +26,7 @@ namespace TradeBot
             newItem.Header = "Instrument Selection";
             newItem.IsSelected = true;
 
-            tabControl.Items.Insert(tabControl.Items.Count - 1, newItem);
+            TabControl.Items.Insert(TabControl.Items.Count - 1, newItem);
         }
 
         void AddTabButton_Selected(object sender, RoutedEventArgs e)

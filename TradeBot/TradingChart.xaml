@@ -1,34 +1,33 @@
 ﻿<UserControl x:Class="TradeBot.TradingChart"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:TradeBot"
-      xmlns:oxy="http://oxyplot.org/wpf"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TradeBot"
+             xmlns:oxy="http://oxyplot.org/wpf"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="150"/>
+            <RowDefinition />
+            <RowDefinition Height="150" />
         </Grid.RowDefinitions>
 
         <oxy:PlotView Grid.Row="0" x:Name="PlotView" Model="{Binding Source=StaticResource Model}">
             <oxy:PlotView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Add indicator">
-                        <MenuItem x:Name="MovingAverage" Header="Moving Average" Click="MovingAverage_Click"></MenuItem>
-                        <MenuItem x:Name="Macd" Header="MACD" Click="MACD_Click"></MenuItem>
-                        <MenuItem x:Name="Rsi" Header="RSI"></MenuItem>
-                        <MenuItem x:Name="Momentum" Header="Momentum"></MenuItem>
-                        <MenuItem x:Name="Volume" Header="Volume"></MenuItem>
+                        <MenuItem x:Name="MovingAverage" Header="Moving Average" Click="MovingAverage_Click" />
+                        <MenuItem x:Name="Macd" Header="MACD" Click="MACD_Click" />
+                        <MenuItem x:Name="Rsi" Header="RSI" />
+                        <MenuItem x:Name="Momentum" Header="Momentum" />
+                        <MenuItem x:Name="Volume" Header="Volume" />
                     </MenuItem>
-                    <MenuItem x:Name="RemoveIndicatorsButton" Header="Remove indicators" Click="RemoveIndicators_Click"></MenuItem>
+                    <MenuItem x:Name="RemoveIndicatorsButton" Header="Remove indicators" Click="RemoveIndicators_Click" />
                 </ContextMenu>
             </oxy:PlotView.ContextMenu>
         </oxy:PlotView>
-        <oxy:PlotView Grid.Row="1" x:Name="PlotView1" Model="{Binding Source=StaticResource Model}">
-        </oxy:PlotView>
+        <oxy:PlotView Grid.Row="1" x:Name="PlotView1" Model="{Binding Source=StaticResource Model}" />
     </Grid>
 </UserControl>

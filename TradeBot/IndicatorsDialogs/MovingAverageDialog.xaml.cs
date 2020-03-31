@@ -1,76 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using System.Windows;
 
 namespace TradeBot
 {
     /// <summary>
-    /// Логика взаимодействия для MovingAverageDialog.xaml
+    ///     Логика взаимодействия для MovingAverageDialog.xaml
     /// </summary>
     public partial class MovingAverageDialog : Window
     {
         public enum CalculationMethod
         {
             Simple,
-            Exponential,
+            Exponential
+        }
+
+        public MovingAverageDialog()
+        {
+            InitializeComponent();
+
+            TypeComboBox.Items.Add(CalculationMethod.Simple.ToString());
+            TypeComboBox.Items.Add(CalculationMethod.Exponential.ToString());
+            TypeComboBox.SelectedIndex = 0;
         }
 
         public int Period { get; private set; }
         public int Offset { get; private set; }
         public CalculationMethod Type { get; private set; }
 
-        public MovingAverageDialog()
-        {
-            InitializeComponent();
-
-            typeComboBox.Items.Add(CalculationMethod.Simple.ToString());
-            typeComboBox.Items.Add(CalculationMethod.Exponential.ToString());
-            typeComboBox.SelectedIndex = 0;
-        }
-
         void addButton_Click(object sender, RoutedEventArgs e)
         {
-            periodErrorTextBlock.Text = string.Empty;
-            offsetErrorTextBlock.Text = string.Empty;
-            if (!int.TryParse(periodTextBox.Text.Trim(), out var period))
+            PeriodErrorTextBlock.Text = string.Empty;
+            OffsetErrorTextBlock.Text = string.Empty;
+            if (!int.TryParse(PeriodTextBox.Text.Trim(), out var period))
             {
-                periodErrorTextBlock.Text = "* Not a number";
-                periodTextBox.Focus();
-                return;
-            }
-            if (period < 1)
-            {
-                periodErrorTextBlock.Text = "* Value should be >= 1";
-                periodTextBox.Focus();
+                PeriodErrorTextBlock.Text = "* Not a number";
+                PeriodTextBox.Focus();
                 return;
             }
 
-            if (!int.TryParse(offsetTextBox.Text.Trim(), out var offset))
+            if (period < 1)
             {
-                offsetErrorTextBlock.Text = "* Not a number";
-                offsetTextBox.Focus();
+                PeriodErrorTextBlock.Text = "* Value should be >= 1";
+                PeriodTextBox.Focus();
                 return;
             }
+
+            if (!int.TryParse(OffsetTextBox.Text.Trim(), out var offset))
+            {
+                OffsetErrorTextBlock.Text = "* Not a number";
+                OffsetTextBox.Focus();
+                return;
+            }
+
             if (offset < 0)
             {
-                offsetErrorTextBlock.Text = "* Value should be positive";
-                offsetTextBox.Focus();
+                OffsetErrorTextBlock.Text = "* Value should be positive";
+                OffsetTextBox.Focus();
                 return;
             }
 
             Period = period;
             Offset = offset;
-            Type = (CalculationMethod)typeComboBox.SelectedIndex;
+            Type = (CalculationMethod) TypeComboBox.SelectedIndex;
             DialogResult = true;
         }
 

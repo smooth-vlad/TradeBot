@@ -9,41 +9,40 @@
         ResizeMode="CanMinimize">
     <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <TextBlock x:Name="periodTextBlock"
-                           Grid.Row="0" Grid.Column="0"
+        <TextBlock x:Name="PeriodTextBlock"
+                   Grid.Row="0" Grid.Column="0"
                    Grid.ColumnSpan="1"
-                           Opacity=".6"
-                           FontSize="13"
-                           VerticalAlignment="Center">
-                    Period
+                   Opacity=".6"
+                   FontSize="13"
+                   VerticalAlignment="Center">
+            Period
         </TextBlock>
 
-        <TextBlock x:Name="periodErrorTextBlock"
-                           Grid.Row="0" Grid.Column="1"
+        <TextBlock x:Name="PeriodErrorTextBlock"
+                   Grid.Row="0" Grid.Column="1"
                    Grid.ColumnSpan="3"
-                           Opacity=".6"
-                           FontSize="13"
-                       Margin="5 0 0 0"
-                           VerticalAlignment="Center"
-                       Foreground="Red">
-        </TextBlock>
+                   Opacity=".6"
+                   FontSize="13"
+                   Margin="5 0 0 0"
+                   VerticalAlignment="Center"
+                   Foreground="Red" />
 
-        <TextBox x:Name="periodTextBox"
+        <TextBox x:Name="PeriodTextBox"
                  Grid.Row="1" Grid.Column="0"
                  Grid.ColumnSpan="4"
                  Foreground="#303030"
@@ -52,32 +51,31 @@
                  Margin="0, 6">
             <TextBox.Resources>
                 <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="5"></Setter>
+                    <Setter Property="CornerRadius" Value="5" />
                 </Style>
             </TextBox.Resources>
             12
         </TextBox>
 
-        <TextBlock x:Name="offsetTextBlock"
-                           Grid.Row="2" Grid.Column="0"
+        <TextBlock x:Name="OffsetTextBlock"
+                   Grid.Row="2" Grid.Column="0"
                    Grid.ColumnSpan="1"
-                           Opacity=".6"
-                           FontSize="13"
-                           VerticalAlignment="Center">
-                    Offset
+                   Opacity=".6"
+                   FontSize="13"
+                   VerticalAlignment="Center">
+            Offset
         </TextBlock>
 
-        <TextBlock x:Name="offsetErrorTextBlock"
-                           Grid.Row="2" Grid.Column="1"
-                                      Grid.ColumnSpan="3"
-                           Opacity=".6"
-                           FontSize="13"
-                       Margin="5 0 0 0"
-                           VerticalAlignment="Center"
-                       Foreground="Red">
-        </TextBlock>
+        <TextBlock x:Name="OffsetErrorTextBlock"
+                   Grid.Row="2" Grid.Column="1"
+                   Grid.ColumnSpan="3"
+                   Opacity=".6"
+                   FontSize="13"
+                   Margin="5 0 0 0"
+                   VerticalAlignment="Center"
+                   Foreground="Red" />
 
-        <TextBox x:Name="offsetTextBox"
+        <TextBox x:Name="OffsetTextBox"
                  Grid.Row="3" Grid.Column="0"
                  Grid.ColumnSpan="4"
                  Foreground="#303030"
@@ -86,55 +84,53 @@
                  Margin="0, 6">
             <TextBox.Resources>
                 <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="5"></Setter>
+                    <Setter Property="CornerRadius" Value="5" />
                 </Style>
             </TextBox.Resources>
             5
         </TextBox>
 
-        <TextBlock x:Name="typeTextBlock"
-                           Grid.Row="4" Grid.Column="0"
+        <TextBlock x:Name="TypeTextBlock"
+                   Grid.Row="4" Grid.Column="0"
                    Grid.ColumnSpan="1"
-                           Opacity=".6"
-                           FontSize="13"
-                           VerticalAlignment="Center">
-                    Type
+                   Opacity=".6"
+                   FontSize="13"
+                   VerticalAlignment="Center">
+            Type
         </TextBlock>
 
-        <ComboBox x:Name="typeComboBox"
+        <ComboBox x:Name="TypeComboBox"
                   Grid.Row="5" Grid.Column="0"
                   Grid.ColumnSpan="4"
-                  IsReadOnly="True">
-            
-        </ComboBox>
+                  IsReadOnly="True" />
 
-        <Button x:Name="addButton"
-                        Grid.Row="6" Grid.Column="2"
-                        Margin="10, 12"
-                        Background="#81D4FA"
-                        HorizontalAlignment="Right"
-                        Padding="40, 4"
-                        BorderThickness="0"
-                    Click="addButton_Click">
+        <Button x:Name="AddButton"
+                Grid.Row="6" Grid.Column="2"
+                Margin="10, 12"
+                Background="#81D4FA"
+                HorizontalAlignment="Right"
+                Padding="40, 4"
+                BorderThickness="0"
+                Click="addButton_Click">
             <Button.Resources>
                 <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="5"></Setter>
+                    <Setter Property="CornerRadius" Value="5" />
                 </Style>
             </Button.Resources>
             <TextBlock TextAlignment="Center" Foreground="#303030">Add</TextBlock>
         </Button>
 
-        <Button x:Name="cancelButton"
-                        Grid.Row="6" Grid.Column="3"
-                        Margin="10, 12"
-                        Background="#81D4FA"
-                        HorizontalAlignment="Right"
-                        Padding="40, 4"
-                        BorderThickness="0"
-                    Click="cancelButton_Click">
+        <Button x:Name="CancelButton"
+                Grid.Row="6" Grid.Column="3"
+                Margin="10, 12"
+                Background="#81D4FA"
+                HorizontalAlignment="Right"
+                Padding="40, 4"
+                BorderThickness="0"
+                Click="cancelButton_Click">
             <Button.Resources>
                 <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="5"></Setter>
+                    <Setter Property="CornerRadius" Value="5" />
                 </Style>
             </Button.Resources>
             <TextBlock TextAlignment="Center" Foreground="#303030">Cancel</TextBlock>

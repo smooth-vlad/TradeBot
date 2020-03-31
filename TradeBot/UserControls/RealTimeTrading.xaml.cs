@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Linq;
-using Tinkoff.Trading.OpenApi.Network;
-using Tinkoff.Trading.OpenApi.Models;
-using System.Windows.Controls;
 using System.Threading;
+using System.Windows.Controls;
+using Tinkoff.Trading.OpenApi.Models;
+using Tinkoff.Trading.OpenApi.Network;
 
 namespace TradeBot
 {
     /// <summary>
-    /// Логика взаимодействия для RealTimeTrading.xaml
+    ///     Логика взаимодействия для RealTimeTrading.xaml
     /// </summary>
     public partial class RealTimeTrading : UserControl
     {
-        Context context;
         MarketInstrument activeStock;
 
         Timer candlesTimer;
+        Context context;
 
         public RealTimeTrading(Context context, MarketInstrument activeStock)
         {
@@ -27,15 +27,15 @@ namespace TradeBot
             this.context = context;
             this.activeStock = activeStock;
 
-            tradingChart.context = context;
-            tradingChart.activeStock = activeStock;
+            TradingChart.context = context;
+            TradingChart.activeStock = activeStock;
 
-            chartNameTextBlock.Text = activeStock.Name + " (Real-Time)";
+            ChartNameTextBlock.Text = activeStock.Name + " (Real-Time)";
 
-            intervalComboBox.ItemsSource = TradingChart.intervalToMaxPeriod.Keys;
-            intervalComboBox.SelectedIndex = 0;
+            IntervalComboBox.ItemsSource = TradingChart.intervalToMaxPeriod.Keys;
+            IntervalComboBox.SelectedIndex = 0;
 
-            candlesTimer = new Timer((e) => CandlesTimerElapsed(),
+            candlesTimer = new Timer(e => CandlesTimerElapsed(),
                 null,
                 TimeSpan.Zero,
                 TimeSpan.FromSeconds(0.25));
@@ -49,31 +49,32 @@ namespace TradeBot
 
         async void CandlesTimerElapsed()
         {
-            if (tradingChart.LastCandleDate > DateTime.Now)
+            if (TradingChart.LastCandleDate > DateTime.Now)
                 return;
 
-            if (tradingChart.LoadingCandlesTask == null || !tradingChart.LoadingCandlesTask.IsCompleted)
+            if (TradingChart.LoadingCandlesTask == null || !TradingChart.LoadingCandlesTask.IsCompleted)
                 return;
 
-            await tradingChart.LoadNewCandles();
+            await TradingChart.LoadNewCandles();
         }
 
         void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CandleInterval? interval = null;
-            var selectedInterval = intervalComboBox.SelectedItem.ToString();
+            var selectedInterval = IntervalComboBox.SelectedItem.ToString();
             foreach (var k in
                 TradingChart.intervalToMaxPeriod.Keys.Where(k => k.ToString() == selectedInterval))
             {
                 interval = k;
                 break;
             }
+
             if (interval == null)
                 return;
 
-            tradingChart.candleInterval = interval.Value;
+            TradingChart.candleInterval = interval.Value;
 
-            tradingChart.ResetSeries();
+            TradingChart.ResetSeries();
         }
     }
 }
