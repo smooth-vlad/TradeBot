@@ -1,29 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Tinkoff.Trading.OpenApi.Models;
 using Tinkoff.Trading.OpenApi.Network;
 
 namespace TradeBot
 {
     /// <summary>
-    /// Логика взаимодействия для StockSelection.xaml
+    ///     Логика взаимодействия для StockSelection.xaml
     /// </summary>
     public partial class StockSelection : UserControl
     {
         readonly Context context;
         readonly TabItem parent;
+        List<string> instrumentsLabels;
+        MarketInstrumentList instruments;
 
         public StockSelection(Context context, TabItem parent)
         {
@@ -31,45 +25,57 @@ namespace TradeBot
 
             this.context = context;
             this.parent = parent;
+
+            Loaded += OnLoaded;
+        }
+
+        async void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            instruments = await context.MarketStocksAsync();
+            instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} ({v.Name})");
+            TickerComboBox.ItemsSource = instrumentsLabels;
         }
 
         async void Button_Click(object sender, RoutedEventArgs e)
         {
-            tickerErrorTextBlock.Text = string.Empty;
-
-            MarketInstrument activeStock;
+            InstrumentErrorTextBlock.Text = string.Empty;
             try
             {
-                var allegedStocks = await context.MarketStocksAsync();
-                activeStock = allegedStocks.Instruments.Find(x => x.Ticker == tickerTextBox.Text);
-                if (activeStock == null)
-                    throw new NullReferenceException();
-            }
-            catch(NullReferenceException)
-            {
-                tickerErrorTextBlock.Text = "* There is no such ticker";
-                tickerTextBox.Focus();
-                return;
-            }
-            catch (Exception)
-            {
-                tickerErrorTextBlock.Text = "* Unexpected error. Please, try again";
-                tickerTextBox.Focus();
-                return;
-            }
+                var activeInstrument =
+                    instruments.Instruments[instrumentsLabels.FindIndex(v => v == TickerComboBox.Text)];
 
-            parent.Header = activeStock.Name;
+                parent.Header = activeInstrument.Name;
 
-            if (realTimeRadioButton.IsChecked == true)
-            {
-                parent.Header += " (Real-Time)";
-                parent.Content = new RealTimeTrading(context, activeStock);
+                if (RealTimeRadioButton.IsChecked == true)
+                {
+                    parent.Header += " (Real-Time)";
+                    parent.Content = new RealTimeTrading(context, activeInstrument);
+                }
+                else if (TestingRadioButton.IsChecked == true)
+                {
+                    parent.Header += " (Testing)";
+                    parent.Content = new TestingTrading(context, activeInstrument);
+                }
             }
-            else if (testingRadioButton.IsChecked == true)
+            catch (Exception exception)
             {
-                parent.Header += " (Testing)";
-                parent.Content = new TestingTrading(context, activeStock);
+                InstrumentErrorTextBlock.Text = "* Pick an instrument first";
+                TickerComboBox.IsDropDownOpen = true;
             }
+        }
+
+        async void TickerComboBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var tb = (TextBox) e.OriginalSource;
+            if (tb.SelectionStart != 0)
+                TickerComboBox.SelectedItem = null;
+
+            if (TickerComboBox.SelectedItem != null) return;
+            var cv = (CollectionView) CollectionViewSource.GetDefaultView(TickerComboBox.ItemsSource);
+            cv.Filter = s =>
+                ((string) s).IndexOf(TickerComboBox.Text, StringComparison.OrdinalIgnoreCase) >= 0;
+
+            TickerComboBox.IsDropDownOpen = cv.Count < 50;
         }
     }
 }
