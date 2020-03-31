@@ -400,7 +400,7 @@ namespace TradeBot
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
-        TimeSpan CandleIntervalToTimeSpan(CandleInterval interval)
+        static TimeSpan CandleIntervalToTimeSpan(CandleInterval interval)
         {
             switch (interval)
             {
@@ -483,59 +483,54 @@ namespace TradeBot
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
-        void AdjustYExtent(LinearAxis x, LinearAxis y, PlotModel m, bool includeCandles = true)
+        void AdjustYExtent(Axis x, Axis y, PlotModel m, bool includeCandles = true)
         {
-            var ptlist = new List<HighLowItem>();
-            if (includeCandles)
-            {
-                ptlist = candlesSeries.Items.FindAll(p => p.X >= x.ActualMinimum && p.X <= x.ActualMaximum);
-                if (ptlist.Count == 0)
-                    return;
-            }
-
-            var lplist = new List<DataPoint>();
-            var hplist = new List<HistogramItem>();
+            var points = new List<float>();
 
             foreach (var series in m.Series)
             {
-                if (series.GetType() == typeof(LineSeries))
-                    lplist.AddRange((series as LineSeries).Points.FindAll(p => p.X >= x.ActualMinimum && p.X <= x.ActualMaximum));
-                if (series.GetType() == typeof(HistogramSeries))
-                    hplist.AddRange((series as HistogramSeries).Items.FindAll(p => p.RangeStart >= x.ActualMinimum && p.RangeStart <= x.ActualMaximum));
-            }
-
-            var ymin = double.MaxValue;
-            var ymax = double.MinValue;
-
-            if (includeCandles)
-            {
-                foreach (var t in ptlist)
+                if (series.GetType() == typeof(CandleStickSeries))
                 {
-                    ymin = Math.Min(ymin, t.Low);
-                    ymax = Math.Max(ymax, t.High);
+                    points.AddRange(((CandleStickSeries) series).Items
+                        .FindAll(p => p.X >= x.ActualMinimum && p.X <= x.ActualMaximum)
+                        .ConvertAll(v => (float) v.High));
+                    points.AddRange(((CandleStickSeries) series).Items
+                        .FindAll(p => p.X >= x.ActualMinimum && p.X <= x.ActualMaximum)
+                        .ConvertAll(v => (float) v.Low));
+                }
+                else if (series.GetType() == typeof(LineSeries))
+                {
+                    points.AddRange(((LineSeries) series).Points
+                        .FindAll(p => p.X >= x.ActualMinimum && p.X <= x.ActualMaximum)
+                        .ConvertAll(v => (float) v.Y));
+                }
+                else if (series.GetType() == typeof(HistogramSeries))
+                {
+                    points.AddRange(((HistogramSeries) series).Items
+                        .FindAll(p => p.RangeStart >= x.ActualMinimum && p.RangeStart <= x.ActualMaximum)
+                        .ConvertAll(v => (float) v.Value));
                 }
             }
 
-            foreach (var t in lplist)
+            var min = double.MaxValue;
+            var max = double.MinValue;
+
+            foreach (var point in points)
             {
-                ymin = Math.Min(ymin, t.Y);
-                ymax = Math.Max(ymax, t.Y);
+                if (point > max)
+                    max = point;
+                if (point < min)
+                    min = point;
             }
 
-            foreach (var t in hplist)
-            {
-                ymin = Math.Min(ymin, t.Value);
-                ymax = Math.Max(ymax, t.Value);
-            }
-
-            if (ymin == double.MaxValue || ymax == double.MinValue)
+            if (min == double.MaxValue || max == double.MinValue)
                 return;
 
-            var extent = ymax - ymin;
+            var extent = max - min;
             var margin = extent * 0.1;
 
             y.IsZoomEnabled = true;
-            y.Zoom(ymin - margin, ymax + margin);
+            y.Zoom(min - margin, max + margin);
             y.IsZoomEnabled = false;
         }
 
