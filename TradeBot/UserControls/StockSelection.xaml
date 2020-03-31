@@ -73,6 +73,25 @@
 
             <StackPanel Grid.Row="4" VerticalAlignment="Center" Margin="25,3,25,4">
 
+                <TextBlock x:Name="TypeTextBlock" Margin="5 0" Opacity=".6" FontSize="13">Type</TextBlock>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <RadioButton x:Name="EtfRadioButton"
+                                 Margin="10"
+                                 Checked="EtfRadioButton_OnChecked">
+                        ETF
+                    </RadioButton>
+                    <RadioButton x:Name="StockRadioButton"
+                                 Margin="10"
+                                 Checked="StockRadioButton_OnChecked">
+                        Stock
+                    </RadioButton>
+                    <RadioButton x:Name="CurrencyRadioButton"
+                                 Margin="10"
+                                 Checked="CurrencyRadioButton_OnChecked">
+                        Currency
+                    </RadioButton>
+                </StackPanel>
+                
                 <StackPanel Orientation="Horizontal">
                     <TextBlock x:Name="InstrumentTextBlock" Margin="5 0" Opacity=".6" FontSize="13">Instrument</TextBlock>
                     <TextBlock x:Name="InstrumentErrorTextBlock" Opacity=".6" FontSize="13" Foreground="Red"></TextBlock>
