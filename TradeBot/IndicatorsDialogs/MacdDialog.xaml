@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TradeBot"
         mc:Ignorable="d"
-        Title="Add 'MACD' indicator" Height="500" Width="400"
+        Title="Add 'MACD' indicator" Height="300" Width="400"
         ResizeMode="CanMinimize">
     <Grid Margin="10">
 

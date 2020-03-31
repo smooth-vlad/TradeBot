@@ -46,15 +46,16 @@ namespace TradeBot
 
         public override Signal? GetSignal(int currentCandleIndex)
         {
-            if (currentCandleIndex > candles.Count - period)
+            
+            if (currentCandleIndex > candles.Count - period - 2)
                 return null;
 
             if ((candles[currentCandleIndex + 1].Close - series.Points[currentCandleIndex + 1].Y) *
                 (candles[currentCandleIndex].Close - series.Points[currentCandleIndex].Y) < 0)
             {
                 return candles[currentCandleIndex].Close > series.Points[currentCandleIndex].Y
-                    ? new Signal(Signal.SignalType.Buy, period / 200.0f)
-                    : new Signal(Signal.SignalType.Sell, period / 200.0f);
+                    ? new Signal(Signal.SignalType.Buy, period / 100.0f)
+                    : new Signal(Signal.SignalType.Sell, period / 100.0f);
             }
 
             return null;

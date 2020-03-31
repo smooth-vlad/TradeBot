@@ -19,7 +19,7 @@ namespace TradeBot
 
             TypeComboBox.Items.Add(CalculationMethod.Simple.ToString());
             TypeComboBox.Items.Add(CalculationMethod.Exponential.ToString());
-            TypeComboBox.SelectedIndex = 0;
+            TypeComboBox.SelectedIndex = 1;
         }
 
         public int ShortPeriod { get; private set; }
