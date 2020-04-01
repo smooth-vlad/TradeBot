@@ -33,6 +33,7 @@
             <e p="App.g.cs" t="Include" />
             <e p="GeneratedInternalTypeHelper.g.cs" t="Include" />
             <e p="IndicatorsDialogs" t="Include">
+              <e p="MacdDialog.g.cs" t="Include" />
               <e p="MovingAverageDialog.g.cs" t="Include" />
             </e>
             <e p="MainWindow.g.cs" t="Include" />

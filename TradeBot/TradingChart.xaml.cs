@@ -322,9 +322,9 @@ namespace TradeBot
 
             var value = CalculateSignalValue();
             if (value > 0)
-                buySeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 12));
+                buySeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 10));
             else if (value < 0)
-                sellSeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 12));
+                sellSeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 10));
         }
 
         float CalculateSignalValue()

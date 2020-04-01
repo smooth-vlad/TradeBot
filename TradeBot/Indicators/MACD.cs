@@ -56,7 +56,8 @@ namespace TradeBot
             };
             signalSeries = new HistogramSeries
             {
-                Title = "MACD Signal Line"
+                Title = "MACD Signal Line",
+                FillColor = OxyColor.FromRgb(120, 120, 255),
             };
 
             series.Add(signalSeries);
