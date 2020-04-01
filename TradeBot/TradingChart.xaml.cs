@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Shapes;
 using OxyPlot;
 using OxyPlot.Axes;
@@ -104,8 +105,8 @@ namespace TradeBot
             candlesSeries = new CandleStickSeries
             {
                 Title = "Candles",
-                DecreasingColor = OxyColor.FromRgb(230, 63, 60),
-                IncreasingColor = OxyColor.FromRgb(45, 128, 32),
+                DecreasingColor = OxyColor.FromRgb(214, 107, 107),
+                IncreasingColor = OxyColor.FromRgb(121, 229, 112),
                 StrokeThickness = 1
             };
 
