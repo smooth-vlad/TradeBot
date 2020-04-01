@@ -91,6 +91,7 @@
                           IsTextSearchEnabled="False"
                           IsEditable="True"
                           Margin="0, 8"
+                          GotFocus="TickerComboBox_OnGotFocus"
                           Style="{StaticResource ComboBoxFlatStyle}">
                 </ComboBox>
 

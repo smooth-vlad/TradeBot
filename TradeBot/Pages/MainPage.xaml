@@ -7,15 +7,17 @@
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="MainPage"
-      Background="#D9D9D9">
+      Background="#eee">
 
     <Grid>
 
         <TabControl x:Name="TabControl" Grid.Row="0">
             <TabItem x:Name="AddTabButton" Selector.Selected="AddTabButton_Selected"
                      Header="+"
+                     Height="28"
                      BorderBrush="Transparent"
-                     Background="Transparent" />
+                     Background="Transparent" >
+            </TabItem>
         </TabControl>
     </Grid>
 </Page>

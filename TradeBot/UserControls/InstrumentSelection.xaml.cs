@@ -117,5 +117,10 @@ namespace TradeBot
                 // ignored
             }
         }
+
+        void TickerComboBox_OnGotFocus(object sender, RoutedEventArgs e)
+        {
+            TickerComboBox.IsDropDownOpen = ((CollectionView)CollectionViewSource.GetDefaultView(TickerComboBox.ItemsSource)).Count < 100;
+        }
     }
 }
