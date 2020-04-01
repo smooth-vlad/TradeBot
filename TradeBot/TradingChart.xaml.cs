@@ -4,11 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Shapes;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using OxyPlot.Wpf;
 using Tinkoff.Trading.OpenApi.Models;
 using Tinkoff.Trading.OpenApi.Network;
+using Axis = OxyPlot.Axes.Axis;
+using LinearAxis = OxyPlot.Axes.LinearAxis;
+using LineSeries = OxyPlot.Series.LineSeries;
+using PlotCommands = OxyPlot.PlotCommands;
+using ScatterSeries = OxyPlot.Series.ScatterSeries;
 
 namespace TradeBot
 {
@@ -17,29 +24,36 @@ namespace TradeBot
     /// </summary>
     public partial class TradingChart : UserControl
     {
-        readonly ScatterSeries buySeries;
-
         readonly List<DateTime> candlesDates = new List<DateTime>();
 
         readonly CandleStickSeries candlesSeries;
 
+        List<Indicator> indicators = new List<Indicator>();
         readonly Queue<List<Indicator.Signal>> lastSignals = new Queue<List<Indicator.Signal>>(3);
-
-        readonly PlotModel model;
+        
+        readonly ScatterSeries buySeries;
         readonly ScatterSeries sellSeries;
 
+        readonly PlotModel model;
         readonly LinearAxis xAxis;
-        readonly LinearAxis xAxis1;
         readonly LinearAxis yAxis;
-        readonly LinearAxis yAxis1;
+
+        List<(PlotView plot, LinearAxis x, LinearAxis y)> oscillatorsPlots
+            = new List<(PlotView plot, LinearAxis x, LinearAxis y)>();
+        
         public MarketInstrument activeStock;
 
         public CandleInterval candleInterval = CandleInterval.Minute;
-        int candlesLoadsFailed;
-        public Context context;
-        List<Indicator> indicators = new List<Indicator>();
 
+        int candlesLoadsFailed;
         int loadedCandles;
+        
+        public DateTime LastCandleDate { get; private set; } // on the right side
+        public DateTime FirstCandleDate { get; private set; } // on the left side
+
+        public Task LoadingCandlesTask { get; private set; }
+
+        public Context context;
 
         public TradingChart()
         {
@@ -150,14 +164,25 @@ namespace TradeBot
             PlotView.ActualController.BindMouseDown(OxyMouseButton.Left, PlotCommands.PanAt);
             PlotView.ActualController.BindMouseDown(OxyMouseButton.Right, PlotCommands.SnapTrack);
 
-            PlotView1.Model = new PlotModel
+            DataContext = this;
+        }
+
+        (PlotView plot, LinearAxis x, LinearAxis y) AddOscillatorPlot()
+        {
+            var plot = new PlotView();
+
+            Grid.RowDefinitions.Add(new RowDefinition{Height = new GridLength(150)});
+            Grid.Children.Add(plot);
+            plot.SetValue(Grid.RowProperty, Grid.RowDefinitions.Count - 1);
+
+            plot.Model = new PlotModel
             {
                 TextColor = OxyColor.FromArgb(140, 0, 0, 0),
                 PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0),
                 LegendPosition = LegendPosition.LeftTop
             };
 
-            yAxis1 = new LinearAxis // y axis (left)
+            var y = new LinearAxis // y axis (left)
             {
                 Position = AxisPosition.Left,
                 IsPanEnabled = false,
@@ -169,9 +194,9 @@ namespace TradeBot
                 TicklineColor = OxyColor.FromArgb(10, 0, 0, 0),
                 TickStyle = TickStyle.Outside
             };
-            yAxis1.Zoom(-1, 1);
+            y.Zoom(-1, 1);
 
-            xAxis1 = new LinearAxis // x axis (bottom)
+            var x = new LinearAxis // x axis (bottom)
             {
                 Position = AxisPosition.Bottom,
                 MajorGridlineStyle = LineStyle.None,
@@ -183,18 +208,17 @@ namespace TradeBot
                 MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0)
             };
 
-            PlotView1.ActualController.UnbindAll();
+            plot.ActualController.UnbindAll();
 
-            PlotView1.Model.Axes.Add(xAxis1);
-            PlotView1.Model.Axes.Add(yAxis1);
+            plot.Model.Axes.Add(x);
+            plot.Model.Axes.Add(y);
+            
+            AdjustYExtent(x, y, plot.Model);
+            plot.InvalidatePlot();
 
-            DataContext = this;
+            oscillatorsPlots.Add((plot, x, y));
+            return oscillatorsPlots.Last();
         }
-
-        public DateTime LastCandleDate { get; private set; } // on the right side
-        public DateTime FirstCandleDate { get; private set; } // on the left side
-
-        public Task LoadingCandlesTask { get; private set; }
 
         async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
         {
@@ -205,9 +229,12 @@ namespace TradeBot
             await LoadingCandlesTask;
 
             AdjustYExtent(xAxis, yAxis, model);
-            xAxis1.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
-            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel);
-            xAxis1.PlotModel.PlotView.InvalidatePlot();
+            foreach (var plot in oscillatorsPlots)
+            {
+                plot.x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
+                AdjustYExtent(plot.x, plot.y, plot.plot.Model);
+                plot.plot.InvalidatePlot();
+            }
         }
 
         async Task LoadMoreCandlesAndUpdateSeries()
@@ -224,11 +251,13 @@ namespace TradeBot
                 foreach (var indicator in indicators)
                     indicator.UpdateSeries();
                 AdjustYExtent(xAxis, yAxis, model);
-                AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel);
+                foreach (var plot in oscillatorsPlots)
+                    AdjustYExtent(plot.x, plot.y, plot.plot.Model);
             }
 
             PlotView.InvalidatePlot();
-            xAxis1.PlotModel.PlotView.InvalidatePlot();
+            foreach (var plot in oscillatorsPlots)
+                plot.plot.InvalidatePlot();
         }
 
         public async void ResetSeries()
@@ -252,7 +281,8 @@ namespace TradeBot
             xAxis.Zoom(0, 75);
 
             PlotView.InvalidatePlot();
-            xAxis1.PlotModel.PlotView.InvalidatePlot();
+            foreach (var plot in oscillatorsPlots)
+                plot.plot.InvalidatePlot();
         }
 
         async Task LoadMoreCandles()
@@ -301,7 +331,8 @@ namespace TradeBot
         {
             UpdateSignals(0);
             PlotView.InvalidatePlot();
-            xAxis1.PlotModel.PlotView.InvalidatePlot();
+            foreach (var plot in oscillatorsPlots)
+                plot.plot.InvalidatePlot();
         }
 
         void UpdateSignals(int i)
@@ -351,14 +382,17 @@ namespace TradeBot
             indicator.candles = candlesSeries.Items;
             indicators.Add(indicator);
 
-            indicator.InitializeSeries(indicator.IsOscillator ? xAxis1.PlotModel.Series : model.Series);
+            indicator.InitializeSeries(indicator.IsOscillator ?
+                AddOscillatorPlot().plot.Model.Series : model.Series);
 
             indicator.UpdateSeries();
             AdjustYExtent(xAxis, yAxis, model);
-            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel);
+            foreach (var plot in oscillatorsPlots)
+                AdjustYExtent(plot.x, plot.y, plot.plot.Model);
 
             PlotView.InvalidatePlot();
-            xAxis1.PlotModel.PlotView.InvalidatePlot();
+            foreach (var plot in oscillatorsPlots)
+                plot.plot.InvalidatePlot();
         }
 
         public void RemoveIndicators()
@@ -367,9 +401,12 @@ namespace TradeBot
                 indicator.RemoveSeries();
             indicators = new List<Indicator>();
             AdjustYExtent(xAxis, yAxis, model);
-            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel);
+            foreach (var plot in oscillatorsPlots)
+                AdjustYExtent(plot.x, plot.y, plot.plot.Model);
+
             PlotView.InvalidatePlot();
-            xAxis1.PlotModel.PlotView.InvalidatePlot();
+            foreach (var plot in oscillatorsPlots)
+                plot.plot.InvalidatePlot();
         }
 
         public async Task LoadNewCandles()
@@ -430,8 +467,11 @@ namespace TradeBot
             UpdateRealTimeSignals();
 
             PlotView.InvalidatePlot();
-            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel);
-            xAxis1.PlotModel.PlotView.InvalidatePlot();
+            
+            foreach (var plot in oscillatorsPlots)
+                AdjustYExtent(plot.x, plot.y, plot.plot.Model);
+            foreach (var plot in oscillatorsPlots)
+                plot.plot.InvalidatePlot();
         }
 
         void AdjustYExtent(Axis x, Axis y, PlotModel m)

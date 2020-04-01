@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C84AC606-AB1B-4A5E-9834-F5F4F8767E6A}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>TradeBot</RootNamespace>
+    <AssemblyName>TradeBot</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IndicatorsDialogs\MacdDialog.xaml.cs">
+      <DependentUpon>MacdDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="IndicatorsDialogs\MovingAverageDialog.xaml.cs">
+      <DependentUpon>MovingAverageDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Indicators\MACD.cs" />
+    <Compile Include="Indicators\MovingAverageCalculation\ExponentialMACalculation.cs" />
+    <Compile Include="Indicators\MovingAverageCalculation\IMACalculation.cs" />
+    <Compile Include="Indicators\MovingAverageCalculation\SimpleMACalculation.cs" />
+    <Compile Include="Pages\AuthPage.xaml.cs">
+      <DependentUpon>AuthPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TradingChart.xaml.cs">
+      <DependentUpon>TradingChart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\TestingTrading.xaml.cs">
+      <DependentUpon>TestingTrading.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\RealTimeTrading.xaml.cs">
+      <DependentUpon>RealTimeTrading.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\InstrumentSelection.xaml.cs">
+      <DependentUpon>InstrumentSelection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Indicators\Indicator.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Indicators\MovingAverage.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Microsoft.CSharp.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\mscorlib.dll" />
+    <ReferencePath Include="C:\Users\kbga5\source\repos\TradeBot-master\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll" />
+    <ReferencePath Include="C:\Users\kbga5\source\repos\TradeBot-master\packages\OxyPlot.Core.2.0.0\lib\net45\OxyPlot.dll" />
+    <ReferencePath Include="C:\Users\kbga5\source\repos\TradeBot-master\packages\OxyPlot.Wpf.2.0.0\lib\net45\OxyPlot.Wpf.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\PresentationCore.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\PresentationFramework.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\ReachFramework.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Core.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Data.DataSetExtensions.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Data.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Net.Http.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Printing.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xaml.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xml.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xml.Linq.dll" />
+    <ReferencePath Include="C:\Users\kbga5\source\repos\TradeBot-master\packages\Tinkoff.Trading.OpenApi.1.2.0\lib\netstandard2.0\Tinkoff.Trading.OpenApi.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\WindowsBase.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades\netstandard.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\IndicatorsDialogs\MacdDialog.g.cs" />
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\IndicatorsDialogs\MovingAverageDialog.g.cs" />
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\Pages\AuthPage.g.cs" />
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\Pages\MainPage.g.cs" />
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\MainWindow.g.cs" />
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\TradingChart.g.cs" />
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\UserControls\TestingTrading.g.cs" />
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\UserControls\RealTimeTrading.g.cs" />
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\UserControls\InstrumentSelection.g.cs" />
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\App.g.cs" />
+    <Compile Include="C:\Users\kbga5\source\repos\TradeBot-master\TradeBot\obj\Debug\GeneratedInternalTypeHelper.g.cs" />
+  </ItemGroup>
+</Project>
