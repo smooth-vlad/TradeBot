@@ -84,7 +84,7 @@
                           IsTextSearchEnabled="False"
                           IsEditable="True"
                           VerticalContentAlignment="Center"
-                          Height="32"
+                          Height="28"
                           Margin="0, 8">
                 </ComboBox>
 

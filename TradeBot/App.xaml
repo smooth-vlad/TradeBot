@@ -9,8 +9,9 @@
             <Brush x:Key="ForegroundColor">#2F2F2F</Brush>
             <Brush x:Key="ForegroundDarkerColor">#1A1A1A</Brush>
             <Brush x:Key="MainColor">#B378FF</Brush>
-            <Brush x:Key="MainDarkerColor">#7F59B0</Brush>
+            <Brush x:Key="MainDarkerColor">#835CB6</Brush>
             <Brush x:Key="IntermediateColor">#F1F5FA</Brush>
+            <Brush x:Key="IntermediateDarkerColor">#E4E8ED</Brush>
             
             <Style x:Key="Title" TargetType="TextBlock">
                 <Setter Property="TextAlignment" Value="Left"></Setter>
@@ -25,7 +26,7 @@
                 <Setter Property="Foreground" Value="{StaticResource BackgroundColor}" />
                 <Setter Property="FontSize" Value="12" />
                 <Setter Property="MinWidth" Value="128" />
-                <Setter Property="Height" Value="32"></Setter>
+                <Setter Property="Height" Value="28"></Setter>
                 <Setter Property="SnapsToDevicePixels" Value="True" />
 
                 <Setter Property="Template">
@@ -44,6 +45,37 @@
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter Property="Background" Value="{StaticResource MainDarkerColor}"></Setter>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            
+            <Style x:Key="SecondaryButton" TargetType="{x:Type Button}">
+                <Setter Property="Background" Value="{StaticResource IntermediateColor}" />
+                <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="MinWidth" Value="128" />
+                <Setter Property="Height" Value="28"></Setter>
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border CornerRadius="8" Background="{TemplateBinding Background}">
+                                <TextBlock TextAlignment="Center"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                                           Padding="8, 0"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           FontSize="{TemplateBinding FontSize}">
+                                    <ContentPresenter Content="{TemplateBinding Content}"/>
+                                </TextBlock>
+                            </Border>
+
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource IntermediateDarkerColor}"></Setter>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>

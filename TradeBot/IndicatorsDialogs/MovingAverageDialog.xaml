@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TradeBot"
         mc:Ignorable="d"
-        Title="Add 'Moving Average' indicator" Height="190" Width="400"
+        Title="Add 'Moving Average' indicator" Height="235" Width="400"
         ResizeMode="CanMinimize">
     <Grid Margin="10">
 
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical"
+                    Margin="0 8">
             <StackPanel Orientation="Horizontal">
                 <TextBlock x:Name="PeriodTextBlock"
                            Opacity=".6"
@@ -28,8 +29,9 @@
             <TextBox x:Name="PeriodTextBox"
                      Foreground="#303030"
                      FontSize="16"
-                     VerticalContentAlignment="Bottom"
-                     Margin="0, 6">
+                     VerticalContentAlignment="Center"
+                     Height="28"
+                     Margin="0 8">
                 <TextBox.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="5" />
@@ -46,37 +48,26 @@
             </TextBlock>
 
             <ComboBox x:Name="TypeComboBox"
+                      Height="28"
+                      Margin="0 8"
+                      VerticalContentAlignment="Center"
                       IsReadOnly="True" />
 
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom">
+                        Margin="0 8">
                 <Button x:Name="AddButton"
-                        Margin="10, 12"
-                        Background="#81D4FA"
-                        Padding="40, 4"
-                        BorderThickness="0"
+                        Margin="8 0"
+                        Style="{StaticResource PrimaryButton}"
                         Click="addButton_Click">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="5" />
-                        </Style>
-                    </Button.Resources>
-                    <TextBlock TextAlignment="Center" Foreground="#303030">Add</TextBlock>
+                    Add
                 </Button>
 
                 <Button x:Name="CancelButton"
-                        Margin="10, 12"
-                        Background="#81D4FA"
-                        Padding="40, 4"
-                        BorderThickness="0"
+                        Margin="8 0 0 0"
+                        Style="{StaticResource SecondaryButton}"
                         Click="cancelButton_Click">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="5" />
-                        </Style>
-                    </Button.Resources>
-                    <TextBlock TextAlignment="Center" Foreground="#303030">Cancel</TextBlock>
+                    Cancel
                 </Button>
             </StackPanel>
         </StackPanel>
