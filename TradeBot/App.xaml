@@ -7,7 +7,9 @@
         <ResourceDictionary>
             <Brush x:Key="BackgroundColor">#FFFFFF</Brush>
             <Brush x:Key="ForegroundColor">#2F2F2F</Brush>
+            <Brush x:Key="ForegroundDarkerColor">#1A1A1A</Brush>
             <Brush x:Key="MainColor">#B378FF</Brush>
+            <Brush x:Key="MainDarkerColor">#7F59B0</Brush>
             <Brush x:Key="IntermediateColor">#F1F5FA</Brush>
             
             <Style x:Key="Title" TargetType="TextBlock">
@@ -20,7 +22,7 @@
             
             <Style x:Key="PrimaryButton" TargetType="{x:Type Button}">
                 <Setter Property="Background" Value="{StaticResource MainColor}" />
-                <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
+                <Setter Property="Foreground" Value="{StaticResource BackgroundColor}" />
                 <Setter Property="FontSize" Value="12" />
                 <Setter Property="MinWidth" Value="128" />
                 <Setter Property="Height" Value="32"></Setter>
@@ -41,7 +43,7 @@
 
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="Black"></Setter>
+                                    <Setter Property="Background" Value="{StaticResource MainDarkerColor}"></Setter>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>

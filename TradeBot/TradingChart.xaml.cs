@@ -65,7 +65,8 @@ namespace TradeBot
             {
                 TextColor = OxyColor.FromArgb(140, 0, 0, 0),
                 PlotAreaBorderThickness = new OxyThickness(0),
-                LegendPosition = LegendPosition.LeftTop
+                LegendPosition = LegendPosition.LeftTop,
+                LegendBackground = OxyColor.FromRgb(245, 245, 245),
             };
 
             yAxis = new LinearAxis // y axis (left)
@@ -179,7 +180,8 @@ namespace TradeBot
             {
                 TextColor = OxyColor.FromArgb(140, 0, 0, 0),
                 PlotAreaBorderThickness = new OxyThickness(0),
-                LegendPosition = LegendPosition.LeftTop
+                LegendPosition = LegendPosition.LeftTop,
+                LegendBackground = OxyColor.FromRgb(245, 245, 245),
             };
 
             var y = new LinearAxis // y axis (left)
@@ -199,10 +201,12 @@ namespace TradeBot
             var x = new LinearAxis // x axis (bottom)
             {
                 Position = AxisPosition.Bottom,
-                MajorGridlineStyle = LineStyle.None,
+                MajorGridlineStyle = LineStyle.Solid,
+                MajorGridlineThickness = 2,
                 MinorGridlineStyle = LineStyle.None,
                 TicklineColor = OxyColor.FromArgb(10, 0, 0, 0),
                 TickStyle = TickStyle.None,
+                LabelFormatter = v => string.Empty,
                 EndPosition = 0,
                 StartPosition = 1,
                 MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0)
@@ -401,13 +405,16 @@ namespace TradeBot
             foreach (var indicator in indicators)
                 indicator.RemoveSeries();
             indicators = new List<Indicator>();
-            AdjustYExtent(xAxis, yAxis, model);
-            foreach (var plot in oscillatorsPlots)
-                AdjustYExtent(plot.x, plot.y, plot.plot.Model);
 
+            if (oscillatorsPlots.Count > 0)
+            {
+                Grid.Children.RemoveRange(1, Grid.RowDefinitions.Count - 1);
+                Grid.RowDefinitions.RemoveRange(1, Grid.RowDefinitions.Count - 1);
+                oscillatorsPlots.Clear();
+            }
+
+            AdjustYExtent(xAxis, yAxis, model);
             PlotView.InvalidatePlot();
-            foreach (var plot in oscillatorsPlots)
-                plot.plot.InvalidatePlot();
         }
 
         public async Task LoadNewCandles()
