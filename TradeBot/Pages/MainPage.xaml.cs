@@ -22,7 +22,7 @@ namespace TradeBot
         void AddStockSelectionTab()
         {
             var newItem = new TabItem();
-            newItem.Content = new StockSelection(context, newItem);
+            newItem.Content = new InstrumentSelection(context, newItem);
             newItem.Header = "Instrument Selection";
             newItem.IsSelected = true;
 

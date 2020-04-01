@@ -17,6 +17,8 @@ namespace TradeBot
         LineSeries shortMaSeries;
         HistogramSeries signalSeries;
 
+        ElementCollection<Series> chart;
+
         public Macd(IMaCalculation calculationMethod, int shortPeriod, int longPeriod, int differencePeriod)
         {
             if (shortPeriod < 1 || longPeriod < 1 || differencePeriod < 1 ||
@@ -27,6 +29,8 @@ namespace TradeBot
             this.shortPeriod = shortPeriod;
             this.longPeriod = longPeriod;
             this.differencePeriod = differencePeriod;
+
+            IsOscillator = true;
         }
 
         public override void UpdateSeries()
@@ -43,7 +47,7 @@ namespace TradeBot
                 differencePeriod, signalSeries);
         }
 
-        public override void InitializeSeries(ElementCollection<Series> series)
+        public override void InitializeSeries(ElementCollection<Series> chart)
         {
             if (AreSeriesInitialized)
                 return;
@@ -56,18 +60,19 @@ namespace TradeBot
             };
             signalSeries = new HistogramSeries
             {
-                Title = "MACD Signal Line",
-                FillColor = OxyColor.FromRgb(120, 120, 255),
+                Title = "MACD Signal Line"
             };
 
-            series.Add(signalSeries);
-            series.Add(macdSeries);
+            this.chart = chart;
+
+            this.chart.Add(signalSeries);
+            this.chart.Add(macdSeries);
         }
 
-        public override void RemoveSeries(ElementCollection<Series> series)
+        public override void RemoveSeries()
         {
-            series.Remove(signalSeries);
-            series.Remove(macdSeries);
+            chart.Remove(signalSeries);
+            chart.Remove(macdSeries);
         }
 
         public override void ResetSeries()
@@ -90,8 +95,8 @@ namespace TradeBot
             if ((macdSeries.Points[currentCandleIndex + 1].Y - signalSeries.Items[currentCandleIndex + 1].Value) *
                 (macdSeries.Points[currentCandleIndex].Y - signalSeries.Items[currentCandleIndex].Value) < 0)
                 return macdSeries.Points[currentCandleIndex].Y > signalSeries.Items[currentCandleIndex].Value
-                    ? new Signal(Signal.SignalType.Buy, 1.0f)
-                    : new Signal(Signal.SignalType.Sell, 1.0f);
+                    ? new Signal(Signal.Type.Buy, 1.0f)
+                    : new Signal(Signal.Type.Sell, 1.0f);
 
             return null;
         }

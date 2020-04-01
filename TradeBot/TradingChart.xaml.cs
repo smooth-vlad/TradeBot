@@ -206,7 +206,7 @@ namespace TradeBot
 
             AdjustYExtent(xAxis, yAxis, model);
             xAxis1.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
-            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel, false);
+            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel);
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
@@ -224,7 +224,7 @@ namespace TradeBot
                 foreach (var indicator in indicators)
                     indicator.UpdateSeries();
                 AdjustYExtent(xAxis, yAxis, model);
-                AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel, false);
+                AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel);
             }
 
             PlotView.InvalidatePlot();
@@ -334,7 +334,7 @@ namespace TradeBot
             foreach (var signalsList in lastSignals)
             {
                 foreach (var signal in signalsList)
-                    if (signal.type == Indicator.Signal.SignalType.Buy)
+                    if (signal.type == Indicator.Signal.Type.Buy)
                         value += signal.weight * multiplier;
                     else
                         value -= signal.weight * multiplier;
@@ -351,11 +351,11 @@ namespace TradeBot
             indicator.candles = candlesSeries.Items;
             indicators.Add(indicator);
 
-            indicator.InitializeSeries(indicator.GetType() == typeof(Macd) ? xAxis1.PlotModel.Series : model.Series);
+            indicator.InitializeSeries(indicator.IsOscillator ? xAxis1.PlotModel.Series : model.Series);
 
             indicator.UpdateSeries();
             AdjustYExtent(xAxis, yAxis, model);
-            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel, false);
+            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel);
 
             PlotView.InvalidatePlot();
             xAxis1.PlotModel.PlotView.InvalidatePlot();
@@ -364,10 +364,10 @@ namespace TradeBot
         public void RemoveIndicators()
         {
             foreach (var indicator in indicators)
-                indicator.RemoveSeries(indicator.GetType() == typeof(Macd) ? xAxis1.PlotModel.Series : model.Series);
+                indicator.RemoveSeries();
             indicators = new List<Indicator>();
             AdjustYExtent(xAxis, yAxis, model);
-            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel, false);
+            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel);
             PlotView.InvalidatePlot();
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
@@ -430,11 +430,11 @@ namespace TradeBot
             UpdateRealTimeSignals();
 
             PlotView.InvalidatePlot();
-            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel, false);
+            AdjustYExtent(xAxis1, yAxis1, xAxis1.PlotModel);
             xAxis1.PlotModel.PlotView.InvalidatePlot();
         }
 
-        void AdjustYExtent(Axis x, Axis y, PlotModel m, bool includeCandles = true)
+        void AdjustYExtent(Axis x, Axis y, PlotModel m)
         {
             var points = new List<float>();
 

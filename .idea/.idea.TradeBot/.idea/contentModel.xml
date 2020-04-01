@@ -67,10 +67,10 @@
         <e p="TradingChart.xaml" t="Include" />
         <e p="TradingChart.xaml.cs" t="Include" />
         <e p="UserControls" t="Include">
+          <e p="InstrumentSelection.xaml" t="Include" />
+          <e p="InstrumentSelection.xaml.cs" t="Include" />
           <e p="RealTimeTrading.xaml" t="Include" />
           <e p="RealTimeTrading.xaml.cs" t="Include" />
-          <e p="StockSelection.xaml" t="Include" />
-          <e p="StockSelection.xaml.cs" t="Include" />
           <e p="TestingTrading.xaml" t="Include" />
           <e p="TestingTrading.xaml.cs" t="Include" />
         </e>

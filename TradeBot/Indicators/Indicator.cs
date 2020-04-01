@@ -8,29 +8,30 @@ namespace TradeBot
     {
         public List<HighLowItem> candles;
         public double priceIncrement;
+        public bool IsOscillator { get; protected set; }
         public bool AreSeriesInitialized { get; protected set; }
 
         public abstract Signal? GetSignal(int currentCandleIndex);
 
         public abstract void UpdateSeries();
         public abstract void ResetSeries();
-        public abstract void RemoveSeries(ElementCollection<Series> chart);
+        public abstract void RemoveSeries();
         public abstract void InitializeSeries(ElementCollection<Series> chart);
 
         public abstract void OnNewCandlesAdded(int count);
 
         public struct Signal
         {
-            public enum SignalType
+            public enum Type
             {
                 Buy,
                 Sell
             }
 
-            public SignalType type;
+            public Type type;
             public float weight;
 
-            public Signal(SignalType type, float weight)
+            public Signal(Type type, float weight)
             {
                 this.type = type;
                 this.weight = weight;

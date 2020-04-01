@@ -97,8 +97,8 @@
     <Compile Include="UserControls\RealTimeTrading.xaml.cs">
       <DependentUpon>RealTimeTrading.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\StockSelection.xaml.cs">
-      <DependentUpon>StockSelection.xaml</DependentUpon>
+    <Compile Include="UserControls\InstrumentSelection.xaml.cs">
+      <DependentUpon>InstrumentSelection.xaml</DependentUpon>
     </Compile>
     <Page Include="IndicatorsDialogs\MacdDialog.xaml">
       <SubType>Designer</SubType>
@@ -141,7 +141,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\StockSelection.xaml">
+    <Page Include="UserControls\InstrumentSelection.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -12,14 +12,14 @@ namespace TradeBot
     /// <summary>
     ///     Логика взаимодействия для StockSelection.xaml
     /// </summary>
-    public partial class StockSelection : UserControl
+    public partial class InstrumentSelection : UserControl
     {
         readonly Context context;
         readonly TabItem parent;
         List<string> instrumentsLabels;
         MarketInstrumentList instruments;
 
-        public StockSelection(Context context, TabItem parent)
+        public InstrumentSelection(Context context, TabItem parent)
         {
             InitializeComponent();
 
