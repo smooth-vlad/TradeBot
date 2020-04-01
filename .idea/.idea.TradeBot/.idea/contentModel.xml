@@ -43,8 +43,8 @@
             </e>
             <e p="TradingChart.g.cs" t="Include" />
             <e p="UserControls" t="Include">
+              <e p="InstrumentSelection.g.cs" t="Include" />
               <e p="RealTimeTrading.g.cs" t="Include" />
-              <e p="StockSelection.g.cs" t="Include" />
               <e p="TestingTrading.g.cs" t="Include" />
             </e>
           </e>

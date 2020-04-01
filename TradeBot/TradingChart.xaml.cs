@@ -207,7 +207,8 @@ namespace TradeBot
                 StartPosition = 1,
                 MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0)
             };
-
+            x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
+            
             plot.ActualController.UnbindAll();
 
             plot.Model.Axes.Add(x);
