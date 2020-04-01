@@ -33,9 +33,6 @@ namespace TradeBot
 
             ChartNameTextBlock.Text = activeStock.Name + " (Real-Time)";
 
-            IntervalComboBox.ItemsSource = TradingChart.intervalToMaxPeriod.Keys;
-            IntervalComboBox.SelectedIndex = 0;
-
             candlesTimer = new Timer(e => CandlesTimerElapsed(),
                 null,
                 TimeSpan.Zero,
@@ -55,25 +52,6 @@ namespace TradeBot
             await TradingChart.LoadingCandlesTask;
 
             await TradingChart.LoadNewCandles();
-        }
-
-        void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            CandleInterval? interval = null;
-            var selectedInterval = IntervalComboBox.SelectedItem.ToString();
-            foreach (var k in
-                TradingChart.intervalToMaxPeriod.Keys.Where(k => k.ToString() == selectedInterval))
-            {
-                interval = k;
-                break;
-            }
-
-            if (interval == null)
-                return;
-
-            TradingChart.candleInterval = interval.Value;
-
-            TradingChart.ResetSeries();
         }
     }
 }

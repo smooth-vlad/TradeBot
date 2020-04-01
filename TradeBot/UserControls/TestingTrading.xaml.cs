@@ -30,40 +30,17 @@ namespace TradeBot
 
             ChartNameTextBlock.Text = activeStock.Name + " (Testing)";
 
-            IntervalComboBox.ItemsSource = TradingChart.intervalToMaxPeriod.Keys;
-            IntervalComboBox.SelectedIndex = 0;
-
             DataContext = this;
         }
 
         void SetEverythingEnabled(bool value)
         {
             SimulateButton.IsEnabled = value;
-            IntervalComboBox.IsEnabled = value;
         }
 
         // ==================================================
         // events
         // ==================================================
-
-        void intervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            CandleInterval? interval = null;
-            var selectedInterval = IntervalComboBox.SelectedItem.ToString();
-            foreach (var k in
-                TradingChart.intervalToMaxPeriod.Keys.Where(k => k.ToString() == selectedInterval))
-            {
-                interval = k;
-                break;
-            }
-
-            if (interval == null)
-                return;
-
-            TradingChart.candleInterval = interval.Value;
-
-            TradingChart.ResetSeries();
-        }
 
         async void simulateButton_Click(object sender, RoutedEventArgs e)
         {

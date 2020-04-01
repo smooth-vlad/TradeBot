@@ -37,17 +37,6 @@
                         Start Testing
                     </Button>
 
-                    <TextBlock x:Name="IntervalTextBlock"
-                               Style="{StaticResource LabelText}">
-                        Interval
-                    </TextBlock>
-
-                    <ComboBox x:Name="IntervalComboBox"
-                              Margin="0, 8"
-                              IsReadOnly="True"
-                              Style="{StaticResource ComboBoxFlatStyle}"
-                              SelectionChanged="intervalComboBox_SelectionChanged" />
-
                 </StackPanel>
             </ScrollViewer>
         </Grid>
