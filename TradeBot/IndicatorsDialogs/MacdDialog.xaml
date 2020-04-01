@@ -5,85 +5,104 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TradeBot"
         mc:Ignorable="d"
-        Title="Add 'MACD' indicator" Height="342" Width="400"
-        MaxHeight="342" MinHeight="342"
+        Title="Add 'MACD' indicator" Height="345" Width="400"
+        MinHeight="345"
         MinWidth="400">
     <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock x:Name="ShortPeriodTextBlock"
-                           Style="{StaticResource LabelText}">
-                    Short Period
-                </TextBlock>
-                <TextBlock x:Name="ShortPeriodErrorTextBlock"
-                           Style="{StaticResource ErrorText}" />
-            </StackPanel>
 
-            <TextBox x:Name="ShortPeriodTextBox"
-                     Style="{StaticResource InputTextBox}"
-                     Margin="0 8">
-                12
-            </TextBox>
-            
-            <StackPanel Orientation="Horizontal">
-                <TextBlock x:Name="LongPeriodTextBlock"
-                           Style="{StaticResource LabelText}">
-                    Long Period
-                </TextBlock>
-                <TextBlock x:Name="LongPeriodErrorTextBlock"
-                           Style="{StaticResource ErrorText}" />
-            </StackPanel>
-
-            <TextBox x:Name="LongPeriodTextBox"
-                     Style="{StaticResource InputTextBox}"
-                     Margin="0 8">
-                26
-            </TextBox>
-            
-            <StackPanel Orientation="Horizontal">
-                <TextBlock x:Name="HistogramPeriodTextBlock"
-                           Style="{StaticResource LabelText}">
-                    Histogram Period
-                </TextBlock>
-                <TextBlock x:Name="HistogramPeriodErrorTextBlock"
-                           Style="{StaticResource ErrorText}"/>
-            </StackPanel>
-
-            <TextBox x:Name="HistogramPeriodTextBox"
-                     Style="{StaticResource InputTextBox}"
-                     Margin="0 8">
-                9
-            </TextBox>
-
-            <TextBlock x:Name="TypeTextBlock"
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="0">
+            <TextBlock x:Name="ShortPeriodTextBlock"
                        Style="{StaticResource LabelText}">
-                Moving Average Calculation Method
+                Short Period
             </TextBlock>
+            <TextBlock x:Name="ShortPeriodErrorTextBlock"
+                       Style="{StaticResource ErrorText}" />
+        </StackPanel>
 
-            <ComboBox x:Name="TypeComboBox"
-                      Height="28"
-                      Margin="0 8"
-                      VerticalContentAlignment="Center"
-                      IsReadOnly="True" />
+        <TextBox x:Name="ShortPeriodTextBox"
+                 Grid.Row="1"
+                 Style="{StaticResource InputTextBox}"
+                 Margin="0 8">
+            12
+        </TextBox>
 
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        Margin="0 8">
-                <Button x:Name="AddButton"
-                        Margin="8 0"
-                        Style="{StaticResource PrimaryButton}"
-                        Click="addButton_Click">
-                    Add
-                </Button>
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="2">
+            <TextBlock x:Name="LongPeriodTextBlock"
+                       Style="{StaticResource LabelText}">
+                Long Period
+            </TextBlock>
+            <TextBlock x:Name="LongPeriodErrorTextBlock"
+                       Style="{StaticResource ErrorText}" />
+        </StackPanel>
 
-                <Button x:Name="CancelButton"
-                        Margin="8 0 0 0"
-                        Style="{StaticResource SecondaryButton}"
-                        Click="cancelButton_Click">
-                    Cancel
-                </Button>
-            </StackPanel>
+        <TextBox x:Name="LongPeriodTextBox"
+                 Grid.Row="3"
+                 Style="{StaticResource InputTextBox}"
+                 Margin="0 8">
+            26
+        </TextBox>
+
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="4">
+            <TextBlock x:Name="HistogramPeriodTextBlock"
+                       Style="{StaticResource LabelText}">
+                Histogram Period
+            </TextBlock>
+            <TextBlock x:Name="HistogramPeriodErrorTextBlock"
+                       Style="{StaticResource ErrorText}" />
+        </StackPanel>
+
+        <TextBox x:Name="HistogramPeriodTextBox"
+                 Grid.Row="5"
+                 Style="{StaticResource InputTextBox}"
+                 Margin="0 8">
+            9
+        </TextBox>
+
+        <TextBlock x:Name="TypeTextBlock"
+                   Grid.Row="6"
+                   Style="{StaticResource LabelText}">
+            Moving Average Calculation Method
+        </TextBlock>
+
+        <ComboBox x:Name="TypeComboBox"
+                  Grid.Row="7"
+                  Margin="0 8"
+                  IsReadOnly="True"
+                  Style="{StaticResource ComboBoxFlatStyle}" />
+
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="8"
+                    HorizontalAlignment="Right"
+                    Margin="0 8"
+                    VerticalAlignment="Bottom">
+            <Button x:Name="AddButton"
+                    Margin="8 0"
+                    Style="{StaticResource PrimaryButton}"
+                    Click="addButton_Click">
+                Add
+            </Button>
+
+            <Button x:Name="CancelButton"
+                    Margin="8 0 0 0"
+                    Style="{StaticResource SecondaryButton}"
+                    Click="cancelButton_Click">
+                Cancel
+            </Button>
         </StackPanel>
     </Grid>
 </Window>

@@ -27,7 +27,7 @@
                                 Grid.Row="1"
                                 Margin="0 8"/>
 
-            <ScrollViewer Grid.Row="2">
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                 <StackPanel VerticalAlignment="Center" Margin="0 8">
                     <TextBlock x:Name="IntervalTextBlock"
                                Style="{StaticResource LabelText}">
@@ -35,12 +35,9 @@
                     </TextBlock>
 
                     <ComboBox x:Name="IntervalComboBox"
-                              Foreground="#303030"
-                              FontSize="16"
-                              VerticalContentAlignment="Bottom"
-                              Margin="0, 6"
                               IsReadOnly="True"
-                              SelectionChanged="intervalComboBox_SelectionChanged" />
+                              SelectionChanged="intervalComboBox_SelectionChanged"
+                              Style="{StaticResource ComboBoxFlatStyle}" />
 
                 </StackPanel>
             </ScrollViewer>

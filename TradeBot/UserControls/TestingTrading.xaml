@@ -27,7 +27,7 @@
             <local:TradingChart x:Name="TradingChart"
                                 Grid.Row="1" />
 
-            <ScrollViewer Grid.Row="2">
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                 <StackPanel VerticalAlignment="Center">
                     <Button x:Name="SimulateButton"
                             HorizontalAlignment="Left"
@@ -43,11 +43,9 @@
                     </TextBlock>
 
                     <ComboBox x:Name="IntervalComboBox"
-                              Foreground="#303030"
-                              FontSize="16"
-                              VerticalContentAlignment="Bottom"
                               Margin="0, 8"
                               IsReadOnly="True"
+                              Style="{StaticResource ComboBoxFlatStyle}"
                               SelectionChanged="intervalComboBox_SelectionChanged" />
 
                 </StackPanel>
