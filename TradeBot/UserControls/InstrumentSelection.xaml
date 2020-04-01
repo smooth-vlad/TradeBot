@@ -6,16 +6,12 @@
              xmlns:local="clr-namespace:TradeBot"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
-             Background="#F9F9F9">
+             Background="{StaticResource BackgroundColor}">
 
     <Grid Height="Auto" Width="Auto">
 
         <Grid Margin="30, 30, 30, 30" VerticalAlignment="Center" HorizontalAlignment="Center"
               Width="400">
-            <Grid.Effect>
-                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Performance" Opacity=".2"
-                                  ShadowDepth="1" />
-            </Grid.Effect>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -24,97 +20,80 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Border x:Name="CardBorder" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" Background="White" />
-
-            <Border Grid.Row="0" Background="#81D4FA">
-                <Border.OpacityMask>
-                    <VisualBrush Visual="{Binding ElementName=CardBorder}" />
-                </Border.OpacityMask>
-            </Border>
-
-            <Border x:Name="CardBorder1" Grid.Row="3" Grid.RowSpan="2" CornerRadius="5" Background="White" />
-
-            <Border Grid.Row="3" Background="#81D4FA">
-                <Border.OpacityMask>
-                    <VisualBrush Visual="{Binding ElementName=CardBorder}" />
-                </Border.OpacityMask>
-            </Border>
-
-            <TextBlock x:Name="ChartNameTextBlock" Grid.Row="0" TextAlignment="Center" Padding="0, 0, 0, 20"
-                       Foreground="#303030" FontSize="18">
+            <TextBlock x:Name="ChartNameTextBlock"
+                       Grid.Row="0"
+                       Margin="0 24"
+                       Style="{StaticResource Title}">
                 Trading Mode
             </TextBlock>
 
-            <TextBlock x:Name="NameTextBlock" Grid.Row="3" TextAlignment="Center" Padding="0, 0, 0, 20"
-                       Foreground="#303030" FontSize="18">
+            <TextBlock x:Name="NameTextBlock"
+                       Grid.Row="3"
+                       Margin="0 24"
+                       Style="{StaticResource Title}">
                 Instrument
             </TextBlock>
 
             <StackPanel Grid.Row="1" Grid.Column="0"
                         Orientation="Horizontal"
-                        HorizontalAlignment="Center">
+                        Margin="0 8"
+                        HorizontalAlignment="Left">
                 <RadioButton x:Name="RealTimeRadioButton"
                              IsChecked="True"
-                             Margin="10"
+                             Margin="10 0"
                              Foreground="#303030">
                     Real-Time
                 </RadioButton>
 
                 <RadioButton x:Name="TestingRadioButton"
-                             Margin="10"
+                             Margin="10 0"
                              Foreground="#303030">
                     Testing
                 </RadioButton>
             </StackPanel>
 
 
-            <StackPanel Grid.Row="4" VerticalAlignment="Center" Margin="25,3,25,4">
+            <StackPanel Grid.Row="4" VerticalAlignment="Center">
 
-                <TextBlock x:Name="TypeTextBlock" Margin="5 0" Opacity=".6" FontSize="13">Type</TextBlock>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0, 6">
+                <TextBlock x:Name="TypeTextBlock" Margin="0 8" Opacity=".6" FontSize="13">Type</TextBlock>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 8">
                     <RadioButton x:Name="EtfRadioButton"
-                                 Margin="10"
+                                 Margin="10 0"
                                  Checked="EtfRadioButton_OnChecked">
                         ETF
                     </RadioButton>
                     <RadioButton x:Name="StockRadioButton"
-                                 Margin="10"
+                                 Margin="10 0"
                                  Checked="StockRadioButton_OnChecked">
                         Stock
                     </RadioButton>
                     <RadioButton x:Name="CurrencyRadioButton"
-                                 Margin="10"
+                                 Margin="10 0"
                                  Checked="CurrencyRadioButton_OnChecked">
                         Currency
                     </RadioButton>
                 </StackPanel>
                 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock x:Name="InstrumentTextBlock" Margin="5 0" Opacity=".6" FontSize="13">Instrument</TextBlock>
-                    <TextBlock x:Name="InstrumentErrorTextBlock" Opacity=".6" FontSize="13" Foreground="Red"></TextBlock>
+                <StackPanel Orientation="Horizontal" Margin="0 8">
+                    <TextBlock x:Name="InstrumentTextBlock" Opacity=".6" FontSize="13">Instrument</TextBlock>
+                    <TextBlock x:Name="InstrumentErrorTextBlock" Margin="5 0" Opacity=".6" FontSize="13" Foreground="Red"></TextBlock>
                 </StackPanel>
                 
                 <ComboBox x:Name="TickerComboBox"
                           TextBoxBase.TextChanged="TickerComboBox_OnTextChanged"
                           IsTextSearchEnabled="False"
                           IsEditable="True"
-                          VerticalAlignment="Top"
-                          Margin="0, 6">
+                          VerticalContentAlignment="Center"
+                          Height="32"
+                          Margin="0, 8">
                 </ComboBox>
 
                 <Button x:Name="SelectButton"
-                        Margin="0, 6"
-                        Background="#81D4FA"
+                        Style="{StaticResource PrimaryButton}"
+                        Margin="0, 8"
                         HorizontalAlignment="Right"
-                        Padding="40, 4"
-                        BorderThickness="0"
                         Click="Button_Click">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="5" />
-                        </Style>
-                    </Button.Resources>
-                    <TextBlock TextAlignment="Center" Foreground="#303030">Select instrument</TextBlock>
+                    Select instrument
                 </Button>
 
             </StackPanel>

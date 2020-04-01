@@ -6,30 +6,21 @@
              xmlns:local="clr-namespace:TradeBot"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
-             Background="#F9F9F9">
+             Background="{StaticResource BackgroundColor}">
 
     <Grid Height="Auto" Width="Auto">
 
         <Grid Margin="30">
-            <Grid.Effect>
-                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Performance" Opacity=".2"
-                                  ShadowDepth="1" />
-            </Grid.Effect>
-            <Grid.OpacityMask>
-                <VisualBrush Visual="{Binding ElementName=CardBorder}" />
-            </Grid.OpacityMask>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="80*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-
-            <Border x:Name="CardBorder" Grid.Row="0" Grid.RowSpan="3" CornerRadius="5" Background="White" />
-
-            <Border Grid.Row="0" Grid.RowSpan="2" Background="#81D4FA" />
-
-            <TextBlock x:Name="ChartNameTextBlock" Grid.Row="0" TextAlignment="Center" Padding="0, 0, 0, 20"
-                       Foreground="#303030" FontSize="18">
+            
+            <TextBlock x:Name="ChartNameTextBlock"
+                       Grid.Row="0"
+                       Margin="0 24"
+                       Style="{StaticResource Title}">
                 Instrument
             </TextBlock>
 
@@ -37,24 +28,27 @@
                                 Grid.Row="1" />
 
             <ScrollViewer Grid.Row="2">
-                <StackPanel VerticalAlignment="Center" Margin="25 3 25 4">
-                    <Button x:Name="SimulateButton" Margin="0, 6" Background="#4ba3c7" HorizontalAlignment="Left"
-                            Padding="40, 4" BorderThickness="0" Click="simulateButton_Click">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5" />
-                            </Style>
-                        </Button.Resources>
-                        <TextBlock TextAlignment="Center" Foreground="#303030">Start Testing</TextBlock>
+                <StackPanel VerticalAlignment="Center">
+                    <Button x:Name="SimulateButton"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource PrimaryButton}"
+                            Margin="0 8"
+                            Click="simulateButton_Click">
+                        Start Testing
                     </Button>
 
-                    <TextBlock x:Name="IntervalTextBlock" Opacity=".6" FontSize="13">Interval</TextBlock>
+                    <TextBlock x:Name="IntervalTextBlock"
+                               Opacity=".6"
+                               Margin="0 8"
+                               FontSize="13">
+                        Interval
+                    </TextBlock>
 
                     <ComboBox x:Name="IntervalComboBox"
                               Foreground="#303030"
                               FontSize="16"
                               VerticalContentAlignment="Bottom"
-                              Margin="0, 6"
+                              Margin="0, 8"
                               IsReadOnly="True"
                               SelectionChanged="intervalComboBox_SelectionChanged" />
 

@@ -11,47 +11,27 @@
         <Grid Margin="30, 30, 30, 30"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               Width="350">
-            <Grid.Effect>
-                <DropShadowEffect BlurRadius="15" Direction="-90" RenderingBias="Quality" Opacity=".2" ShadowDepth="1" />
-            </Grid.Effect>
-            <Grid.OpacityMask>
-                <VisualBrush Visual="{Binding ElementName=CardBorder}" />
-            </Grid.OpacityMask>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="40" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="35" />
-                <RowDefinition Height="35" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="25" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Border x:Name="CardBorder"
-                    Grid.Row="0"
-                    Grid.RowSpan="5"
-                    CornerRadius="5"
-                    Background="White" />
-
-            <Border Grid.Row="0"
-                    Grid.RowSpan="1"
-                    Background="#81D4FA" />
-
             <TextBlock Grid.Row="0"
-                       Grid.ColumnSpan="2"
-                       TextAlignment="Center"
-                       Foreground="#303030"
-                       VerticalAlignment="Center"
-                       FontSize="18">
+                       Style="{StaticResource Title}"
+                       Margin="0 24">
                 Authorization
             </TextBlock>
 
             <StackPanel Orientation="Horizontal"
-                        Grid.Row="2">
+                        Grid.Row="2"
+                        Margin="0 8">
                 <TextBlock x:Name="TokenTextBlock"
                            Opacity=".6"
                            FontSize="13"
-                           Margin="25 0 0 0"
                            VerticalAlignment="Center">
                     TinkoffAPI Token
                 </TextBlock>
@@ -66,32 +46,24 @@
 
             <TextBox x:Name="TokenTextBox"
                      Grid.Row="3"
-                     Grid.ColumnSpan="2"
-                     Margin="25 5 25 5"
                      FontSize="16"
+                     Margin="0 8"
+                     Height="32"
                      VerticalContentAlignment="Center">
                 <TextBox.Resources>
                     <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="5" />
+                        <Setter Property="CornerRadius" Value="8" />
                     </Style>
                 </TextBox.Resources>
             </TextBox>
 
             <Button x:Name="AuthButton"
                     Grid.Row="4"
-                    Grid.ColumnSpan="2"
-                    Margin="30, 12"
-                    Background="#81D4FA"
+                    Margin="0 8"
+                    Style="{StaticResource PrimaryButton}"
                     HorizontalAlignment="Right"
-                    Padding="40, 4"
-                    BorderThickness="0"
                     Click="authButton_Click">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="5" />
-                    </Style>
-                </Button.Resources>
-                <TextBlock TextAlignment="Center" Foreground="#303030">Authorize</TextBlock>
+                Authorize
             </Button>
         </Grid>
     </Grid>

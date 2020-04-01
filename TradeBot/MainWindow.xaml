@@ -6,6 +6,6 @@
         xmlns:local="clr-namespace:TradeBot"
         mc:Ignorable="d"
         Title="TradeBot"
-        Background="#F9F9F9">
+        Background="{StaticResource BackgroundColor}">
     <local:AuthPage x:Name="AuthPage" />
 </Window>

@@ -64,7 +64,7 @@ namespace TradeBot
             model = new PlotModel
             {
                 TextColor = OxyColor.FromArgb(140, 0, 0, 0),
-                PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0),
+                PlotAreaBorderThickness = new OxyThickness(0),
                 LegendPosition = LegendPosition.LeftTop
             };
 
@@ -178,7 +178,7 @@ namespace TradeBot
             plot.Model = new PlotModel
             {
                 TextColor = OxyColor.FromArgb(140, 0, 0, 0),
-                PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0),
+                PlotAreaBorderThickness = new OxyThickness(0),
                 LegendPosition = LegendPosition.LeftTop
             };
 
@@ -517,7 +517,7 @@ namespace TradeBot
                 return;
 
             var extent = max - min;
-            var margin = extent * 0.1;
+            var margin = 0;
 
             y.IsZoomEnabled = true;
             y.Zoom(min - margin, max + margin);

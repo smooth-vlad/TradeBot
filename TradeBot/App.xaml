@@ -5,8 +5,49 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-            </ResourceDictionary.MergedDictionaries>
+            <Brush x:Key="BackgroundColor">#FFFFFF</Brush>
+            <Brush x:Key="ForegroundColor">#2F2F2F</Brush>
+            <Brush x:Key="MainColor">#B378FF</Brush>
+            <Brush x:Key="IntermediateColor">#F1F5FA</Brush>
+            
+            <Style x:Key="Title" TargetType="TextBlock">
+                <Setter Property="TextAlignment" Value="Left"></Setter>
+                <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                <Setter Property="Foreground" Value="{StaticResource ForegroundColor}"></Setter>
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+            
+            <Style x:Key="PrimaryButton" TargetType="{x:Type Button}">
+                <Setter Property="Background" Value="{StaticResource MainColor}" />
+                <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="MinWidth" Value="128" />
+                <Setter Property="Height" Value="32"></Setter>
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border CornerRadius="8" Background="{TemplateBinding Background}">
+                                <TextBlock TextAlignment="Center"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                                           Padding="8, 0"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           FontSize="{TemplateBinding FontSize}">
+                                    <ContentPresenter Content="{TemplateBinding Content}"/>
+                                </TextBlock>
+                            </Border>
+
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="Black"></Setter>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
