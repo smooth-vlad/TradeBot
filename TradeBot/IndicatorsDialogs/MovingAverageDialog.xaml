@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:TradeBot"
         mc:Ignorable="d"
         Title="Add 'Moving Average' indicator" Height="235" Width="400"
-        ResizeMode="CanMinimize">
+        MaxHeight="235" MinHeight="235"
+        MinWidth="400">
     <Grid Margin="10">
 
         <StackPanel Orientation="Vertical"
@@ -21,16 +22,8 @@
             </StackPanel>
 
             <TextBox x:Name="PeriodTextBox"
-                     Foreground="#303030"
-                     FontSize="16"
-                     VerticalContentAlignment="Center"
-                     Height="28"
+                     Style="{StaticResource InputTextBox}"
                      Margin="0 8">
-                <TextBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="5" />
-                    </Style>
-                </TextBox.Resources>
                 12
             </TextBox>
 

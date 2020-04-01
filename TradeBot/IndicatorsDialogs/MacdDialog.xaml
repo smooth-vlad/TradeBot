@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TradeBot"
         mc:Ignorable="d"
-        Title="Add 'MACD' indicator" Height="342" Width="400">
+        Title="Add 'MACD' indicator" Height="342" Width="400"
+        MaxHeight="342" MinHeight="342"
+        MinWidth="400">
     <Grid Margin="10">
 
         <StackPanel Orientation="Vertical">
@@ -19,16 +21,8 @@
             </StackPanel>
 
             <TextBox x:Name="ShortPeriodTextBox"
-                     Foreground="#303030"
-                     FontSize="16"
-                     VerticalContentAlignment="Center"
-                     Height="28"
+                     Style="{StaticResource InputTextBox}"
                      Margin="0 8">
-                <TextBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="8" />
-                    </Style>
-                </TextBox.Resources>
                 12
             </TextBox>
             
@@ -42,16 +36,8 @@
             </StackPanel>
 
             <TextBox x:Name="LongPeriodTextBox"
-                     Foreground="#303030"
-                     FontSize="16"
-                     VerticalContentAlignment="Center"
-                     Height="28"
+                     Style="{StaticResource InputTextBox}"
                      Margin="0 8">
-                <TextBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="8" />
-                    </Style>
-                </TextBox.Resources>
                 26
             </TextBox>
             
@@ -65,16 +51,8 @@
             </StackPanel>
 
             <TextBox x:Name="HistogramPeriodTextBox"
-                     Foreground="#303030"
-                     FontSize="16"
-                     Height="28"
-                     VerticalContentAlignment="Center"
+                     Style="{StaticResource InputTextBox}"
                      Margin="0 8">
-                <TextBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="8" />
-                    </Style>
-                </TextBox.Resources>
                 9
             </TextBox>
 
