@@ -27,21 +27,13 @@
             </TextBlock>
 
             <StackPanel Orientation="Horizontal"
-                        Grid.Row="2"
-                        Margin="0 8">
+                        Grid.Row="2">
                 <TextBlock x:Name="TokenTextBlock"
-                           Opacity=".6"
-                           FontSize="13"
-                           VerticalAlignment="Center">
+                           Style="{StaticResource LabelText}">
                     TinkoffAPI Token
                 </TextBlock>
-
                 <TextBlock x:Name="TokenErrorTextBlock"
-                           Opacity=".6"
-                           FontSize="13"
-                           Margin="5 0 0 0"
-                           VerticalAlignment="Center"
-                           Foreground="Red" />
+                           Style="{StaticResource ErrorText}"/>
             </StackPanel>
 
             <TextBox x:Name="TokenTextBox"

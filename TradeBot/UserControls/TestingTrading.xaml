@@ -38,9 +38,7 @@
                     </Button>
 
                     <TextBlock x:Name="IntervalTextBlock"
-                               Opacity=".6"
-                               Margin="0 8"
-                               FontSize="13">
+                               Style="{StaticResource LabelText}">
                         Interval
                     </TextBlock>
 

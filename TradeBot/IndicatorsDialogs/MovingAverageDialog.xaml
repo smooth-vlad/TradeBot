@@ -13,17 +13,11 @@
                     Margin="0 8">
             <StackPanel Orientation="Horizontal">
                 <TextBlock x:Name="PeriodTextBlock"
-                           Opacity=".6"
-                           FontSize="13"
-                           VerticalAlignment="Center">
+                           Style="{StaticResource LabelText}">
                     Period
                 </TextBlock>
                 <TextBlock x:Name="PeriodErrorTextBlock"
-                           Opacity=".6"
-                           FontSize="13"
-                           Margin="5 0 0 0"
-                           VerticalAlignment="Center"
-                           Foreground="Red" />
+                           Style="{StaticResource ErrorText}"/>
             </StackPanel>
 
             <TextBox x:Name="PeriodTextBox"
@@ -41,9 +35,7 @@
             </TextBox>
 
             <TextBlock x:Name="TypeTextBlock"
-                       Opacity=".6"
-                       FontSize="13"
-                       VerticalAlignment="Center">
+                       Style="{StaticResource LabelText}">
                 Type
             </TextBlock>
 

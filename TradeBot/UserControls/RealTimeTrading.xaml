@@ -29,7 +29,10 @@
 
             <ScrollViewer Grid.Row="2">
                 <StackPanel VerticalAlignment="Center" Margin="0 8">
-                    <TextBlock x:Name="IntervalTextBlock" Opacity=".6" FontSize="13">Interval</TextBlock>
+                    <TextBlock x:Name="IntervalTextBlock"
+                               Style="{StaticResource LabelText}">
+                        Interval
+                    </TextBlock>
 
                     <ComboBox x:Name="IntervalComboBox"
                               Foreground="#303030"

@@ -11,17 +11,11 @@
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
                 <TextBlock x:Name="ShortPeriodTextBlock"
-                           Opacity=".6"
-                           FontSize="13"
-                           VerticalAlignment="Center">
+                           Style="{StaticResource LabelText}">
                     Short Period
                 </TextBlock>
                 <TextBlock x:Name="ShortPeriodErrorTextBlock"
-                           Opacity=".6"
-                           FontSize="13"
-                           Margin="5 0 0 0"
-                           VerticalAlignment="Center"
-                           Foreground="Red" />
+                           Style="{StaticResource ErrorText}" />
             </StackPanel>
 
             <TextBox x:Name="ShortPeriodTextBox"
@@ -40,17 +34,11 @@
             
             <StackPanel Orientation="Horizontal">
                 <TextBlock x:Name="LongPeriodTextBlock"
-                           Opacity=".6"
-                           FontSize="13"
-                           VerticalAlignment="Center">
+                           Style="{StaticResource LabelText}">
                     Long Period
                 </TextBlock>
                 <TextBlock x:Name="LongPeriodErrorTextBlock"
-                           Opacity=".6"
-                           FontSize="13"
-                           Margin="5 0 0 0"
-                           VerticalAlignment="Center"
-                           Foreground="Red" />
+                           Style="{StaticResource ErrorText}" />
             </StackPanel>
 
             <TextBox x:Name="LongPeriodTextBox"
@@ -69,17 +57,11 @@
             
             <StackPanel Orientation="Horizontal">
                 <TextBlock x:Name="HistogramPeriodTextBlock"
-                           Opacity=".6"
-                           FontSize="13"
-                           VerticalAlignment="Center">
+                           Style="{StaticResource LabelText}">
                     Histogram Period
                 </TextBlock>
                 <TextBlock x:Name="HistogramPeriodErrorTextBlock"
-                           Opacity=".6"
-                           FontSize="13"
-                           Margin="5 0 0 0"
-                           VerticalAlignment="Center"
-                           Foreground="Red" />
+                           Style="{StaticResource ErrorText}"/>
             </StackPanel>
 
             <TextBox x:Name="HistogramPeriodTextBox"
@@ -97,9 +79,7 @@
             </TextBox>
 
             <TextBlock x:Name="TypeTextBlock"
-                       Opacity=".6"
-                       FontSize="13"
-                       VerticalAlignment="Center">
+                       Style="{StaticResource LabelText}">
                 Moving Average Calculation Method
             </TextBlock>
 

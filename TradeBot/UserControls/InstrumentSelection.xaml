@@ -55,7 +55,10 @@
 
             <StackPanel Grid.Row="4" VerticalAlignment="Center">
 
-                <TextBlock x:Name="TypeTextBlock" Margin="0 8" Opacity=".6" FontSize="13">Type</TextBlock>
+                <TextBlock x:Name="TypeTextBlock"
+                           Style="{StaticResource LabelText}">
+                    Type
+                </TextBlock>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 8">
                     <RadioButton x:Name="EtfRadioButton"
                                  Margin="10 0"
@@ -74,9 +77,13 @@
                     </RadioButton>
                 </StackPanel>
                 
-                <StackPanel Orientation="Horizontal" Margin="0 8">
-                    <TextBlock x:Name="InstrumentTextBlock" Opacity=".6" FontSize="13">Instrument</TextBlock>
-                    <TextBlock x:Name="InstrumentErrorTextBlock" Margin="5 0" Opacity=".6" FontSize="13" Foreground="Red"></TextBlock>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="InstrumentTextBlock"
+                               Style="{StaticResource LabelText}">
+                        Instrument
+                    </TextBlock>
+                    <TextBlock x:Name="InstrumentErrorTextBlock"
+                               Style="{StaticResource ErrorText}"/>
                 </StackPanel>
                 
                 <ComboBox x:Name="TickerComboBox"
