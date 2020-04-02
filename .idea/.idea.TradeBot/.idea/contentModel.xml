@@ -10,6 +10,14 @@
         <e p="App.xaml" t="Include" />
         <e p="App.xaml.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
+        <e p="Fonts" t="Include">
+          <e p="OpenSans-Bold.ttf" t="Include" />
+          <e p="OpenSans-ExtraBold.ttf" t="Include" />
+          <e p="OpenSans-Light.ttf" t="Include" />
+          <e p="OpenSans-Regular.ttf" t="Include" />
+          <e p="OpenSans-SemiBold.ttf" t="Include" />
+          <e p="Sniglet-Regular.ttf" t="Include" />
+        </e>
         <e p="Indicators" t="Include">
           <e p="Indicator.cs" t="Include" />
           <e p="MACD.cs" t="Include" />

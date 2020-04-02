@@ -38,7 +38,9 @@
             <TextBox x:Name="TokenTextBox"
                      Grid.Row="3"
                      Margin="0 8"
-                     Style="{StaticResource InputTextBox}">
+                     Style="{StaticResource InputTextBox}"
+                     
+                     Tag="Enter your TinkoffAPI token">
             </TextBox>
 
             <Button x:Name="AuthButton"

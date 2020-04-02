@@ -17,6 +17,8 @@
             <FontFamily x:Key="Sniglet">pack://application:,,,/Fonts/#Sniglet Regular</FontFamily>
             <FontFamily x:Key="OpenSans">pack://application:,,,/Fonts/#Open Sans</FontFamily>
 
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
             <Style x:Key="Title" TargetType="TextBlock">
                 <Setter Property="TextAlignment" Value="Center" />
                 <Setter Property="VerticalAlignment" Value="Top" />
@@ -41,6 +43,9 @@
                 <Setter Property="FontWeight" Value="Light" />
             </Style>
 
+            <!--Control colors.-->
+            <Color x:Key="DisabledControlDarkColor">#FFC5CBF9</Color>
+
             <Style x:Key="InputTextBox" TargetType="TextBox">
                 <Setter Property="VerticalContentAlignment" Value="Center" />
                 <Setter Property="VerticalAlignment" Value="Center" />
@@ -49,18 +54,70 @@
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="FontWeight" Value="Regular" />
                 <Setter Property="Height" Value="32" />
-                <Setter Property="Padding" Value="8 0" />
-                <Setter Property="BorderBrush" Value="{StaticResource MainColor}"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Style.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="4" />
-                    </Style>
-                </Style.Resources>
+                <Setter Property="BorderBrush" Value="{StaticResource MainColor}" />
+                <Setter Property="BorderThickness" Value="0" />
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type TextBoxBase}">
+                            <Grid>
+                                <Border Name="Border"
+                                        CornerRadius="4"
+                                        Padding="6 0"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal" />
+                                            <VisualState x:Name="Disabled">
+                                                <Storyboard>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
+                                                                                  Storyboard.TargetProperty="(Panel.Background).
+                                                        (SolidColorBrush.Color)">
+                                                        <EasingColorKeyFrame KeyTime="0"
+                                                                             Value="{StaticResource DisabledControlDarkColor}" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="ReadOnly">
+                                                <Storyboard>
+                                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
+                                                                                  Storyboard.TargetProperty="(Panel.Background).
+                                                        (SolidColorBrush.Color)">
+                                                        <EasingColorKeyFrame KeyTime="0"
+                                                                             Value="{StaticResource DisabledControlDarkColor}" />
+                                                    </ColorAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="MouseOver" />
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <ScrollViewer Margin="0"
+                                                  x:Name="PART_ContentHost" />
+                                </Border>
+                                <TextBlock Text="{TemplateBinding Tag}"
+                                           IsHitTestVisible="False"
+                                           VerticalAlignment="Center"
+                                           Foreground="#aaa"
+                                           Visibility="{Binding
+                        RelativeSource={RelativeSource Mode=TemplatedParent},
+                        Path=Text.IsEmpty,
+                        Converter={StaticResource BooleanToVisibilityConverter}}"
+                                           Padding="10 0" />
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+
                 <Style.Triggers>
                     <Trigger Property="IsFocused" Value="True">
-                        <Setter Property="BorderThickness" Value="2"/>
-                        <Setter Property="Background" Value="{StaticResource BackgroundColor}"/>
+                        <Setter Property="BorderThickness" Value="2" />
+                        <Setter Property="Background" Value="{StaticResource BackgroundColor}" />
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="BorderThickness" Value="2" />
+                        <Setter Property="Background" Value="{StaticResource BackgroundColor}" />
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -153,8 +210,8 @@
                 <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
                 <Setter Property="TextElement.Foreground" Value="Black" />
                 <Setter Property="FrameworkElement.FocusVisualStyle" Value="{x:Null}" />
-                <Setter Property="Height" Value="32"/>
-                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Height" Value="32" />
+                <Setter Property="FontSize" Value="13" />
                 <Setter Property="FontWeight" Value="Regular" />
                 <Setter Property="Control.Template">
                     <Setter.Value>
@@ -169,7 +226,7 @@
                                                   HorizontalAlignment="Left" VerticalAlignment="Center"
                                                   Content="{TemplateBinding ComboBox.SelectionBoxItem}"
                                                   ContentTemplate="{TemplateBinding ComboBox.SelectionBoxItemTemplate}"
-                                                  ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"/>
+                                                  ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" />
                                 <TextBox Name="PART_EditableTextBox" Margin="10 0 0 0"
                                          IsReadOnly="{TemplateBinding IsReadOnly}"
                                          Visibility="Hidden" Background="Transparent"
@@ -193,7 +250,7 @@
                                                 CornerRadius="0" BorderThickness="1,1,1,1"
                                                 BorderBrush="{StaticResource ComboBoxNormalBorderBrush}" />
                                         <ScrollViewer Margin="0" SnapsToDevicePixels="True">
-                                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
                                         </ScrollViewer>
                                     </Grid>
                                 </Popup>
