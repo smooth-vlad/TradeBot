@@ -36,5 +36,11 @@ namespace TradeBot
                 TokenTextBox.Focus();
             }
         }
+
+        void TokenTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var tb = sender as TextBox;
+            AuthButton.IsEnabled = !string.IsNullOrEmpty(tb.Text);
+        }
     }
 }

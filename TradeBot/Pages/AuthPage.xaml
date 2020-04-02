@@ -39,8 +39,8 @@
                      Grid.Row="3"
                      Margin="0 8"
                      Style="{StaticResource InputTextBox}"
-                     
-                     Tag="Enter your TinkoffAPI token">
+                     Tag="Enter your TinkoffAPI token"
+                     TextChanged="TokenTextBox_OnTextChanged">
             </TextBox>
 
             <Button x:Name="AuthButton"
@@ -48,6 +48,7 @@
                     Margin="0 8"
                     Style="{StaticResource PrimaryButton}"
                     HorizontalAlignment="Center"
+                    IsEnabled="False"
                     Click="authButton_Click"
                     Width="350">
                 Auth
