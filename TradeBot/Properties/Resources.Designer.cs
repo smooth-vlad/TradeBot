@@ -59,5 +59,15 @@ namespace TradeBot.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Byte[].
+        /// </summary>
+        public static byte[] Sniglet_Regular {
+            get {
+                object obj = ResourceManager.GetObject("Sniglet_Regular", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

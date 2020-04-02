@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:TradeBot"
         mc:Ignorable="d"
         Title="TradeBot"
-        Background="{StaticResource BackgroundColor}">
+        Background="{StaticResource BackgroundColor}"
+        FontFamily="{StaticResource OpenSans}">
     <local:AuthPage x:Name="AuthPage" />
 </Window>

@@ -65,7 +65,8 @@ namespace TradeBot
             model = new PlotModel
             {
                 TextColor = OxyColor.FromArgb(140, 0, 0, 0),
-                PlotAreaBorderThickness = new OxyThickness(0),
+                PlotAreaBorderThickness = new OxyThickness(0, 1, 0, 1),
+                PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0),
                 LegendPosition = LegendPosition.LeftTop,
                 LegendBackground = OxyColor.FromRgb(245, 245, 245),
             };
@@ -182,7 +183,8 @@ namespace TradeBot
             plot.Model = new PlotModel
             {
                 TextColor = OxyColor.FromArgb(140, 0, 0, 0),
-                PlotAreaBorderThickness = new OxyThickness(0),
+                PlotAreaBorderThickness = new OxyThickness(0, 1, 0, 1),
+                PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0),
                 LegendPosition = LegendPosition.LeftTop,
                 LegendBackground = OxyColor.FromRgb(245, 245, 245),
             };

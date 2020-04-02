@@ -21,7 +21,7 @@ namespace TradeBot
             series.Items.Clear();
 
             for (var i = 0; i < count - period; ++i)
-                series.Items.Add(new HistogramItem(i + 0.1, i + 0.9, CalculateAverage(value, period, i), 1));
+                series.Items.Add(new HistogramItem(i - 0.2, i + 0.2, CalculateAverage(value, period, i), 1));
         }
 
         public static double CalculateAverage(Func<int, double> value, int period, int startIndex)

@@ -13,7 +13,7 @@
               Width="350">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="80" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -21,8 +21,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"
-                       Style="{StaticResource Title}"
-                       Margin="0 24">
+                       Style="{StaticResource Title}">
                 Authorization
             </TextBlock>
 
@@ -46,9 +45,10 @@
                     Grid.Row="4"
                     Margin="0 8"
                     Style="{StaticResource PrimaryButton}"
-                    HorizontalAlignment="Right"
-                    Click="authButton_Click">
-                Authorize
+                    HorizontalAlignment="Center"
+                    Click="authButton_Click"
+                    Width="350">
+                Auth
             </Button>
         </Grid>
     </Grid>

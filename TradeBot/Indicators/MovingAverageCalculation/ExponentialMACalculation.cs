@@ -42,7 +42,7 @@ namespace TradeBot
                 ema.Add(value(count - period - i - 1) * multiplier + ema[i - 1] * (1 - multiplier));
 
             for (var i = ema.Count - 1; i >= 0; --i)
-                series.Items.Add(new HistogramItem(series.Items.Count + 0.1, series.Items.Count + 0.9, ema[i], 1));
+                series.Items.Add(new HistogramItem(series.Items.Count - 0.2, series.Items.Count + 0.2, ema[i], 1));
         }
     }
 }
