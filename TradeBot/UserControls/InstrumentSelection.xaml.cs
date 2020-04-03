@@ -26,17 +26,11 @@ namespace TradeBot
             this.context = context;
             this.parent = parent;
 
-            Dispatcher.InvokeAsync(async () =>
-            {
-                instruments = await context.MarketStocksAsync();
-                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} ({v.Name})");
-                TickerComboBox.ItemsSource = instrumentsLabels;
-            });
+            Dispatcher.Invoke(() => StockRadioButton.IsChecked = true);
         }
 
         void Button_Click(object sender, RoutedEventArgs e)
         {
-            InstrumentErrorTextBlock.Text = string.Empty;
             try
             {
                 var activeInstrument =
@@ -57,8 +51,6 @@ namespace TradeBot
             }
             catch (Exception)
             {
-                InstrumentErrorTextBlock.Text = "* Pick an instrument first";
-                TickerComboBox.IsDropDownOpen = true;
             }
         }
 
@@ -66,19 +58,69 @@ namespace TradeBot
         {
             if (TickerComboBox.ItemsSource == null)
                 return;
-            
-            var tb = (TextBox) e.OriginalSource;
+
+            var tb = (TextBox)e.OriginalSource;
             if (tb.SelectionStart != 0)
                 TickerComboBox.SelectedItem = null;
 
+            SelectButton.IsEnabled = TickerComboBox.SelectedItem != null;
+
             if (TickerComboBox.SelectedItem != null) return;
-            var cv = (CollectionView) CollectionViewSource.GetDefaultView(TickerComboBox.ItemsSource);
+            var cv = (CollectionView)CollectionViewSource.GetDefaultView(TickerComboBox.ItemsSource);
             cv.Filter = s =>
                 ((string)s).IndexOf(TickerComboBox.Text, StringComparison.OrdinalIgnoreCase) >= 0;
 
             TickerComboBox.IsDropDownOpen = cv.Count > 0;
             tb.SelectionLength = 0;
             tb.SelectionStart = tb.Text.Length;
+        }
+
+        async void EtfRadioButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                instruments = await context.MarketEtfsAsync();
+                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} ({v.Name})");
+                TickerComboBox.ItemsSource = instrumentsLabels;
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        async void StockRadioButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                instruments = await context.MarketStocksAsync();
+                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} ({v.Name})");
+                TickerComboBox.ItemsSource = instrumentsLabels;
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        async void CurrencyRadioButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                instruments = await context.MarketCurrenciesAsync();
+                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} ({v.Name})");
+                TickerComboBox.ItemsSource = instrumentsLabels;
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        private void TickerComboBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            var cv = (CollectionView)CollectionViewSource.GetDefaultView(TickerComboBox.ItemsSource);
+            TickerComboBox.IsDropDownOpen = cv.Count > 0;
         }
     }
 }

@@ -82,8 +82,7 @@
         <ComboBox x:Name="TypeComboBox"
                   Grid.Row="7"
                   Margin="0 8"
-                  IsReadOnly="True"
-                  Style="{StaticResource ComboBoxFlatStyle}" />
+                  IsReadOnly="True" />
 
         <StackPanel Orientation="Horizontal"
                     Grid.Row="8"

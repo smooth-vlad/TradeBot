@@ -19,6 +19,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock x:Name="TradingModeLabel"
@@ -35,14 +36,14 @@
                 <RadioButton x:Name="RealTimeRadioButton"
                              Style="{StaticResource CardRadioButton}"
                              IsChecked="True"
-                             Margin="8 0"
+                             Margin="0 0 8 0"
                              Tag="Real-Time">
                     You can use your trading strategies in real-time
                 </RadioButton>
 
                 <RadioButton x:Name="TestingRadioButton"
                              Style="{StaticResource CardRadioButton}"
-                             Margin="8 0"
+                             Margin="8 0 0 0"
                              Tag="Testing">
                     You can test your trading strategies over a certain period of time
                 </RadioButton>
@@ -55,28 +56,39 @@
                 Instrument
             </TextBlock>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="3">
-                <TextBlock x:Name="InstrumentTextBlock"
-                               Style="{StaticResource LabelText}">
-                        Instrument
-                </TextBlock>
-                <TextBlock x:Name="InstrumentErrorTextBlock"
-                               Style="{StaticResource ErrorText}"/>
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 8">
+                <RadioButton x:Name="EtfRadioButton"
+                                 Margin="10 0"
+                                 Checked="EtfRadioButton_OnChecked">
+                    ETF
+                </RadioButton>
+                <RadioButton x:Name="StockRadioButton"
+                                 Margin="10 0"
+                                 Checked="StockRadioButton_OnChecked">
+                    Stock
+                </RadioButton>
+                <RadioButton x:Name="CurrencyRadioButton"
+                                 Margin="10 0"
+                                 Checked="CurrencyRadioButton_OnChecked">
+                    Currency
+                </RadioButton>
             </StackPanel>
 
             <ComboBox x:Name="TickerComboBox"
-                      Grid.Row="4"
+                      Grid.Row="5"
                           TextBoxBase.TextChanged="TickerComboBox_OnTextChanged"
                           IsTextSearchEnabled="False"
                           IsEditable="True"
                           Margin="0, 8"
+                      GotFocus="TickerComboBox_GotFocus"
                       ItemsPanel="{StaticResource VSP}"
                       Style="{StaticResource Search}"
                       Tag="Search Instrument">
             </ComboBox>
 
             <Button x:Name="SelectButton"
-                    Grid.Row="5"
+                    Grid.Row="6"
+                    IsEnabled="False"
                         Style="{StaticResource PrimaryButton}"
                         Margin="0, 8"
                         HorizontalAlignment="Stretch"
