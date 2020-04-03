@@ -15,23 +15,15 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="30" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <TextBlock x:Name="ChartNameTextBlock"
+            <TextBlock x:Name="TradingModeLabel"
                        Grid.Row="0"
                        Margin="0 24"
                        Style="{StaticResource Title}">
                 Trading Mode
-            </TextBlock>
-
-            <TextBlock x:Name="NameTextBlock"
-                       Grid.Row="3"
-                       Margin="0 24"
-                       Style="{StaticResource Title}">
-                Instrument
             </TextBlock>
 
             <StackPanel Grid.Row="1" Grid.Column="0"
@@ -54,7 +46,14 @@
                 </RadioButton>
             </StackPanel>
 
-            <StackPanel Grid.Row="4" VerticalAlignment="Center">
+            <TextBlock x:Name="InstrumentTextLabel"
+                       Grid.Row="2"
+                       Margin="0 24"
+                       Style="{StaticResource Title}">
+                Instrument
+            </TextBlock>
+
+            <StackPanel Grid.Row="3" VerticalAlignment="Center">
 
                 <TextBlock x:Name="TypeTextBlock"
                            Style="{StaticResource LabelText}">
