@@ -48,7 +48,7 @@
                     Margin="0 8"
                     Style="{StaticResource PrimaryButton}"
                     HorizontalAlignment="Stretch"
-                    IsEnabled="True"
+                    IsEnabled="False"
                     Click="authButton_Click">
                 Auth
             </Button>
