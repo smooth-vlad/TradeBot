@@ -26,7 +26,12 @@ namespace TradeBot
             this.context = context;
             this.parent = parent;
 
-            StockRadioButton.IsChecked = true;
+            Dispatcher.InvokeAsync(async () =>
+            {
+                instruments = await context.MarketEtfsAsync();
+                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} ({v.Name})");
+                TickerComboBox.ItemsSource = instrumentsLabels;
+            });
         }
 
         void Button_Click(object sender, RoutedEventArgs e)
@@ -74,48 +79,6 @@ namespace TradeBot
             TickerComboBox.IsDropDownOpen = cv.Count < 100;
             tb.SelectionLength = 0;
             tb.SelectionStart = tb.Text.Length;
-        }
-
-        async void EtfRadioButton_OnChecked(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                instruments = await context.MarketEtfsAsync();
-                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} ({v.Name})");
-                TickerComboBox.ItemsSource = instrumentsLabels;
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-        }
-
-        async void StockRadioButton_OnChecked(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                instruments = await context.MarketStocksAsync();
-                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} ({v.Name})");
-                TickerComboBox.ItemsSource = instrumentsLabels;
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-        }
-
-        async void CurrencyRadioButton_OnChecked(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                instruments = await context.MarketCurrenciesAsync();
-                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} ({v.Name})");
-                TickerComboBox.ItemsSource = instrumentsLabels;
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
         }
 
         void TickerComboBox_OnGotFocus(object sender, RoutedEventArgs e)

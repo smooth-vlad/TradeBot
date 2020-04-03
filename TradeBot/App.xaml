@@ -211,7 +211,8 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Button}">
-                            <Border CornerRadius="6" Background="{TemplateBinding Background}">
+                            <Border CornerRadius="6" Background="{TemplateBinding Background}"
+                                    Width="{TemplateBinding Width}">
                                 <TextBlock TextAlignment="Center"
                                            VerticalAlignment="Center" HorizontalAlignment="Center"
                                            Padding="8, 0"

@@ -47,10 +47,9 @@
                     Grid.Row="4"
                     Margin="0 8"
                     Style="{StaticResource PrimaryButton}"
-                    HorizontalAlignment="Center"
-                    IsEnabled="False"
-                    Click="authButton_Click"
-                    Width="350">
+                    HorizontalAlignment="Stretch"
+                    IsEnabled="True"
+                    Click="authButton_Click">
                 Auth
             </Button>
         </Grid>
