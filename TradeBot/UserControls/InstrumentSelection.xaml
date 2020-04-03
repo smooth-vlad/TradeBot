@@ -11,7 +11,7 @@
     <Grid Height="Auto" Width="Auto">
 
         <Grid Margin="30, 30, 30, 30" VerticalAlignment="Center" HorizontalAlignment="Center"
-              Width="400">
+              Width="Auto">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -37,21 +37,22 @@
             <StackPanel Grid.Row="1" Grid.Column="0"
                         Orientation="Horizontal"
                         Margin="0 8"
-                        HorizontalAlignment="Left">
+                        HorizontalAlignment="Center">
                 <RadioButton x:Name="RealTimeRadioButton"
+                             Style="{StaticResource CardRadioButton}"
                              IsChecked="True"
-                             Margin="10 0"
-                             Foreground="#303030">
-                    Real-Time
+                             Margin="8 0"
+                             Tag="Real-Time">
+                    You can use your trading strategies in real-time
                 </RadioButton>
 
                 <RadioButton x:Name="TestingRadioButton"
-                             Margin="10 0"
-                             Foreground="#303030">
-                    Testing
+                             Style="{StaticResource CardRadioButton}"
+                             Margin="8 0"
+                             Tag="Testing">
+                    You can test your trading strategies over a certain period of time
                 </RadioButton>
             </StackPanel>
-
 
             <StackPanel Grid.Row="4" VerticalAlignment="Center">
 

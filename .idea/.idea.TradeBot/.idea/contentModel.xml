@@ -10,6 +10,7 @@
         <e p="App.xaml" t="Include" />
         <e p="App.xaml.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
+        <e p="CheckIcon.png" t="Include" />
         <e p="Fonts" t="Include">
           <e p="OpenSans-Bold.ttf" t="Include" />
           <e p="OpenSans-ExtraBold.ttf" t="Include" />

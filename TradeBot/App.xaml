@@ -121,6 +121,84 @@
                 </Style.Triggers>
             </Style>
 
+            <Style x:Key="CardRadioButton" TargetType="RadioButton">
+                <Setter Property="Height" Value="Auto" />
+                <Setter Property="Width" Value="234" />
+                <Setter Property="Background" Value="{StaticResource IntermediateColor}" />
+                <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Grid>
+                                <Border CornerRadius="12" Background="{TemplateBinding Background}"
+                                    Padding="16 16">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="42"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Foreground="{TemplateBinding Foreground}"
+                                            FontSize="24"
+                                            FontWeight="Bold"
+                                            Text="{TemplateBinding Tag}">
+                                        </TextBlock>
+
+                                        <TextBlock Foreground="{TemplateBinding Foreground}"
+                                               FontSize="13"
+                                               Grid.Row="1"
+                                               TextWrapping="Wrap"
+                                               FontWeight="Regular">
+                                        <ContentPresenter>
+                                            <ContentPresenter.Resources>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                                </Style>
+                                            </ContentPresenter.Resources>
+                                        </ContentPresenter>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+
+                                <Ellipse IsHitTestVisible="False"
+                                       VerticalAlignment="Top"
+                                       HorizontalAlignment="Right"
+                                       Height="32"
+                                       Width="32"
+                                         Fill="{StaticResource MainDarkerColor}"
+                                       Margin="8"
+                                       Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                       Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                </Ellipse>
+                                
+                                <Image Source="CheckIcon.png"
+                                       IsHitTestVisible="False"
+                                       VerticalAlignment="Top"
+                                       HorizontalAlignment="Right"
+                                       Height="32"
+                                       Width="32"
+                                       Margin="8"
+                                       Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                       Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                                </Image>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{StaticResource IntermediateDarkerColor}" />
+                    </Trigger>
+                    <Trigger Property="IsChecked" Value="True">
+                        <Setter Property="Background" Value="{StaticResource MainColor}" />
+                        <Setter Property="Foreground" Value="{StaticResource BackgroundColor}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
             <Style x:Key="PrimaryButton" TargetType="{x:Type Button}">
                 <Setter Property="Background" Value="{StaticResource MainColor}" />
                 <Setter Property="Foreground" Value="{StaticResource BackgroundColor}" />
