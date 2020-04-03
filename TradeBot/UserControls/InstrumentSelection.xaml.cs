@@ -28,7 +28,7 @@ namespace TradeBot
 
             Dispatcher.InvokeAsync(async () =>
             {
-                instruments = await context.MarketEtfsAsync();
+                instruments = await context.MarketStocksAsync();
                 instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} ({v.Name})");
                 TickerComboBox.ItemsSource = instrumentsLabels;
             });
@@ -74,16 +74,11 @@ namespace TradeBot
             if (TickerComboBox.SelectedItem != null) return;
             var cv = (CollectionView) CollectionViewSource.GetDefaultView(TickerComboBox.ItemsSource);
             cv.Filter = s =>
-                ((string) s).IndexOf(TickerComboBox.Text, StringComparison.OrdinalIgnoreCase) >= 0;
+                ((string)s).IndexOf(TickerComboBox.Text, StringComparison.OrdinalIgnoreCase) >= 0;
 
-            TickerComboBox.IsDropDownOpen = cv.Count < 100;
+            TickerComboBox.IsDropDownOpen = cv.Count > 0;
             tb.SelectionLength = 0;
             tb.SelectionStart = tb.Text.Length;
-        }
-
-        void TickerComboBox_OnGotFocus(object sender, RoutedEventArgs e)
-        {
-            TickerComboBox.IsDropDownOpen = ((CollectionView)CollectionViewSource.GetDefaultView(TickerComboBox.ItemsSource)).Count < 100;
         }
     }
 }

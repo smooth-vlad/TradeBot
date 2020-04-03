@@ -70,8 +70,9 @@
                           IsTextSearchEnabled="False"
                           IsEditable="True"
                           Margin="0, 8"
-                          GotFocus="TickerComboBox_OnGotFocus"
-                          Style="{StaticResource ComboBoxFlatStyle}">
+                      ItemsPanel="{StaticResource VSP}"
+                      Style="{StaticResource Search}"
+                      Tag="Search Instrument">
             </ComboBox>
 
             <Button x:Name="SelectButton"
