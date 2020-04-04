@@ -24,18 +24,18 @@ namespace TradeBot
         async void authButton_Click(object sender, RoutedEventArgs e)
         {
             TokenErrorTextBlock.Text = string.Empty;
-            //try
+            try
             {
                 var connection = ConnectionFactory.GetSandboxConnection(TokenTextBox.Text);
                 var context = connection.Context;
                 var allegedStocks = await context.MarketStocksAsync();
                 Connect?.Invoke(context);
             }
-            //catch (Exception exception)
-            //{
-            //    TokenErrorTextBlock.Text = "* Token is invalid.";
-            //    TokenTextBox.Focus();
-            //}
+            catch (Exception)
+            {
+                TokenErrorTextBlock.Text = "* Token is invalid.";
+                TokenTextBox.Focus();
+            }
         }
 
         void TokenTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
