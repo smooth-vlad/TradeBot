@@ -80,7 +80,7 @@ namespace TradeBot
             try
             {
                 instruments = await context.MarketEtfsAsync();
-                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}-");
+                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
                 TickerComboBox.ItemsSource = instrumentsLabels;
             }
             catch (Exception)

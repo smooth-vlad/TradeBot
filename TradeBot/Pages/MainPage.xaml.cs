@@ -26,17 +26,21 @@ namespace TradeBot
             newItem.Header = "Instrument Selection";
             newItem.IsSelected = true;
 
-            TabControl.Items.Insert(TabControl.Items.Count - 1, newItem);
+            TabControl.Items.Insert(TabControl.Items.Count, newItem);
         }
 
         void AddTabButton_Selected(object sender, RoutedEventArgs e)
         {
             AddStockSelectionTab();
+        }
 
-            var s = sender as TabItem;
-            s.IsSelected = false;
+        private void CloseTabButton_Selected(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as Button;
+            if (TabControl.Items.Count <= 1)
+                return;
 
-            e.Handled = true;
+            TabControl.Items.Remove(btn.TemplatedParent);
         }
     }
 }

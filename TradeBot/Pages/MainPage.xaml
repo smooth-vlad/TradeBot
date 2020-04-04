@@ -7,17 +7,143 @@
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="MainPage"
-      Background="#eee">
+      Background="{StaticResource ForegroundColor}"
+      Foreground="{StaticResource BackgroundColor}">
 
+    <Page.Resources>
+        <!-- TabItem -->
+        <Style TargetType="TabItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource BackgroundColor}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="16 0"/>
+            <Setter Property="BorderBrush" Value="#AAAAAA"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border Name="Border" BorderThickness="0 0 0 0"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    Margin="0"
+                                    Padding="{TemplateBinding Padding}"
+                                    Background="{TemplateBinding Background}">
+                            <Grid>
+                                <ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="26 0">
+
+                                </ContentPresenter>
+                                <Button x:Name="CloseTabButton" Content="-" Click="CloseTabButton_Selected"
+                                        Background="White">
+                                    <Button.Resources>
+                                        <Style TargetType="Button">
+                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Grid>
+                                                            <Ellipse x:Name="Ellipse" Width="24" Height="24"
+                                                                             Margin="-14 0" Fill="{TemplateBinding Background}" Opacity=".0">
+
+                                                            </Ellipse>
+                                                            <Image Source="pack://application:,,,/Icons/CloseICon.png"
+                                                                   HorizontalAlignment="Right"
+                                                                           Width="10" Height="10" Margin="0 0">
+
+                                                            </Image>
+                                                        </Grid>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Ellipse" Property="Opacity" Value=".05"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{StaticResource BackgroundColor}" />
+                                <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                                <Setter TargetName="CloseTabButton" Property="Background" Value="Black" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
     <Grid>
 
-        <TabControl x:Name="TabControl" Grid.Row="0">
-            <TabItem x:Name="AddTabButton" Selector.Selected="AddTabButton_Selected"
-                     Header="+"
-                     Height="28"
-                     BorderBrush="Transparent"
-                     Background="Transparent" >
-            </TabItem>
+        <TabControl x:Name="TabControl"
+                    BorderThickness="0">
+            <TabControl.Resources>
+                <!-- TabControl -->
+                <Style TargetType="TabControl">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type TabControl}">
+                                <Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TabPanel x:Name="headerPanel" Background="Transparent" IsItemsHost="true" Margin="0" Grid.Row="0" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1"/>
+                                        <Button Content="+" Click="AddTabButton_Selected">
+                                            <Button.Resources>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Grid>
+                                                                    <Ellipse x:Name="Ellipse" Width="24" Height="24"
+                                                                             Margin="2 0" Fill="White" Opacity=".0">
+
+                                                                    </Ellipse>
+                                                                    <Image Source="pack://application:,,,/Icons/AddIcon.png"
+                                                                           Width="10" Height="10" Margin="16 0">
+
+                                                                    </Image>
+                                                                </Grid>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="Ellipse" Property="Opacity" Value=".05"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </StackPanel>
+
+                                    <Border x:Name="contentPanel" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
+                                        <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                    </Border>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsEnabled" Value="false">
+                                        <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
         </TabControl>
     </Grid>
 </Page>
