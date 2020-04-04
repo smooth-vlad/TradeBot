@@ -26,9 +26,7 @@ namespace TradeBot
             this.context = context;
 
             TradingChart.context = context;
-            TradingChart.activeStock = activeStock;
-
-            ChartNameTextBlock.Text = activeStock.Name + " (Testing)";
+            TradingChart.ActiveInstrument = activeStock;
 
             DataContext = this;
         }

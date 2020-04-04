@@ -42,7 +42,16 @@ namespace TradeBot
         List<(PlotView plot, LinearAxis x, LinearAxis y)> oscillatorsPlots
             = new List<(PlotView plot, LinearAxis x, LinearAxis y)>();
         
-        public MarketInstrument activeStock;
+        private MarketInstrument activeInstrument;
+        public MarketInstrument ActiveInstrument
+        {
+            get => activeInstrument;
+            set
+            {
+                activeInstrument = value;
+                candlesSeries.Title = value.Name;
+            }
+        }
 
         public CandleInterval candleInterval = CandleInterval.Day;
 
@@ -105,7 +114,7 @@ namespace TradeBot
 
             candlesSeries = new CandleStickSeries
             {
-                Title = "Candles",
+                Title = "Instrument",
                 DecreasingColor = OxyColor.FromRgb(214, 107, 107),
                 IncreasingColor = OxyColor.FromRgb(121, 229, 112),
                 StrokeThickness = 1
@@ -297,13 +306,13 @@ namespace TradeBot
 
         async Task LoadMoreCandles()
         {
-            if (activeStock == null || context == null ||
+            if (ActiveInstrument == null || context == null ||
                 candlesLoadsFailed >= 10 ||
                 loadedCandles > xAxis.ActualMaximum + 100)
                 return;
 
             var period = GetPeriod(candleInterval);
-            var candles = await GetCandles(activeStock.Figi, FirstCandleDate - period, 
+            var candles = await GetCandles(ActiveInstrument.Figi, FirstCandleDate - period, 
                 FirstCandleDate, candleInterval);
             FirstCandleDate -= period;
             if (candles.Count == 0)
@@ -388,7 +397,7 @@ namespace TradeBot
 
         public void AddIndicator(Indicator indicator)
         {
-            indicator.priceIncrement = (double) activeStock.MinPriceIncrement;
+            indicator.priceIncrement = (double) ActiveInstrument.MinPriceIncrement;
             indicator.candles = candlesSeries.Items;
             indicators.Add(indicator);
 
@@ -427,7 +436,7 @@ namespace TradeBot
             List<CandlePayload> candles;
             try
             {
-                candles = await GetCandles(activeStock.Figi, LastCandleDate,
+                candles = await GetCandles(ActiveInstrument.Figi, LastCandleDate,
                     DateTime.Now, candleInterval);
             }
             catch (Exception)

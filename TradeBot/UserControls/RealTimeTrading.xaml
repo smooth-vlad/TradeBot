@@ -9,27 +9,6 @@
              Background="{StaticResource BackgroundColor}">
 
     <Grid Height="Auto" Width="Auto">
-        <Grid Margin="30">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="80*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-
-            <TextBlock x:Name="ChartNameTextBlock"
-                       Grid.Row="0"
-                       Margin="0 24"
-                       Style="{StaticResource Title}">
-                Instrument
-            </TextBlock>
-
-            <local:TradingChart x:Name="TradingChart"
-                                Grid.Row="1"
-                                Margin="0 8"/>
-
-            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
- 
-            </ScrollViewer>
-        </Grid>
+        <local:TradingChart x:Name="TradingChart"/>
     </Grid>
 </UserControl>

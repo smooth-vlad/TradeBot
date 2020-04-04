@@ -29,9 +29,7 @@ namespace TradeBot
             this.activeStock = activeStock;
 
             TradingChart.context = context;
-            TradingChart.activeStock = activeStock;
-
-            ChartNameTextBlock.Text = activeStock.Name + " (Real-Time)";
+            TradingChart.ActiveInstrument = activeStock;
 
             candlesTimer = new Timer(e => CandlesTimerElapsed(),
                 null,

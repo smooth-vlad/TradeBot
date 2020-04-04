@@ -7,7 +7,7 @@
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
       Title="MainPage"
-      Background="{StaticResource ForegroundColor}"
+      Background="#222222"
       Foreground="{StaticResource BackgroundColor}">
 
     <Page.Resources>
@@ -73,10 +73,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="{StaticResource BackgroundColor}" />
-                                <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
-                                <Setter Property="BorderBrush" Value="Transparent" />
-                                <Setter TargetName="CloseTabButton" Property="Background" Value="Black" />
+                                <Setter Property="Background" Value="{StaticResource ForegroundColor}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
