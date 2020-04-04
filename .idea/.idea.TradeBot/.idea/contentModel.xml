@@ -16,10 +16,11 @@
           <e p="OpenSans-Light.ttf" t="Include" />
           <e p="OpenSans-Regular.ttf" t="Include" />
           <e p="OpenSans-SemiBold.ttf" t="Include" />
-          <e p="Sniglet-Regular.ttf" t="Include" />
         </e>
         <e p="Icons" t="Include">
+          <e p="AddIcon.png" t="Include" />
           <e p="CheckIcon.png" t="Include" />
+          <e p="CloseIcon.png" t="Include" />
           <e p="SearchIcon.png" t="Include" />
         </e>
         <e p="Indicators" t="Include">

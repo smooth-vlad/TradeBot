@@ -14,19 +14,17 @@
         <!-- TabItem -->
         <Style TargetType="TabItem">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource BackgroundColor}"/>
+            <Setter Property="Foreground" Value="#A0A0A0"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontWeight" Value="Regular"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Padding" Value="16 0"/>
-            <Setter Property="BorderBrush" Value="#AAAAAA"/>
 
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
                         <Border Name="Border" BorderThickness="0 0 0 0"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
                                     Margin="0"
                                     Padding="{TemplateBinding Padding}"
                                     Background="{TemplateBinding Background}">
@@ -74,6 +72,8 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter Property="Background" Value="{StaticResource ForegroundColor}" />
+                                <Setter Property="Foreground" Value="{StaticResource BackgroundColor}" />
+                                <Setter Property="FontWeight" Value="SemiBold"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
