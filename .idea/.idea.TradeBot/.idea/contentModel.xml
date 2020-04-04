@@ -66,8 +66,16 @@
         <e p="Pages" t="Include">
           <e p="AuthPage.xaml" t="Include" />
           <e p="AuthPage.xaml.cs" t="Include" />
+          <e p="InstrumentSelection.xaml" t="Include" />
+          <e p="InstrumentSelection.xaml.cs" t="Include" />
           <e p="MainPage.xaml" t="Include" />
           <e p="MainPage.xaml.cs" t="Include" />
+          <e p="RealTimeTrading.xaml" t="Include" />
+          <e p="RealTimeTrading.xaml.cs" t="Include" />
+          <e p="TestingTrading.xaml" t="Include" />
+          <e p="TestingTrading.xaml.cs" t="Include" />
+          <e p="TradingChart.xaml" t="Include" />
+          <e p="TradingChart.xaml.cs" t="Include" />
         </e>
         <e p="Properties" t="Include">
           <e p="AssemblyInfo.cs" t="Include" />
@@ -77,16 +85,6 @@
           <e p="Settings.settings" t="Include" />
         </e>
         <e p="TradeBot.csproj" t="IncludeRecursive" />
-        <e p="TradingChart.xaml" t="Include" />
-        <e p="TradingChart.xaml.cs" t="Include" />
-        <e p="UserControls" t="Include">
-          <e p="InstrumentSelection.xaml" t="Include" />
-          <e p="InstrumentSelection.xaml.cs" t="Include" />
-          <e p="RealTimeTrading.xaml" t="Include" />
-          <e p="RealTimeTrading.xaml.cs" t="Include" />
-          <e p="TestingTrading.xaml" t="Include" />
-          <e p="TestingTrading.xaml.cs" t="Include" />
-        </e>
       </e>
       <e p="TradeBot.sln" t="IncludeFlat" />
     </e>

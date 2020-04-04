@@ -25,16 +25,6 @@
                             <MenuItem x:Name="Volume" Header="Volume" />
                         </MenuItem>
                         <MenuItem x:Name="RemoveIndicatorsButton" Header="Remove indicators" Click="RemoveIndicators_Click" />
-                        <MenuItem Header="Interval">
-                            <MenuItem x:Name="IntervalMinuteButton" Header="1 Minute" Click="Interval_MinuteButton_OnClick"/>
-                            <MenuItem x:Name="IntervalFiveMinutesButton" Header="5 Minutes" Click="Interval_FiveMinutesButton_OnClick"/>
-                            <MenuItem x:Name="IntervalFifteenMinutesButton" Header="15 Minutes" Click="Interval_FifteenMinutesButton_OnClick"/>
-                            <MenuItem x:Name="IntervalThirtyMinutesButton" Header="30 Minutes" Click="Interval_ThirtyMinutesButton_OnClick"/>
-                            <MenuItem x:Name="IntervalHourButton" Header="1 Hour" Click="Interval_HourButton_OnClick"/>
-                            <MenuItem x:Name="IntervalDayButton" Header="1 Day" Click="Interval_DayButton_OnClick"/>
-                            <MenuItem x:Name="IntervalWeekButton" Header="1 Week" Click="Interval_WeekButton_OnClick"/>
-                            <MenuItem x:Name="IntervalMonthButton" Header="1 Month" Click="Interval_MonthButton_OnClick"/>
-                        </MenuItem>
                     </ContextMenu>
                 </oxy:PlotView.ContextMenu>
             </oxy:PlotView>

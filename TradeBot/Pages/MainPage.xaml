@@ -18,7 +18,7 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontWeight" Value="Regular"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Height" Value="32"/>
+            <Setter Property="Height" Value="34"/>
             <Setter Property="Padding" Value="16 0"/>
 
             <Setter Property="Template">

@@ -92,12 +92,14 @@
             <Button x:Name="AddButton"
                     Margin="8 0"
                     Style="{StaticResource PrimaryButton}"
+                    MinWidth="128"
                     Click="addButton_Click">
                 Add
             </Button>
 
             <Button x:Name="CancelButton"
                     Margin="8 0 0 0"
+                    MinWidth="128"
                     Style="{StaticResource SecondaryButton}"
                     Click="cancelButton_Click">
                 Cancel

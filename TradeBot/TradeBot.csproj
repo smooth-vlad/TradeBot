@@ -88,31 +88,23 @@
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TradingChart.xaml.cs">
-      <DependentUpon>TradingChart.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\TestingTrading.xaml.cs">
+    <Compile Include="Pages\TestingTrading.xaml.cs">
       <DependentUpon>TestingTrading.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\RealTimeTrading.xaml.cs">
+    <Compile Include="Pages\RealTimeTrading.xaml.cs">
       <DependentUpon>RealTimeTrading.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\InstrumentSelection.xaml.cs">
+    <Compile Include="Pages\InstrumentSelection.xaml.cs">
       <DependentUpon>InstrumentSelection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\TradingChart.xaml.cs">
+      <DependentUpon>TradingChart.xaml</DependentUpon>
     </Compile>
     <Page Include="IndicatorsDialogs\MacdDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="IndicatorsDialogs\MovingAverageDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\AuthPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -129,19 +121,27 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="TradingChart.xaml">
+    <Page Include="Pages\AuthPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\TestingTrading.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UserControls\RealTimeTrading.xaml">
+    <Page Include="Pages\MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\InstrumentSelection.xaml">
+    <Page Include="Pages\TestingTrading.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\RealTimeTrading.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\InstrumentSelection.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\TradingChart.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

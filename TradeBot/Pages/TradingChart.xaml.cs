@@ -52,8 +52,8 @@ namespace TradeBot
                 candlesSeries.Title = value.Name;
             }
         }
-
-        public CandleInterval candleInterval = CandleInterval.Day;
+        
+        public CandleInterval candleInterval = CandleInterval.Hour;
 
         int candlesLoadsFailed;
         int loadedCandles;
@@ -175,8 +175,6 @@ namespace TradeBot
 
             PlotView.ActualController.BindMouseDown(OxyMouseButton.Left, PlotCommands.PanAt);
             PlotView.ActualController.BindMouseDown(OxyMouseButton.Right, PlotCommands.SnapTrack);
-
-            Loaded += async (sender, args) => ResetSeries();
 
             DataContext = this;
         }
@@ -636,53 +634,5 @@ namespace TradeBot
         }
 
         #endregion
-
-        void Interval_MinuteButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            candleInterval = CandleInterval.Minute;
-            ResetSeries();
-        }
-        
-        void Interval_FiveMinutesButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            candleInterval = CandleInterval.FiveMinutes;
-            ResetSeries();
-        }
-        
-        void Interval_FifteenMinutesButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            candleInterval = CandleInterval.QuarterHour;
-            ResetSeries();
-        }
-        
-        void Interval_ThirtyMinutesButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            candleInterval = CandleInterval.HalfHour;
-            ResetSeries();
-        }
-
-        void Interval_HourButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            candleInterval = CandleInterval.Hour;
-            ResetSeries();
-        }
-        
-        void Interval_DayButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            candleInterval = CandleInterval.Day;
-            ResetSeries();
-        }
-        
-        void Interval_WeekButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            candleInterval = CandleInterval.Week;
-            ResetSeries();
-        }
-        
-        void Interval_MonthButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            candleInterval = CandleInterval.Month;
-            ResetSeries();
-        }
     }
 }
