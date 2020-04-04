@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TradeBot"
         mc:Ignorable="d"
-        Title="Add 'Moving Average' indicator" Height="240" Width="400"
+        Title="Add 'Moving Average' Indicator"
         MinHeight="240"
         MinWidth="400">
     <Grid Margin="10">

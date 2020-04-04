@@ -164,6 +164,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <Resource Include="Fonts\OpenSans-Bold.ttf" />
     <Resource Include="Fonts\OpenSans-ExtraBold.ttf" />
@@ -175,7 +176,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Resource Include="Fonts\Sniglet-Regular.ttf" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -25,7 +25,6 @@
             <Brush x:Key="IntermediateLighterColor">#FAFAFA</Brush>
 
             <!-- Fonts -->
-            <FontFamily x:Key="Sniglet">pack://application:,,,/Fonts/#Sniglet Regular</FontFamily>
             <FontFamily x:Key="OpenSans">pack://application:,,,/Fonts/#Open Sans</FontFamily>
 
             <!-- Title -->

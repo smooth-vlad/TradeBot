@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TradeBot"
         mc:Ignorable="d"
-        Title="Add 'MACD' indicator" Height="345" Width="400"
-        MinHeight="345"
+        Title="Add 'MACD' Indicator"
+        MinHeight="370"
         MinWidth="400">
     <Grid Margin="10">
         <Grid.RowDefinitions>
