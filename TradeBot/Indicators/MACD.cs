@@ -19,6 +19,8 @@ namespace TradeBot
 
         ElementCollection<Series> chart;
 
+        public override bool IsOscillator => true;
+
         public Macd(IMaCalculation calculationMethod, int shortPeriod, int longPeriod, int differencePeriod)
         {
             if (shortPeriod < 1 || longPeriod < 1 || differencePeriod < 1 ||
@@ -29,22 +31,20 @@ namespace TradeBot
             this.shortPeriod = shortPeriod;
             this.longPeriod = longPeriod;
             this.differencePeriod = differencePeriod;
-
-            IsOscillator = true;
         }
 
         public override void UpdateSeries()
         {
-            movingAverageCalculation.Calculate(index => candles[index].Close, candles.Count, shortPeriod,
-                shortMaSeries);
-            movingAverageCalculation.Calculate(index => candles[index].Close, candles.Count, longPeriod, longMaSeries);
+            //movingAverageCalculation.Calculate(index => candles[index].Close, candles.Count, shortPeriod,
+            //    shortMaSeries);
+            //movingAverageCalculation.Calculate(index => candles[index].Close, candles.Count, longPeriod, longMaSeries);
 
-            macdSeries.Points.Clear();
-            for (var i = 0; i < candles.Count - longPeriod; ++i)
-                macdSeries.Points.Add(new DataPoint(i, shortMaSeries.Points[i].Y - longMaSeries.Points[i].Y));
+            //macdSeries.Points.Clear();
+            //for (var i = 0; i < candles.Count - longPeriod; ++i)
+            //    macdSeries.Points.Add(new DataPoint(i, shortMaSeries.Points[i].Y - longMaSeries.Points[i].Y));
 
-            movingAverageCalculation.Calculate(index => macdSeries.Points[index].Y, macdSeries.Points.Count,
-                differencePeriod, signalSeries);
+            //movingAverageCalculation.Calculate(index => macdSeries.Points[index].Y, macdSeries.Points.Count,
+            //    differencePeriod, signalSeries);
         }
 
         public override void InitializeSeries(ElementCollection<Series> chart)

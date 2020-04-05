@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OxyPlot.Series;
 
 namespace TradeBot
@@ -7,7 +8,6 @@ namespace TradeBot
     {
         string Title { get; }
 
-        void Calculate(Func<int, double> value, int count, int period, LineSeries series);
-        void Calculate(Func<int, double> value, int count, int period, HistogramSeries series);
+        List<double> Calculate(Func<int, double> valueByIndex, int fromIndex, int toIndex, int period);
     }
 }

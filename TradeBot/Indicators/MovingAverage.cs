@@ -14,6 +14,8 @@ namespace TradeBot
 
         ElementCollection<Series> chart;
 
+        public override bool IsOscillator => false;
+
         public MovingAverage(int period, IMaCalculation calculationMethod)
         {
             if (period < 1)
@@ -21,8 +23,6 @@ namespace TradeBot
 
             this.period = period;
             movingAverageCalculation = calculationMethod ?? throw new ArgumentNullException();
-            
-            IsOscillator = false;
         }
 
         public override Signal? GetSignal(int currentCandleIndex)
@@ -44,7 +44,16 @@ namespace TradeBot
 
         public override void UpdateSeries()
         {
-            movingAverageCalculation.Calculate(index => candles[index].Close, candles.Count, period, series);
+            if (series.Points.Count > period)
+            {
+                series.Points.RemoveRange(series.Points.Count - period, period);
+            }
+            var movingAverage = movingAverageCalculation.Calculate(index => candles[index].Close, series.Points.Count, candles.Count - period, period);
+            series.Points.Capacity += movingAverage.Count;
+            for (int i = 0; i < movingAverage.Count; ++i)
+            {
+                series.Points.Add(new DataPoint(series.Points.Count, movingAverage[i]));
+            }
         }
 
         public override void InitializeSeries(ElementCollection<Series> chart)

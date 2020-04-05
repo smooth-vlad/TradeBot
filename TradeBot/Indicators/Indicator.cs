@@ -8,8 +8,9 @@ namespace TradeBot
     {
         public List<HighLowItem> candles;
         public double priceIncrement;
-        public bool IsOscillator { get; protected set; }
+        public abstract bool IsOscillator { get; }
         public bool AreSeriesInitialized { get; protected set; }
+
 
         public abstract Signal? GetSignal(int currentCandleIndex);
 

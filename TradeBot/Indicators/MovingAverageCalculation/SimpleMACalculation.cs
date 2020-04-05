@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OxyPlot;
 using OxyPlot.Series;
 
@@ -8,27 +9,19 @@ namespace TradeBot
     {
         public string Title => "Simple Moving Average";
 
-        public void Calculate(Func<int, double> value, int count, int period, LineSeries series)
+        public List<double> Calculate(Func<int, double> valueByIndex, int fromIndex, int toIndex, int period)
         {
-            series.Points.Clear();
-
-            for (var i = 0; i < count - period; ++i)
-                series.Points.Add(new DataPoint(i, CalculateAverage(value, period, i)));
+            var result = new List<double>(toIndex - fromIndex);
+            for (var i = fromIndex; i < toIndex; ++i)
+                result.Add(CalculateAverage(valueByIndex, i, period));
+            return result;
         }
 
-        public void Calculate(Func<int, double> value, int count, int period, HistogramSeries series)
-        {
-            series.Items.Clear();
-
-            for (var i = 0; i < count - period; ++i)
-                series.Items.Add(new HistogramItem(i - 0.2, i + 0.2, CalculateAverage(value, period, i), 1));
-        }
-
-        public static double CalculateAverage(Func<int, double> value, int period, int startIndex)
+        public static double CalculateAverage(Func<int, double> valueByIndex, int fromIndex, int period)
         {
             double sum = 0;
             for (var j = 0; j < period; ++j)
-                sum += value(startIndex + j);
+                sum += valueByIndex(fromIndex + j);
             return sum / period;
         }
     }
