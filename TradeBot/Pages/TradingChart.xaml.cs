@@ -275,27 +275,70 @@ namespace TradeBot
             }
         }
 
+        int CalculateMinSeriesLength()
+        {
+            int result = (int)xAxis.ActualMaximum;
+            foreach (var series in model.Series)
+            {
+                if (series.GetType() == typeof(LineSeries))
+                {
+                    if (((LineSeries)series).Points.Count < result)
+                        result = ((LineSeries)series).Points.Count;
+                }
+            }
+
+            foreach (var plot in oscillatorsPlots)
+            {
+                foreach (var series in plot.plot.Model.Series)
+                {
+                    if (series.GetType() == typeof(LineSeries))
+                    {
+                        if (((LineSeries)series).Points.Count < result)
+                            result = ((LineSeries)series).Points.Count;
+                    }
+                    else if (series.GetType() == typeof(HistogramSeries))
+                    {
+                        if (((HistogramSeries)series).Items.Count < result)
+                            result = ((HistogramSeries)series).Items.Count;
+                    }
+                }
+            }
+            return result;
+        }
+
         async Task LoadMoreCandlesAndUpdateSeries()
         {
-            var loaded = false;
-            while (loadedCandles < xAxis.ActualMaximum && candlesLoadsFailed < 10)
+            try
             {
-                await LoadMoreCandles();
-                loaded = true;
-            }
+                var loaded = false;
+                int minSeriesLength = CalculateMinSeriesLength();
 
-            if (loaded)
-            {
-                foreach (var indicator in indicators)
-                    indicator.UpdateSeries();
-                AdjustYExtent(xAxis, yAxis, model);
+                while ((xAxis.ActualMaximum - 3 >= loadedCandles || xAxis.ActualMaximum - 3 >= minSeriesLength)
+                    && candlesLoadsFailed < 10)
+                {
+                    await LoadMoreCandles();
+                    loaded = true;
+                    foreach (var indicator in indicators)
+                        indicator.UpdateSeries();
+
+                    minSeriesLength = CalculateMinSeriesLength();
+                }
+
+                if (loaded)
+                {
+                    AdjustYExtent(xAxis, yAxis, model);
+                    foreach (var plot in oscillatorsPlots)
+                        AdjustYExtent(plot.x, plot.y, plot.plot.Model);
+                }
+
+                PlotView.InvalidatePlot();
                 foreach (var plot in oscillatorsPlots)
-                    AdjustYExtent(plot.x, plot.y, plot.plot.Model);
+                    plot.plot.InvalidatePlot();
             }
-
-            PlotView.InvalidatePlot();
-            foreach (var plot in oscillatorsPlots)
-                plot.plot.InvalidatePlot();
+            catch(Exception)
+            {
+                candlesLoadsFailed++;
+            }
         }
 
         public async void ResetSeries()
@@ -558,12 +601,6 @@ namespace TradeBot
             y.Zoom(min - margin, max + margin);
             y.IsZoomEnabled = false;
         }
-
-        //public static HighLowItem CandleToHighLowItem(double x, CandlePayload candlePayload)
-        //{
-        //    return new HighLowItem(x, (double) candlePayload.High, (double) candlePayload.Low,
-        //        (double) candlePayload.Open, (double) candlePayload.Close);
-        //}
 
         public async Task<List<CandlePayload>> GetCandles(string figi, DateTime from, DateTime to, CandleInterval interval)
         {
