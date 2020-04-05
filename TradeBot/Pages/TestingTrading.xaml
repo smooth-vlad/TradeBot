@@ -25,11 +25,6 @@
                     FontWeight="SemiBold"
                     Click="simulateButton_Click">
                 BEGIN TESTING
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="2" />
-                    </Style>
-                </Button.Resources>
             </Button>
 
             <ComboBox
@@ -49,11 +44,6 @@
                 <ComboBoxItem Selected="ListBoxItem1w_OnSelected">1 WEEK</ComboBoxItem>
                 <ComboBoxItem Selected="ListBoxItem1mn_OnSelected">1 MONTH</ComboBoxItem>
 
-                <ComboBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="2" />
-                    </Style>
-                </ComboBox.Resources>
             </ComboBox>
         </StackPanel>
 

@@ -52,13 +52,11 @@
             <e p="MainWindow.g.cs" t="Include" />
             <e p="Pages" t="Include">
               <e p="AuthPage.g.cs" t="Include" />
-              <e p="MainPage.g.cs" t="Include" />
-            </e>
-            <e p="TradingChart.g.cs" t="Include" />
-            <e p="UserControls" t="Include">
               <e p="InstrumentSelection.g.cs" t="Include" />
+              <e p="MainPage.g.cs" t="Include" />
               <e p="RealTimeTrading.g.cs" t="Include" />
               <e p="TestingTrading.g.cs" t="Include" />
+              <e p="TradingChart.g.cs" t="Include" />
             </e>
           </e>
         </e>
