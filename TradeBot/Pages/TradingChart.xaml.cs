@@ -290,8 +290,7 @@ namespace TradeBot
 
             loadedCandles = 0;
             candlesLoadsFailed = 0;
-            LastCandleDate = DateTime.Now;
-            FirstCandleDate = LastCandleDate;
+            FirstCandleDate = LastCandleDate = DateTime.Now;
 
             foreach (var indicator in indicators) indicator.ResetSeries();
 
@@ -399,10 +398,9 @@ namespace TradeBot
         public void AddIndicator(Indicator indicator)
         {
             indicator.priceIncrement = (double) ActiveInstrument.MinPriceIncrement;
-            indicator.candles = candlesSeries.Items;
             indicators.Add(indicator);
 
-            indicator.InitializeSeries(indicator.IsOscillator ?
+            indicator.AttachToChart(indicator.IsOscillator ?
                 AddOscillatorPlot().plot.Model.Series : model.Series);
 
             indicator.UpdateSeries();
@@ -418,7 +416,7 @@ namespace TradeBot
         public void RemoveIndicators()
         {
             foreach (var indicator in indicators)
-                indicator.RemoveSeries();
+                indicator.DetachFromChart();
             indicators = new List<Indicator>();
 
             if (oscillatorsPlots.Count > 0)
@@ -464,8 +462,8 @@ namespace TradeBot
             candlesDates.InsertRange(0, cd);
             foreach (var indicator in indicators)
             {
-                indicator.UpdateSeries();
                 indicator.OnNewCandlesAdded(candles.Count);
+                indicator.UpdateSeries();
             }
 
             loadedCandles += candles.Count;
@@ -584,7 +582,7 @@ namespace TradeBot
                     break;
             }
 
-            AddIndicator(new MovingAverage(dialog.Period, calculationMethod));
+            AddIndicator(new MovingAverage(dialog.Period, calculationMethod, candlesSeries.Items));
         }
         
         void MACD_Click(object sender, RoutedEventArgs e)
@@ -606,7 +604,7 @@ namespace TradeBot
             }
 
             AddIndicator(new Macd(
-                calculationMethod, dialog.ShortPeriod, dialog.LongPeriod, dialog.HistogramPeriod));
+                calculationMethod, dialog.ShortPeriod, dialog.LongPeriod, dialog.HistogramPeriod, candlesSeries.Items));
         }
 
         void RemoveIndicators_Click(object sender, RoutedEventArgs e)

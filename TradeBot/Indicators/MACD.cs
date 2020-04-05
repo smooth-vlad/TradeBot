@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OxyPlot;
 using OxyPlot.Series;
 
@@ -6,22 +7,21 @@ namespace TradeBot
 {
     internal class Macd : Indicator
     {
-        readonly int differencePeriod;
-        readonly int longPeriod;
-        readonly int shortPeriod;
+        public int differencePeriod { get; }
+        public int longPeriod { get; }
+        public int shortPeriod { get; }
         readonly IMaCalculation movingAverageCalculation;
-        
-        LineSeries longMaSeries;
-        LineSeries macdSeries;
 
-        LineSeries shortMaSeries;
+        MovingAverage longMovingAverage;
+        MovingAverage shortMovingAverage;
+        LineSeries macdSeries;
         HistogramSeries signalSeries;
 
         ElementCollection<Series> chart;
 
         public override bool IsOscillator => true;
 
-        public Macd(IMaCalculation calculationMethod, int shortPeriod, int longPeriod, int differencePeriod)
+        public Macd(IMaCalculation calculationMethod, int shortPeriod, int longPeriod, int differencePeriod, List<HighLowItem> candles)
         {
             if (shortPeriod < 1 || longPeriod < 1 || differencePeriod < 1 ||
                 shortPeriod >= longPeriod)
@@ -31,29 +31,11 @@ namespace TradeBot
             this.shortPeriod = shortPeriod;
             this.longPeriod = longPeriod;
             this.differencePeriod = differencePeriod;
-        }
+            this.candles = candles;
 
-        public override void UpdateSeries()
-        {
-            //movingAverageCalculation.Calculate(index => candles[index].Close, candles.Count, shortPeriod,
-            //    shortMaSeries);
-            //movingAverageCalculation.Calculate(index => candles[index].Close, candles.Count, longPeriod, longMaSeries);
+            shortMovingAverage = new MovingAverage(shortPeriod, movingAverageCalculation, candles);
 
-            //macdSeries.Points.Clear();
-            //for (var i = 0; i < candles.Count - longPeriod; ++i)
-            //    macdSeries.Points.Add(new DataPoint(i, shortMaSeries.Points[i].Y - longMaSeries.Points[i].Y));
-
-            //movingAverageCalculation.Calculate(index => macdSeries.Points[index].Y, macdSeries.Points.Count,
-            //    differencePeriod, signalSeries);
-        }
-
-        public override void InitializeSeries(ElementCollection<Series> chart)
-        {
-            if (AreSeriesInitialized)
-                return;
-
-            shortMaSeries = new LineSeries();
-            longMaSeries = new LineSeries();
+            longMovingAverage = new MovingAverage(longPeriod, movingAverageCalculation, candles);
             macdSeries = new LineSeries
             {
                 Title = "MACD"
@@ -62,29 +44,67 @@ namespace TradeBot
             {
                 Title = "MACD Signal Line"
             };
+        }
+
+        public override void UpdateSeries()
+        {
+            shortMovingAverage.UpdateSeries();
+
+            longMovingAverage.UpdateSeries();
+
+            macdSeries.Points.Clear();
+            for (var i = 0; i < candles.Count - longPeriod; ++i)
+                macdSeries.Points.Add(new DataPoint(i, shortMovingAverage.Values[i].Y - longMovingAverage.Values[i].Y));
+
+            // signalSeries
+            {
+                if (signalSeries.Items.Count > differencePeriod * 2)
+                    signalSeries.Items.RemoveRange(signalSeries.Items.Count - differencePeriod * 2, differencePeriod * 2);
+
+                var movingAverage = movingAverageCalculation.Calculate(index => macdSeries.Points[index].Y, signalSeries.Items.Count, macdSeries.Points.Count - differencePeriod, differencePeriod);
+                signalSeries.Items.Capacity += movingAverage.Count;
+
+                for (int i = 0; i < movingAverage.Count; ++i)
+                {
+                    var x = signalSeries.Items.Count;
+                    signalSeries.Items.Add(new HistogramItem(x - 0.2, x + 0.2, movingAverage[i], 1));
+                }
+            }
+        }
+
+        public override void AttachToChart(ElementCollection<Series> chart)
+        {
+            if (AreSeriesInitialized || chart == null)
+                return;
 
             this.chart = chart;
 
-            this.chart.Add(signalSeries);
             this.chart.Add(macdSeries);
+            this.chart.Add(signalSeries);
+
+            AreSeriesInitialized = true;
         }
 
-        public override void RemoveSeries()
+        public override void DetachFromChart()
         {
-            chart.Remove(signalSeries);
+            if (chart == null)
+                return;
+
             chart.Remove(macdSeries);
+            chart.Remove(signalSeries);
         }
 
         public override void ResetSeries()
         {
-            shortMaSeries.Points.Clear();
-            longMaSeries.Points.Clear();
-            signalSeries.Items.Clear();
+            shortMovingAverage.ResetSeries();
+            longMovingAverage.ResetSeries();
             macdSeries.Points.Clear();
+            signalSeries.Items.Clear();
         }
 
         public override void OnNewCandlesAdded(int count)
         {
+            ResetSeries();
         }
 
         public override Signal? GetSignal(int currentCandleIndex)

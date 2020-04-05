@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OxyPlot;
 using OxyPlot.Series;
 
@@ -6,29 +7,35 @@ namespace TradeBot
 {
     public class MovingAverage : Indicator
     {
-        readonly IMaCalculation movingAverageCalculation;
+        public IMaCalculation movingAverageCalculation { get; }
 
-        readonly int period;
+        public int Period { get; }
 
         LineSeries series;
+        public IReadOnlyList<DataPoint> Values => series.Points;
 
         ElementCollection<Series> chart;
 
         public override bool IsOscillator => false;
 
-        public MovingAverage(int period, IMaCalculation calculationMethod)
+        public MovingAverage(int period, IMaCalculation calculationMethod, List<HighLowItem> candles)
         {
             if (period < 1)
                 throw new ArgumentOutOfRangeException();
 
-            this.period = period;
+            this.Period = period;
+            this.candles = candles;
             movingAverageCalculation = calculationMethod ?? throw new ArgumentNullException();
+
+            series = new LineSeries
+            {
+                Title = movingAverageCalculation.Title
+            };
         }
 
         public override Signal? GetSignal(int currentCandleIndex)
         {
-            
-            if (currentCandleIndex > candles.Count - period - 2)
+            if (currentCandleIndex > candles.Count - Period - 2)
                 return null;
 
             if ((candles[currentCandleIndex + 1].Close - series.Points[currentCandleIndex + 1].Y) *
@@ -44,11 +51,11 @@ namespace TradeBot
 
         public override void UpdateSeries()
         {
-            if (series.Points.Count > period)
+            if (series.Points.Count > Period * 2)
             {
-                series.Points.RemoveRange(series.Points.Count - period, period);
+                series.Points.RemoveRange(series.Points.Count - Period * 2, Period * 2);
             }
-            var movingAverage = movingAverageCalculation.Calculate(index => candles[index].Close, series.Points.Count, candles.Count - period, period);
+            var movingAverage = movingAverageCalculation.Calculate(index => candles[index].Close, series.Points.Count, candles.Count - Period, Period);
             series.Points.Capacity += movingAverage.Count;
             for (int i = 0; i < movingAverage.Count; ++i)
             {
@@ -56,15 +63,10 @@ namespace TradeBot
             }
         }
 
-        public override void InitializeSeries(ElementCollection<Series> chart)
+        public override void AttachToChart(ElementCollection<Series> chart)
         {
-            if (AreSeriesInitialized)
+            if (AreSeriesInitialized || chart == null)
                 return;
-
-            series = new LineSeries
-            {
-                Title = movingAverageCalculation.Title
-            };
 
             this.chart = chart;
             
@@ -72,8 +74,11 @@ namespace TradeBot
             AreSeriesInitialized = true;
         }
 
-        public override void RemoveSeries()
+        public override void DetachFromChart()
         {
+            if (chart == null)
+                return;
+
             chart.Remove(series);
         }
 
@@ -84,6 +89,7 @@ namespace TradeBot
 
         public override void OnNewCandlesAdded(int count)
         {
+            ResetSeries();
         }
     }
 }

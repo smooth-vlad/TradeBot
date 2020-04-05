@@ -16,8 +16,8 @@ namespace TradeBot
 
         public abstract void UpdateSeries();
         public abstract void ResetSeries();
-        public abstract void RemoveSeries();
-        public abstract void InitializeSeries(ElementCollection<Series> chart);
+        public abstract void DetachFromChart();
+        public abstract void AttachToChart(ElementCollection<Series> chart);
 
         public abstract void OnNewCandlesAdded(int count);
 

@@ -26,12 +26,12 @@ namespace TradeBot
 
             candlesTimer = new Timer(e => CandlesTimerElapsed(),
                 null,
-                TimeSpan.Zero,
+                TimeSpan.FromSeconds(15),
                 TimeSpan.FromSeconds(30));
 
             DataContext = this;
             
-            IntervalComboBox.SelectedIndex = 4;
+            IntervalComboBox.SelectedIndex = 5;
         }
 
         // ==================================================
@@ -44,7 +44,7 @@ namespace TradeBot
                 return;
             await TradingChart.LoadingCandlesTask;
 
-            await TradingChart.LoadNewCandles();
+            await Dispatcher.InvokeAsync(async () => await TradingChart.LoadNewCandles());
         }
         
         void ListBoxItem1m_OnSelected(object sender, RoutedEventArgs e)
