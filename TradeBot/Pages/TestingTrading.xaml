@@ -37,7 +37,8 @@
                 Height="Auto"
                 Width="92"
                 BorderThickness="0"
-                FontSize="10">
+                FontSize="10"
+                ToolTip="Candles Interval">
 
                 <ComboBoxItem Selected="ListBoxItem1m_OnSelected">1 MINUTE</ComboBoxItem>
                 <ComboBoxItem Selected="ListBoxItem5m_OnSelected">5 MINUTES</ComboBoxItem>

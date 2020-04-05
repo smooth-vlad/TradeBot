@@ -15,6 +15,22 @@
             </Grid.RowDefinitions>
 
             <oxy:PlotView Grid.Row="0" x:Name="PlotView" Model="{Binding Source=StaticResource Model}">
+                <oxy:PlotView.DefaultTrackerTemplate>
+                    <ControlTemplate>
+                        <oxy:TrackerControl Position="{Binding Position}"
+                                            Background="{StaticResource IntermediateLighterColor}"
+                                            Foreground="{StaticResource ForegroundColor}"
+                                            FontWeight="SemiBold"
+                                            ShowPointer="False" CornerRadius="4"
+                                            BorderEdgeMode="Unspecified"
+                                            BorderThickness="0"
+                                            LineExtents="{Binding PlotModel.PlotArea}">
+                            <oxy:TrackerControl.Content>
+                                <TextBlock Text="{Binding}" Margin="7" />
+                            </oxy:TrackerControl.Content>
+                        </oxy:TrackerControl>
+                    </ControlTemplate>
+                </oxy:PlotView.DefaultTrackerTemplate>
                 <oxy:PlotView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Add indicator">

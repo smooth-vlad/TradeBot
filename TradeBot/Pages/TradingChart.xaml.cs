@@ -25,8 +25,6 @@ namespace TradeBot
     /// </summary>
     public partial class TradingChart : UserControl
     {
-        readonly List<DateTime> candlesDates = new List<DateTime>();
-
         readonly CandleStickSeries candlesSeries;
 
         List<Indicator> indicators = new List<Indicator>();
@@ -62,6 +60,23 @@ namespace TradeBot
         public DateTime FirstCandleDate { get; private set; } // on the left side
 
         public Task LoadingCandlesTask { get; private set; }
+
+
+        class Candle : HighLowItem
+        {
+            public DateTime DateTime { get; set; }
+
+            public Candle(int x, CandlePayload candle)
+            {
+                Close = (double)candle.Close;
+                Open = (double)candle.Open;
+                High = (double)candle.High;
+                Low = (double)candle.Low;
+                DateTime = candle.Time;
+                X = x;
+            }
+        }
+
 
         public TradingChart()
         {
@@ -115,7 +130,9 @@ namespace TradeBot
                 Title = "Instrument",
                 DecreasingColor = OxyColor.FromRgb(214, 107, 107),
                 IncreasingColor = OxyColor.FromRgb(121, 229, 112),
-                StrokeThickness = 1
+                StrokeThickness = 1,
+                TrackerFormatString = "Time: {DateTime:dd.MM.yyyy HH:mm}" + Environment.NewLine
+                                  + "Price: {4}",
             };
 
             buySeries = new ScatterSeries
@@ -145,6 +162,7 @@ namespace TradeBot
             xAxis.LabelFormatter = (d) =>
             {
                 if (candlesSeries.Items.Count <= (int) d || !(d >= 0)) return "";
+                var date = ((Candle)candlesSeries.Items[(int)d]).DateTime;
                 switch (candleInterval)
                 {
                     case CandleInterval.Minute:
@@ -154,15 +172,15 @@ namespace TradeBot
                     case CandleInterval.TenMinutes:
                     case CandleInterval.QuarterHour:
                     case CandleInterval.HalfHour:
-                        return candlesDates[(int) d].ToString("HH:mm");
+                        return date.ToString("HH:mm");
                     case CandleInterval.Hour:
                     case CandleInterval.TwoHours:
                     case CandleInterval.FourHours:
                     case CandleInterval.Day:
                     case CandleInterval.Week:
-                        return candlesDates[(int) d].ToString("dd MMMM");
+                        return date.ToString("dd MMMM");
                     case CandleInterval.Month:
-                        return candlesDates[(int) d].ToString("yyyy");
+                        return date.ToString("yyyy");
                 }
 
                 return "";
@@ -286,7 +304,6 @@ namespace TradeBot
             sellSeries.Points.Clear();
 
             candlesSeries.Items.Clear();
-            candlesDates.Clear();
 
             loadedCandles = 0;
             candlesLoadsFailed = 0;
@@ -324,8 +341,7 @@ namespace TradeBot
             for (var i = 0; i < candles.Count; ++i)
             {
                 var candle = candles[i];
-                candlesSeries.Items.Add(CandleToHighLowItem(loadedCandles + i, candle));
-                candlesDates.Add(candle.Time);
+                candlesSeries.Items.Add(new Candle(loadedCandles + i, candle));
             }
 
             loadedCandles += candles.Count;
@@ -453,13 +469,12 @@ namespace TradeBot
             for (var i = 0; i < candles.Count; ++i)
             {
                 var candle = candles[i];
-                c.Add(CandleToHighLowItem(i, candle));
+                c.Add(new Candle(i, candle));
                 cd.Add(candle.Time);
             }
 
             candlesSeries.Items.ForEach(v => v.X += candles.Count);
             candlesSeries.Items.InsertRange(0, c);
-            candlesDates.InsertRange(0, cd);
             foreach (var indicator in indicators)
             {
                 indicator.OnNewCandlesAdded(candles.Count);
@@ -544,11 +559,11 @@ namespace TradeBot
             y.IsZoomEnabled = false;
         }
 
-        public static HighLowItem CandleToHighLowItem(double x, CandlePayload candlePayload)
-        {
-            return new HighLowItem(x, (double) candlePayload.High, (double) candlePayload.Low,
-                (double) candlePayload.Open, (double) candlePayload.Close);
-        }
+        //public static HighLowItem CandleToHighLowItem(double x, CandlePayload candlePayload)
+        //{
+        //    return new HighLowItem(x, (double) candlePayload.High, (double) candlePayload.Low,
+        //        (double) candlePayload.Open, (double) candlePayload.Close);
+        //}
 
         public async Task<List<CandlePayload>> GetCandles(string figi, DateTime from, DateTime to, CandleInterval interval)
         {
