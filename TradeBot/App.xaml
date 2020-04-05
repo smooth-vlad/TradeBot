@@ -16,6 +16,7 @@
             <!-- Brushes -->
             <Brush x:Key="BackgroundColor">#FFFFFF</Brush>
             <Brush x:Key="ForegroundColor">#2F2F2F</Brush>
+            <Brush x:Key="ForegroundLighterColor">#424242</Brush>
             <Brush x:Key="ForegroundDarkerColor">#1A1A1A</Brush>
             <Brush x:Key="MainColor">#FF768F</Brush>
             <Brush x:Key="MainDarkerColor">#F16A82</Brush>
