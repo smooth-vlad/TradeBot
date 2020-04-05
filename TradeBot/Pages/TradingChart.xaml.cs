@@ -142,7 +142,7 @@ namespace TradeBot
             model.Series.Add(buySeries);
             model.Series.Add(sellSeries);
 
-            xAxis.LabelFormatter = delegate(double d)
+            xAxis.LabelFormatter = (d) =>
             {
                 if (candlesSeries.Items.Count <= (int) d || !(d >= 0)) return "";
                 switch (candleInterval)
@@ -168,6 +168,11 @@ namespace TradeBot
                 return "";
             };
             xAxis.AxisChanged += XAxis_AxisChanged;
+
+            yAxis.LabelFormatter = (d) =>
+            {
+                return $"{d} {activeInstrument.Currency}";
+            };
 
             PlotView.Model = model;
 
