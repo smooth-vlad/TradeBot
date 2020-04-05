@@ -74,7 +74,7 @@ namespace TradeBot
 
         public override void AttachToChart(ElementCollection<Series> chart)
         {
-            if (AreSeriesInitialized || chart == null)
+            if (AreSeriesAttached || chart == null)
                 return;
 
             this.chart = chart;
@@ -82,7 +82,7 @@ namespace TradeBot
             this.chart.Add(macdSeries);
             this.chart.Add(signalSeries);
 
-            AreSeriesInitialized = true;
+            AreSeriesAttached = true;
         }
 
         public override void DetachFromChart()

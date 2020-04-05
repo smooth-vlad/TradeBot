@@ -13,52 +13,48 @@
     <Page.Resources>
         <!-- TabItem -->
         <Style TargetType="TabItem">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#A0A0A0"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontWeight" Value="Regular"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="Padding" Value="16 0"/>
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#A0A0A0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontWeight" Value="Regular" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="16 0" />
 
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
                         <Border Name="Border" BorderThickness="0 0 0 0"
-                                    Margin="0"
-                                    Padding="{TemplateBinding Padding}"
-                                    Background="{TemplateBinding Background}">
+                                Margin="0"
+                                Padding="{TemplateBinding Padding}"
+                                Background="{TemplateBinding Background}">
                             <Grid>
                                 <ContentPresenter x:Name="ContentSite"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Center"
-                                        ContentSource="Header"
-                                        Margin="26 0">
-
-                                </ContentPresenter>
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Center"
+                                                  ContentSource="Header"
+                                                  Margin="26 0" />
                                 <Button x:Name="CloseTabButton" Content="-" Click="CloseTabButton_Selected"
                                         Background="White">
                                     <Button.Resources>
                                         <Style TargetType="Button">
-                                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            <Setter Property="HorizontalAlignment" Value="Right" />
 
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="Button">
                                                         <Grid>
                                                             <Ellipse x:Name="Ellipse" Width="24" Height="24"
-                                                                             Margin="-14 0" Fill="{TemplateBinding Background}" Opacity=".0">
-
-                                                            </Ellipse>
+                                                                     Margin="-14 0" Fill="{TemplateBinding Background}"
+                                                                     Opacity=".0" />
                                                             <Image Source="pack://application:,,,/Icons/CloseICon.png"
                                                                    HorizontalAlignment="Right"
-                                                                           Width="10" Height="10" Margin="0 0">
-
-                                                            </Image>
+                                                                   Width="10" Height="10" Margin="0 0" />
                                                         </Grid>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter TargetName="Ellipse" Property="Opacity" Value=".05"/>
+                                                                <Setter TargetName="Ellipse" Property="Opacity"
+                                                                        Value=".05" />
                                                             </Trigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
@@ -73,7 +69,7 @@
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter Property="Background" Value="{StaticResource ForegroundColor}" />
                                 <Setter Property="Foreground" Value="{StaticResource BackgroundColor}" />
-                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="FontWeight" Value="SemiBold" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -91,13 +87,16 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type TabControl}">
-                                <Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
+                                <Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true"
+                                      KeyboardNavigation.TabNavigation="Local">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <StackPanel Orientation="Horizontal">
-                                        <TabPanel x:Name="headerPanel" Background="Transparent" IsItemsHost="true" Margin="0" Grid.Row="0" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1"/>
+                                        <TabPanel x:Name="headerPanel" Background="Transparent" IsItemsHost="true"
+                                                  Margin="0" Grid.Row="0" KeyboardNavigation.TabIndex="1"
+                                                  Panel.ZIndex="1" />
                                         <Button Content="+" Click="AddTabButton_Selected">
                                             <Button.Resources>
                                                 <Style TargetType="Button">
@@ -106,17 +105,15 @@
                                                             <ControlTemplate TargetType="Button">
                                                                 <Grid>
                                                                     <Ellipse x:Name="Ellipse" Width="24" Height="24"
-                                                                             Margin="2 0" Fill="White" Opacity=".0">
-
-                                                                    </Ellipse>
-                                                                    <Image Source="pack://application:,,,/Icons/AddIcon.png"
-                                                                           Width="10" Height="10" Margin="16 0">
-
-                                                                    </Image>
+                                                                             Margin="2 0" Fill="White" Opacity=".0" />
+                                                                    <Image
+                                                                        Source="pack://application:,,,/Icons/AddIcon.png"
+                                                                        Width="10" Height="10" Margin="16 0" />
                                                                 </Grid>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter TargetName="Ellipse" Property="Opacity" Value=".05"/>
+                                                                        <Setter TargetName="Ellipse" Property="Opacity"
+                                                                                Value=".05" />
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -127,13 +124,21 @@
                                         </Button>
                                     </StackPanel>
 
-                                    <Border x:Name="contentPanel" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
-                                        <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                    <Border x:Name="contentPanel" BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            Background="{TemplateBinding Background}" Grid.Column="0"
+                                            KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1"
+                                            KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
+                                        <ContentPresenter x:Name="PART_SelectedContentHost"
+                                                          ContentSource="SelectedContent"
+                                                          Margin="{TemplateBinding Padding}"
+                                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                     </Border>
                                 </Grid>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsEnabled" Value="false">
-                                        <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                        <Setter Property="TextElement.Foreground" TargetName="templateRoot"
+                                                Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>

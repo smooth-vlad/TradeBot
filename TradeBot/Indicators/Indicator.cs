@@ -6,11 +6,10 @@ namespace TradeBot
 {
     public abstract class Indicator
     {
-        public List<HighLowItem> candles;
+        protected List<HighLowItem> candles;
         public double priceIncrement;
         public abstract bool IsOscillator { get; }
-        public bool AreSeriesInitialized { get; protected set; }
-
+        public bool AreSeriesAttached { get; protected set; }
 
         public abstract Signal? GetSignal(int currentCandleIndex);
 

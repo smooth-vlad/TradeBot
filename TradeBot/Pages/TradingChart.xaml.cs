@@ -4,14 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using OxyPlot.Wpf;
 using Tinkoff.Trading.OpenApi.Models;
-using Tinkoff.Trading.OpenApi.Network;
 using Axis = OxyPlot.Axes.Axis;
 using LinearAxis = OxyPlot.Axes.LinearAxis;
 using LineSeries = OxyPlot.Series.LineSeries;
@@ -40,7 +37,7 @@ namespace TradeBot
         List<(PlotView plot, LinearAxis x, LinearAxis y)> oscillatorsPlots
             = new List<(PlotView plot, LinearAxis x, LinearAxis y)>();
         
-        private MarketInstrument activeInstrument;
+        MarketInstrument activeInstrument;
         public MarketInstrument ActiveInstrument
         {
             get => activeInstrument;
@@ -55,16 +52,16 @@ namespace TradeBot
 
         int candlesLoadsFailed;
         int loadedCandles;
-        
-        public DateTime LastCandleDate { get; private set; } // on the right side
-        public DateTime FirstCandleDate { get; private set; } // on the left side
+
+        DateTime lastCandleDate; // on the right side
+        DateTime firstCandleDate; // on the left side
 
         public Task LoadingCandlesTask { get; private set; }
 
 
         class Candle : HighLowItem
         {
-            public DateTime DateTime { get; set; }
+            public DateTime DateTime { get; }
 
             public Candle(int x, CandlePayload candle)
             {
@@ -82,7 +79,7 @@ namespace TradeBot
         {
             InitializeComponent();
 
-            LastCandleDate = FirstCandleDate = DateTime.Now;
+            lastCandleDate = firstCandleDate = DateTime.Now;
 
             model = new PlotModel
             {
@@ -187,10 +184,7 @@ namespace TradeBot
             };
             xAxis.AxisChanged += XAxis_AxisChanged;
 
-            yAxis.LabelFormatter = (d) =>
-            {
-                return $"{d} {activeInstrument.Currency}";
-            };
+            yAxis.LabelFormatter = (d) => $"{d} {activeInstrument.Currency}";
 
             PlotView.Model = model;
 
@@ -277,30 +271,22 @@ namespace TradeBot
 
         int CalculateMinSeriesLength()
         {
-            int result = (int)xAxis.ActualMaximum;
-            foreach (var series in model.Series)
+            var result = (int)xAxis.ActualMaximum;
+            result = (from series in model.Series
+                where series.GetType() == typeof(LineSeries)
+                select ((LineSeries) series).Points.Count).Concat(new[] {result}).Min();
+
+            foreach (var series in oscillatorsPlots.SelectMany(plot => plot.plot.Model.Series))
             {
                 if (series.GetType() == typeof(LineSeries))
                 {
                     if (((LineSeries)series).Points.Count < result)
                         result = ((LineSeries)series).Points.Count;
                 }
-            }
-
-            foreach (var plot in oscillatorsPlots)
-            {
-                foreach (var series in plot.plot.Model.Series)
+                else if (series.GetType() == typeof(HistogramSeries))
                 {
-                    if (series.GetType() == typeof(LineSeries))
-                    {
-                        if (((LineSeries)series).Points.Count < result)
-                            result = ((LineSeries)series).Points.Count;
-                    }
-                    else if (series.GetType() == typeof(HistogramSeries))
-                    {
-                        if (((HistogramSeries)series).Items.Count < result)
-                            result = ((HistogramSeries)series).Items.Count;
-                    }
+                    if (((HistogramSeries)series).Items.Count < result)
+                        result = ((HistogramSeries)series).Items.Count;
                 }
             }
             return result;
@@ -311,7 +297,7 @@ namespace TradeBot
             try
             {
                 var loaded = false;
-                int minSeriesLength = CalculateMinSeriesLength();
+                var minSeriesLength = CalculateMinSeriesLength();
 
                 while ((xAxis.ActualMaximum - 3 >= loadedCandles || xAxis.ActualMaximum - 3 >= minSeriesLength)
                     && candlesLoadsFailed < 10)
@@ -327,8 +313,8 @@ namespace TradeBot
                 if (loaded)
                 {
                     AdjustYExtent(xAxis, yAxis, model);
-                    foreach (var plot in oscillatorsPlots)
-                        AdjustYExtent(plot.x, plot.y, plot.plot.Model);
+                    foreach (var (plot, x, y) in oscillatorsPlots)
+                        AdjustYExtent(x, y, plot.Model);
                 }
 
                 PlotView.InvalidatePlot();
@@ -350,7 +336,7 @@ namespace TradeBot
 
             loadedCandles = 0;
             candlesLoadsFailed = 0;
-            FirstCandleDate = LastCandleDate = DateTime.Now;
+            firstCandleDate = lastCandleDate = DateTime.Now;
 
             foreach (var indicator in indicators) indicator.ResetSeries();
 
@@ -372,9 +358,9 @@ namespace TradeBot
                 return;
 
             var period = GetPeriod(candleInterval);
-            var candles = await GetCandles(ActiveInstrument.Figi, FirstCandleDate - period, 
-                FirstCandleDate, candleInterval);
-            FirstCandleDate -= period;
+            var candles = await GetCandles(ActiveInstrument.Figi, firstCandleDate - period, 
+                firstCandleDate, candleInterval);
+            firstCandleDate -= period;
             if (candles.Count == 0)
             {
                 candlesLoadsFailed += 1;
@@ -464,8 +450,8 @@ namespace TradeBot
 
             indicator.UpdateSeries();
             AdjustYExtent(xAxis, yAxis, model);
-            foreach (var plot in oscillatorsPlots)
-                AdjustYExtent(plot.x, plot.y, plot.plot.Model);
+            foreach (var (plot, x, y) in oscillatorsPlots)
+                AdjustYExtent(x, y, plot.Model);
 
             PlotView.InvalidatePlot();
             foreach (var plot in oscillatorsPlots)
@@ -494,7 +480,7 @@ namespace TradeBot
             List<CandlePayload> candles;
             try
             {
-                candles = await GetCandles(ActiveInstrument.Figi, LastCandleDate,
+                candles = await GetCandles(ActiveInstrument.Figi, lastCandleDate,
                     DateTime.Now, candleInterval);
             }
             catch (Exception)
@@ -505,16 +491,9 @@ namespace TradeBot
             if (candles.Count == 0)
                 return;
             
-            LastCandleDate = DateTime.Now;
+            lastCandleDate = DateTime.Now;
 
-            var c = new List<HighLowItem>();
-            var cd = new List<DateTime>();
-            for (var i = 0; i < candles.Count; ++i)
-            {
-                var candle = candles[i];
-                c.Add(new Candle(i, candle));
-                cd.Add(candle.Time);
-            }
+            var c = candles.Select((candle, i) => new Candle(i, candle)).Cast<HighLowItem>().ToList();
 
             candlesSeries.Items.ForEach(v => v.X += candles.Count);
             candlesSeries.Items.InsertRange(0, c);
@@ -553,7 +532,7 @@ namespace TradeBot
                 plot.plot.InvalidatePlot();
         }
 
-        void AdjustYExtent(Axis x, Axis y, PlotModel m)
+        static void AdjustYExtent(Axis x, Axis y, PlotModel m)
         {
             var points = new List<float>();
 
@@ -679,7 +658,7 @@ namespace TradeBot
                 {CandleInterval.Month, TimeSpan.FromDays(364 * 10)}
             };
 
-        public TimeSpan GetPeriod(CandleInterval interval)
+        public static TimeSpan GetPeriod(CandleInterval interval)
         {
             if (!intervalToMaxPeriod.TryGetValue(interval, out var result))
                 throw new KeyNotFoundException();

@@ -65,13 +65,13 @@ namespace TradeBot
 
         public override void AttachToChart(ElementCollection<Series> chart)
         {
-            if (AreSeriesInitialized || chart == null)
+            if (AreSeriesAttached || chart == null)
                 return;
 
             this.chart = chart;
             
             this.chart.Add(series);
-            AreSeriesInitialized = true;
+            AreSeriesAttached = true;
         }
 
         public override void DetachFromChart()
