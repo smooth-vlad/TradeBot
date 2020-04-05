@@ -16,10 +16,10 @@ namespace TradeBot
             InitializeComponent();
             this.context = context;
 
-            AddStockSelectionTab();
+            AddInstrumentSelectionTab();
         }
 
-        void AddStockSelectionTab()
+        void AddInstrumentSelectionTab()
         {
             var newItem = new TabItem();
             newItem.Content = new InstrumentSelection(context, newItem);
@@ -31,14 +31,14 @@ namespace TradeBot
 
         void AddTabButton_Selected(object sender, RoutedEventArgs e)
         {
-            AddStockSelectionTab();
+            AddInstrumentSelectionTab();
         }
 
         private void CloseTabButton_Selected(object sender, RoutedEventArgs e)
         {
             var btn = sender as Button;
             if (TabControl.Items.Count <= 1)
-                return;
+                AddInstrumentSelectionTab();
 
             TabControl.Items.Remove(btn.TemplatedParent);
         }
