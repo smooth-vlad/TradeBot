@@ -20,7 +20,7 @@ namespace TradeBot
         void AuthPage_Connect(Context context)
         {
             Context = context;
-            Content = new MainPage(Context);
+            Content = new MainPage();
         }
     }
 }

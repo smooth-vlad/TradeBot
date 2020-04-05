@@ -14,16 +14,14 @@ namespace TradeBot
     /// </summary>
     public partial class InstrumentSelection : UserControl
     {
-        readonly Context context;
         readonly TabItem parent;
         List<string> instrumentsLabels;
         MarketInstrumentList instruments;
 
-        public InstrumentSelection(Context context, TabItem parent)
+        public InstrumentSelection(TabItem parent)
         {
             InitializeComponent();
 
-            this.context = context;
             this.parent = parent;
 
             Dispatcher.Invoke(() => StockRadioButton.IsChecked = true);
@@ -41,12 +39,12 @@ namespace TradeBot
                 if (RealTimeRadioButton.IsChecked == true)
                 {
                     parent.Header += " (Real-Time)";
-                    parent.Content = new RealTimeTrading(context, activeInstrument);
+                    parent.Content = new RealTimeTrading(activeInstrument);
                 }
                 else if (TestingRadioButton.IsChecked == true)
                 {
                     parent.Header += " (Testing)";
-                    parent.Content = new TestingTrading(context, activeInstrument);
+                    parent.Content = new TestingTrading(activeInstrument);
                 }
             }
             catch (Exception)
@@ -79,7 +77,7 @@ namespace TradeBot
         {
             try
             {
-                instruments = await context.MarketEtfsAsync();
+                instruments = await MainWindow.Context.MarketEtfsAsync();
                 instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
                 TickerComboBox.ItemsSource = instrumentsLabels;
             }
@@ -93,7 +91,7 @@ namespace TradeBot
         {
             try
             {
-                instruments = await context.MarketStocksAsync();
+                instruments = await MainWindow.Context.MarketStocksAsync();
                 instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
                 TickerComboBox.ItemsSource = instrumentsLabels;
             }
@@ -107,7 +105,7 @@ namespace TradeBot
         {
             try
             {
-                instruments = await context.MarketCurrenciesAsync();
+                instruments = await MainWindow.Context.MarketCurrenciesAsync();
                 instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
                 TickerComboBox.ItemsSource = instrumentsLabels;
             }

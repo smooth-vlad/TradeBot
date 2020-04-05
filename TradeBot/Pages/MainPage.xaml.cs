@@ -9,12 +9,9 @@ namespace TradeBot
     /// </summary>
     public partial class MainPage : Page
     {
-        readonly Context context;
-
-        public MainPage(Context context)
+        public MainPage()
         {
             InitializeComponent();
-            this.context = context;
 
             AddInstrumentSelectionTab();
         }
@@ -22,7 +19,7 @@ namespace TradeBot
         void AddInstrumentSelectionTab()
         {
             var newItem = new TabItem();
-            newItem.Content = new InstrumentSelection(context, newItem);
+            newItem.Content = new InstrumentSelection(newItem);
             newItem.Header = "Instrument Selection";
             newItem.IsSelected = true;
 

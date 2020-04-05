@@ -12,21 +12,14 @@ namespace TradeBot
     /// </summary>
     public partial class TestingTrading : UserControl
     {
-        MarketInstrument activeStock;
-        Context context;
-
-        public TestingTrading(Context context, MarketInstrument activeStock)
+        public TestingTrading(MarketInstrument activeInstrument)
         {
             InitializeComponent();
 
-            if (activeStock == null || context == null)
+            if (activeInstrument == null)
                 throw new ArgumentNullException();
 
-            this.activeStock = activeStock;
-            this.context = context;
-
-            TradingChart.context = context;
-            TradingChart.ActiveInstrument = activeStock;
+            TradingChart.ActiveInstrument = activeInstrument;
 
             DataContext = this;
 

@@ -13,23 +13,16 @@ namespace TradeBot
     /// </summary>
     public partial class RealTimeTrading : UserControl
     {
-        MarketInstrument activeStock;
-
         Timer candlesTimer;
-        Context context;
 
-        public RealTimeTrading(Context context, MarketInstrument activeStock)
+        public RealTimeTrading(MarketInstrument activeInstrument)
         {
             InitializeComponent();
 
-            if (activeStock == null || context == null)
+            if (activeInstrument == null)
                 throw new ArgumentNullException();
 
-            this.context = context;
-            this.activeStock = activeStock;
-
-            TradingChart.context = context;
-            TradingChart.ActiveInstrument = activeStock;
+            TradingChart.ActiveInstrument = activeInstrument;
 
             candlesTimer = new Timer(e => CandlesTimerElapsed(),
                 null,
