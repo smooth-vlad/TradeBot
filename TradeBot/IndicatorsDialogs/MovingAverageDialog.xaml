@@ -14,6 +14,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
 
@@ -33,20 +35,38 @@
                  Margin="0 8">
             12
         </TextBox>
+        
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="2">
+            <TextBlock x:Name="WeightTextBlock"
+                       Style="{StaticResource LabelText}">
+                Indicator Weight
+            </TextBlock>
+            <TextBlock x:Name="WeightErrorTextBlock"
+                       Style="{StaticResource ErrorText}" />
+        </StackPanel>
+
+        <TextBox x:Name="WeightTextBox"
+                 Grid.Row="3"
+                 Style="{StaticResource InputTextBox}"
+                 Margin="0 8"
+                 Tag="Enter weight">
+            1,0
+        </TextBox>
 
         <TextBlock x:Name="TypeTextBlock"
-                   Grid.Row="2"
+                   Grid.Row="4"
                    Style="{StaticResource LabelText}">
             Type
         </TextBlock>
 
         <ComboBox x:Name="TypeComboBox"
-                  Grid.Row="3"
+                  Grid.Row="5"
                   Margin="0 8"
                   IsReadOnly="True"/>
 
         <StackPanel Orientation="Horizontal"
-                    Grid.Row="4"
+                    Grid.Row="6"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Bottom"
                     Margin="0 8">

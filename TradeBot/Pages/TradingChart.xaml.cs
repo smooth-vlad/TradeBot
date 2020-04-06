@@ -58,6 +58,7 @@ namespace TradeBot
 
         public Task LoadingCandlesTask { get; private set; }
 
+        public float valuableSignalWeight = 0.5f;
 
         class Candle : HighLowItem
         {
@@ -414,12 +415,12 @@ namespace TradeBot
                 into rawSignal
                 where rawSignal.HasValue
                 select rawSignal.Value);
-
+            
             var value = CalculateSignalValue();
-            if (value > 0)
-                buySeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 10));
-            else if (value < 0)
-                sellSeries.Points.Add(new ScatterPoint(i, candle.Close, Math.Abs(value / indicators.Count) * 10));
+            if (value >= valuableSignalWeight)
+                buySeries.Points.Add(new ScatterPoint(i, candle.Close, 8));
+            else if (value <= -valuableSignalWeight)
+                sellSeries.Points.Add(new ScatterPoint(i, candle.Close, 8));
         }
 
         float CalculateSignalValue()
@@ -442,7 +443,6 @@ namespace TradeBot
 
         public void AddIndicator(Indicator indicator)
         {
-            indicator.priceIncrement = (double) ActiveInstrument.MinPriceIncrement;
             indicators.Add(indicator);
 
             indicator.AttachToChart(indicator.IsOscillator ?
@@ -635,7 +635,8 @@ namespace TradeBot
             }
 
             AddIndicator(new Macd(
-                calculationMethod, dialog.ShortPeriod, dialog.LongPeriod, dialog.HistogramPeriod, candlesSeries.Items));
+                calculationMethod, dialog.ShortPeriod, dialog.LongPeriod, dialog.HistogramPeriod,
+                candlesSeries.Items, dialog.Weight));
         }
 
         void RemoveIndicators_Click(object sender, RoutedEventArgs e)

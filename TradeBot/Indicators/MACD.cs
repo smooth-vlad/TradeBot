@@ -7,10 +7,10 @@ namespace TradeBot
 {
     internal class Macd : Indicator
     {
-        public int differencePeriod { get; }
-        public int longPeriod { get; }
-        public int shortPeriod { get; }
-        readonly IMaCalculation movingAverageCalculation;
+        public int DifferencePeriod { get; }
+        public int LongPeriod { get; }
+        public int ShortPeriod { get; }
+        public IMaCalculation MovingAverageCalculation { get; }
 
         MovingAverage longMovingAverage;
         MovingAverage shortMovingAverage;
@@ -21,21 +21,25 @@ namespace TradeBot
 
         public override bool IsOscillator => true;
 
-        public Macd(IMaCalculation calculationMethod, int shortPeriod, int longPeriod, int differencePeriod, List<HighLowItem> candles)
+        public Macd(IMaCalculation calculationMethod,
+            int shortPeriod, int longPeriod, int differencePeriod,
+            List<HighLowItem> candles,
+            float weight = 1f)
         {
             if (shortPeriod < 1 || longPeriod < 1 || differencePeriod < 1 ||
                 shortPeriod >= longPeriod)
                 throw new ArgumentOutOfRangeException();
 
-            movingAverageCalculation = calculationMethod ?? throw new ArgumentNullException();
-            this.shortPeriod = shortPeriod;
-            this.longPeriod = longPeriod;
-            this.differencePeriod = differencePeriod;
+            MovingAverageCalculation = calculationMethod ?? throw new ArgumentNullException();
+            this.ShortPeriod = shortPeriod;
+            this.LongPeriod = longPeriod;
+            this.DifferencePeriod = differencePeriod;
             this.candles = candles;
+            this.Weight = weight;
 
-            shortMovingAverage = new MovingAverage(shortPeriod, movingAverageCalculation, candles);
+            shortMovingAverage = new MovingAverage(shortPeriod, MovingAverageCalculation, candles);
 
-            longMovingAverage = new MovingAverage(longPeriod, movingAverageCalculation, candles);
+            longMovingAverage = new MovingAverage(longPeriod, MovingAverageCalculation, candles);
             macdSeries = new LineSeries
             {
                 Title = "MACD"
@@ -53,21 +57,21 @@ namespace TradeBot
             longMovingAverage.UpdateSeries();
 
             macdSeries.Points.Clear();
-            for (var i = 0; i < candles.Count - longPeriod; ++i)
+            for (var i = 0; i < candles.Count - LongPeriod; ++i)
                 macdSeries.Points.Add(new DataPoint(i, shortMovingAverage.Values[i].Y - longMovingAverage.Values[i].Y));
 
             // signalSeries
             {
-                if (signalSeries.Items.Count > differencePeriod * 2)
-                    signalSeries.Items.RemoveRange(signalSeries.Items.Count - differencePeriod * 2, differencePeriod * 2);
+                if (signalSeries.Items.Count > DifferencePeriod * 2)
+                    signalSeries.Items.RemoveRange(signalSeries.Items.Count - DifferencePeriod * 2, DifferencePeriod * 2);
 
-                var movingAverage = movingAverageCalculation.Calculate(index => macdSeries.Points[index].Y, signalSeries.Items.Count, macdSeries.Points.Count - differencePeriod, differencePeriod);
+                var movingAverage = MovingAverageCalculation.Calculate(index => macdSeries.Points[index].Y, signalSeries.Items.Count, macdSeries.Points.Count - DifferencePeriod, DifferencePeriod);
                 signalSeries.Items.Capacity += movingAverage.Count;
 
-                for (int i = 0; i < movingAverage.Count; ++i)
+                foreach (var t in movingAverage)
                 {
                     var x = signalSeries.Items.Count;
-                    signalSeries.Items.Add(new HistogramItem(x - 0.2, x + 0.2, movingAverage[i], 1));
+                    signalSeries.Items.Add(new HistogramItem(x - 0.2, x + 0.2, t, 1));
                 }
             }
         }
@@ -115,8 +119,8 @@ namespace TradeBot
             if ((macdSeries.Points[currentCandleIndex + 1].Y - signalSeries.Items[currentCandleIndex + 1].Value) *
                 (macdSeries.Points[currentCandleIndex].Y - signalSeries.Items[currentCandleIndex].Value) < 0)
                 return macdSeries.Points[currentCandleIndex].Y > signalSeries.Items[currentCandleIndex].Value
-                    ? new Signal(Signal.Type.Buy, 1.0f)
-                    : new Signal(Signal.Type.Sell, 1.0f);
+                    ? new Signal(Signal.Type.Buy, Weight)
+                    : new Signal(Signal.Type.Sell, Weight);
 
             return null;
         }

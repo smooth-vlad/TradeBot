@@ -50,6 +50,23 @@
                 <ComboBoxItem Selected="ListBoxItem1mn_OnSelected">1 MONTH</ComboBoxItem>
 
             </ComboBox>
+            
+            <Separator Margin="8 6" Background="{StaticResource ForegroundLighterColor}" Width="1"
+                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                       VerticalAlignment="Stretch"/>
+            
+            <TextBox Style="{StaticResource InputTextBox}"
+                     Width="92"
+                     Margin="8 6"
+                     VerticalAlignment="Stretch"
+                     Height="Auto"
+                     FontSize="10"
+                     Tag="Min weight"
+                     ToolTip="Minimum signal weight to buy/sell"
+                     x:Name="SignalWeightTextBox"
+                     TextChanged="SignalWeightTextBox_OnTextChanged">
+                1,0
+            </TextBox>
         </StackPanel>
 
         <local:TradingChart x:Name="TradingChart"

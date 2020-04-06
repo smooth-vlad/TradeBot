@@ -88,5 +88,16 @@ namespace TradeBot
             TradingChart.candleInterval = CandleInterval.Month;
             TradingChart.ResetSeries();
         }
+
+        void SignalWeightTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var input = SignalWeightTextBox.Text.Replace('.', ',');
+            if (!float.TryParse(input, out var weight))
+                return;
+            if (weight < 0 || weight > 10)
+                return;
+            if (TradingChart != null)
+                TradingChart.valuableSignalWeight = weight;
+        }
     }
 }
