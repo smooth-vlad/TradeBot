@@ -15,6 +15,7 @@
             </Grid.RowDefinitions>
 
             <oxy:PlotView Grid.Row="0" x:Name="PlotView" Model="{Binding Source=StaticResource Model}">
+                
                 <oxy:PlotView.DefaultTrackerTemplate>
                     <ControlTemplate>
                         <oxy:TrackerControl Position="{Binding Position}"

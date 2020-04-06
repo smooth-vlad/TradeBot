@@ -157,7 +157,7 @@ namespace TradeBot
             model.Series.Add(buySeries);
             model.Series.Add(sellSeries);
 
-            xAxis.LabelFormatter = (d) =>
+            xAxis.LabelFormatter = d =>
             {
                 if (candlesSeries.Items.Count <= (int) d || !(d >= 0)) return "";
                 var date = ((Candle)candlesSeries.Items[(int)d]).DateTime;
@@ -185,7 +185,7 @@ namespace TradeBot
             };
             xAxis.AxisChanged += XAxis_AxisChanged;
 
-            yAxis.LabelFormatter = (d) => $"{d} {activeInstrument.Currency}";
+            yAxis.LabelFormatter = d => $"{d} {activeInstrument.Currency}";
 
             PlotView.Model = model;
 
@@ -430,8 +430,6 @@ namespace TradeBot
                     continue;
                 
                 signals[signals.Length - 1] = indicator.GetSignal(i);
-                if (signals[signals.Length - 1] != null)
-                    ;
             }
             
             var value = CalculateSignalWeight();
@@ -440,21 +438,7 @@ namespace TradeBot
             else if (value <= -valuableSignalWeight)
                 sellSeries.Points.Add(new ScatterPoint(i, candle.Close, 8));
         }
-
-        /*
-        Исходный вес = вес этого индикатора
-        Для каждого индикатора
-            Найден сигнал покупки = нет
-            Найден сигнал продажи = нет
-            Для каждого из 5 предыдущих сигналов этого индикатора
-                Найти сигнал покупки
-                Найти сигнал продажи
-            Если найден сигнал покупки
-                Добавить вес индикатора
-            Если найден сигнал продажи
-                Отнять вес индикатора
-        Вернуть вес
-        */
+        
         float CalculateSignalWeight()
         {
             float result = 0;
@@ -462,10 +446,15 @@ namespace TradeBot
             {
                 var v = signals.Value;
                 if (v[v.Length - 1] == null) continue;
-                if (v[v.Length - 1].Value.type == Indicator.Signal.Type.Buy)
-                    result += signals.Key.Weight;
-                else if (v[v.Length - 1].Value.type == Indicator.Signal.Type.Sell)
-                    result -= signals.Key.Weight;
+                switch (v[v.Length - 1].Value.type)
+                {
+                    case Indicator.Signal.Type.Buy:
+                        result += signals.Key.Weight;
+                        break;
+                    case Indicator.Signal.Type.Sell:
+                        result -= signals.Key.Weight;
+                        break;
+                }
             }
 
             foreach (var signals in lastSignals)
@@ -478,10 +467,15 @@ namespace TradeBot
                         continue;
 
                     var signal = v[i].Value;
-                    if (signal.type == Indicator.Signal.Type.Buy)
-                        buyFound = true;
-                    else if (signal.type == Indicator.Signal.Type.Sell)
-                        sellFound = true;
+                    switch (signal.type)
+                    {
+                        case Indicator.Signal.Type.Buy:
+                            buyFound = true;
+                            break;
+                        case Indicator.Signal.Type.Sell:
+                            sellFound = true;
+                            break;
+                    }
                 }
 
                 if (buyFound)
