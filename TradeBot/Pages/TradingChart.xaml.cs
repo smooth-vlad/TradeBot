@@ -426,7 +426,7 @@ namespace TradeBot
         float CalculateSignalValue()
         {
             var value = 0.0f;
-            var multiplier = 0.25f;
+            var multiplier = 0.2f;
             foreach (var signalsList in lastSignals)
             {
                 foreach (var signal in signalsList)
@@ -435,7 +435,7 @@ namespace TradeBot
                     else
                         value -= signal.weight * multiplier;
 
-                multiplier *= 2;
+                multiplier += 0.4f;
             }
 
             return value;

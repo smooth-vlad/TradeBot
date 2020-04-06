@@ -22,6 +22,8 @@ namespace TradeBot
             DataContext = this;
 
             IntervalComboBox.SelectedIndex = 4;
+            
+            SignalWeightTextBox.Text = "1,0";
         }
 
         void SetEverythingEnabled(bool value)

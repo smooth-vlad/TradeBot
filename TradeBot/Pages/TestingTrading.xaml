@@ -56,12 +56,12 @@
                        VerticalAlignment="Stretch"/>
             
             <TextBox Style="{StaticResource InputTextBox}"
-                     Width="92"
+                     Width="48"
                      Margin="8 6"
                      VerticalAlignment="Stretch"
                      Height="Auto"
                      FontSize="10"
-                     Tag="Min weight"
+                     Tag="1,0"
                      ToolTip="Minimum signal weight to buy/sell"
                      x:Name="SignalWeightTextBox"
                      TextChanged="SignalWeightTextBox_OnTextChanged">
