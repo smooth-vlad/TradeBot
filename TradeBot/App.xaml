@@ -18,9 +18,9 @@
             <Brush x:Key="ForegroundColor">#2F2F2F</Brush>
             <Brush x:Key="ForegroundLighterColor">#424242</Brush>
             <Brush x:Key="ForegroundDarkerColor">#1A1A1A</Brush>
-            <Brush x:Key="MainColor">#FF768F</Brush>
-            <Brush x:Key="MainDarkerColor">#F16A82</Brush>
-            <Brush x:Key="MainLighterColor">#FF9BAD</Brush>
+            <Brush x:Key="MainColor">#7300F1</Brush>
+            <Brush x:Key="MainDarkerColor">#5C00BF</Brush>
+            <Brush x:Key="MainLighterColor">#9C49F4</Brush>
             <Brush x:Key="IntermediateColor">#E5E5E5</Brush>
             <Brush x:Key="IntermediateDarkerColor">#D5D5D5</Brush>
             <Brush x:Key="IntermediateLighterColor">#F5F5F5</Brush>
@@ -186,43 +186,6 @@
                 </Style.Triggers>
             </Style>
 
-            <!-- PrimaryButton -->
-            <Style x:Key="PrimaryButton" TargetType="{x:Type Button}">
-                <Setter Property="Background" Value="{StaticResource MainColor}" />
-                <Setter Property="Foreground" Value="{StaticResource BackgroundColor}" />
-                <Setter Property="FontSize" Value="13" />
-                <Setter Property="FontWeight" Value="Bold" />
-                <Setter Property="Height" Value="32" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Border CornerRadius="6" Background="{TemplateBinding Background}"
-                                    Width="{TemplateBinding Width}">
-                                <TextBlock TextAlignment="Center"
-                                           VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Padding="8, 0"
-                                           Foreground="{TemplateBinding Foreground}"
-                                           FontSize="{TemplateBinding FontSize}">
-                                    <ContentPresenter Content="{TemplateBinding Content}" />
-                                </TextBlock>
-                            </Border>
-
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource MainLighterColor}" />
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Background" Value="{StaticResource IntermediateColor}" />
-                                    <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
             <!-- RadioButton -->
             <Style TargetType="RadioButton">
                 <Setter Property="Background" Value="{StaticResource IntermediateColor}"/>
@@ -373,7 +336,7 @@
                                           MinWidth="{TemplateBinding FrameworkElement.ActualWidth}"
                                           MaxHeight="{TemplateBinding ComboBox.MaxDropDownHeight}">
                                         <Border Name="DropDownBorder" Background="White"
-                                                CornerRadius="6" BorderThickness="1"
+                                                CornerRadius="4" BorderThickness="1"
                                                 Margin="0 12"
                                                 BorderBrush="{StaticResource IntermediateColor}">
                                             <Border.Effect>
@@ -439,7 +402,7 @@
                         <ControlTemplate TargetType="{x:Type ComboBoxItem}">
                             <Border x:Name="Border"
                                 Padding="2"
-                                    CornerRadius="6"
+                                    CornerRadius="4"
                                 SnapsToDevicePixels="true"
                                 Background="{TemplateBinding Background}">
                                 <ContentPresenter Margin="8 4"/>
@@ -508,18 +471,18 @@
             </ControlTemplate>
 
             <Style TargetType="ComboBox">
-                <Setter Property="UIElement.SnapsToDevicePixels" Value="True" />
-                <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="True" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="OverridesDefaultStyle" Value="True" />
                 <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
                 <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
                 <Setter Property="TextElement.Foreground" Value="{StaticResource ForegroundColor}" />
-                <Setter Property="FrameworkElement.FocusVisualStyle" Value="{x:Null}" />
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                 <Setter Property="Height" Value="32" />
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="FontWeight" Value="Regular" />
-                <Setter Property="Control.Template">
+                <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ComboBox">
                             <Grid>
@@ -555,7 +518,7 @@
                                           MinWidth="{TemplateBinding FrameworkElement.ActualWidth}"
                                           MaxHeight="{TemplateBinding ComboBox.MaxDropDownHeight}">
                                         <Border Name="DropDownBorder" Background="White"
-                                                CornerRadius="6" BorderThickness="1"
+                                                CornerRadius="4" BorderThickness="1"
                                                 Margin="0 12"
                                                 BorderBrush="{StaticResource IntermediateColor}">
                                             <Border.Effect>
@@ -600,20 +563,21 @@
                 <Setter Property="Margin" Value="-2"></Setter>
                 <Setter Property="Height" Value="34"></Setter>
             </Style>
-
-            <!-- SecondaryButton -->
-            <Style x:Key="SecondaryButton" TargetType="{x:Type Button}">
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
+            
+            <!-- PrimaryButton -->
+            <Style x:Key="PrimaryButton" TargetType="{x:Type Button}">
+                <Setter Property="Background" Value="{StaticResource MainColor}" />
+                <Setter Property="Foreground" Value="{StaticResource BackgroundColor}" />
                 <Setter Property="FontSize" Value="13" />
-                <Setter Property="Height" Value="32" />
                 <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Height" Value="32" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
 
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Button}">
-                            <Border CornerRadius="6" Background="{TemplateBinding Background}">
+                            <Border CornerRadius="4" Background="{TemplateBinding Background}"
+                                    Width="{TemplateBinding Width}">
                                 <TextBlock TextAlignment="Center"
                                            VerticalAlignment="Center" HorizontalAlignment="Center"
                                            Padding="8, 0"
@@ -625,7 +589,47 @@
 
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource IntermediateDarkerColor}" />
+                                    <Setter Property="Background" Value="{StaticResource MainLighterColor}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Background" Value="{StaticResource IntermediateColor}" />
+                                    <Setter Property="Foreground" Value="{StaticResource ForegroundColor}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- SecondaryButton -->
+            <Style x:Key="SecondaryButton" TargetType="{x:Type Button}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{StaticResource MainColor}" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="BorderThickness" Value="2" />
+                <Setter Property="BorderBrush" Value="{StaticResource MainColor}" />
+                <Setter Property="Height" Value="32" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border CornerRadius="4" Background="{TemplateBinding Background}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <TextBlock TextAlignment="Center"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                                           Padding="8, 0"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           FontSize="{TemplateBinding FontSize}">
+                                    <ContentPresenter Content="{TemplateBinding Content}" />
+                                </TextBlock>
+                            </Border>
+
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource IntermediateLighterColor}" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
