@@ -25,7 +25,7 @@ namespace TradeBot
         readonly CandleStickSeries candlesSeries;
 
         List<Indicator> indicators = new List<Indicator>();
-        readonly Queue<List<Indicator.Signal>> lastSignals = new Queue<List<Indicator.Signal>>(3);
+        readonly Dictionary<Indicator, Indicator.Signal?[]> lastSignals = new Dictionary<Indicator, Indicator.Signal?[]>();
         
         readonly ScatterSeries buySeries;
         readonly ScatterSeries sellSeries;
@@ -58,7 +58,7 @@ namespace TradeBot
 
         public Task LoadingCandlesTask { get; private set; }
 
-        public float valuableSignalWeight = 0.5f;
+        public float valuableSignalWeight = 1.0f;
 
         class Candle : HighLowItem
         {
@@ -334,6 +334,13 @@ namespace TradeBot
             sellSeries.Points.Clear();
 
             candlesSeries.Items.Clear();
+            foreach (var v in lastSignals.Values)
+            {
+                for (var i = 0; i < v.Length; ++i)
+                {
+                    v[i] = null;
+                }
+            }
 
             loadedCandles = 0;
             candlesLoadsFailed = 0;
@@ -383,7 +390,13 @@ namespace TradeBot
         {
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
-            lastSignals.Clear();
+            foreach (var v in lastSignals.Values)
+            {
+                for (var i = 0; i < v.Length; ++i)
+                {
+                    v[i] = null;
+                }
+            }
 
             await Task.Factory.StartNew(() =>
             {
@@ -403,47 +416,87 @@ namespace TradeBot
         void UpdateSignals(int i)
         {
             var candle = candlesSeries.Items[i];
-            var signals = new List<Indicator.Signal>();
 
-            if (lastSignals.Count >= 3)
-                lastSignals.Dequeue();
-            lastSignals.Enqueue(signals);
+            foreach (var signals in lastSignals.Values)
+            {
+                for (var j = 1; j < signals.Length; ++j)
+                    signals[j - 1] = signals[j];
+                signals[signals.Length - 1] = null;
+            }
 
-            signals.AddRange(
-                from indicator in indicators
-                select indicator.GetSignal(i)
-                into rawSignal
-                where rawSignal.HasValue
-                select rawSignal.Value);
+            foreach (var indicator in indicators)
+            {
+                if (!lastSignals.TryGetValue(indicator, out var signals))
+                    continue;
+                
+                signals[signals.Length - 1] = indicator.GetSignal(i);
+                if (signals[signals.Length - 1] != null)
+                    ;
+            }
             
-            var value = CalculateSignalValue();
+            var value = CalculateSignalWeight();
             if (value >= valuableSignalWeight)
                 buySeries.Points.Add(new ScatterPoint(i, candle.Close, 8));
             else if (value <= -valuableSignalWeight)
                 sellSeries.Points.Add(new ScatterPoint(i, candle.Close, 8));
         }
 
-        float CalculateSignalValue()
+        /*
+        Исходный вес = вес этого индикатора
+        Для каждого индикатора
+            Найден сигнал покупки = нет
+            Найден сигнал продажи = нет
+            Для каждого из 5 предыдущих сигналов этого индикатора
+                Найти сигнал покупки
+                Найти сигнал продажи
+            Если найден сигнал покупки
+                Добавить вес индикатора
+            Если найден сигнал продажи
+                Отнять вес индикатора
+        Вернуть вес
+        */
+        float CalculateSignalWeight()
         {
-            var value = 0.0f;
-            var multiplier = 0.2f;
-            foreach (var signalsList in lastSignals)
+            float result = 0;
+            foreach (var signals in lastSignals)
             {
-                foreach (var signal in signalsList)
-                    if (signal.type == Indicator.Signal.Type.Buy)
-                        value += signal.weight * multiplier;
-                    else
-                        value -= signal.weight * multiplier;
-
-                multiplier += 0.4f;
+                var v = signals.Value;
+                if (v[v.Length - 1] == null) continue;
+                if (v[v.Length - 1].Value.type == Indicator.Signal.Type.Buy)
+                    result += signals.Key.Weight;
+                else if (v[v.Length - 1].Value.type == Indicator.Signal.Type.Sell)
+                    result -= signals.Key.Weight;
             }
 
-            return value;
+            foreach (var signals in lastSignals)
+            {
+                var v = signals.Value;
+                bool buyFound = false, sellFound = false;
+                for (int i = 0; i < v.Length - 1; ++i)
+                {
+                    if (!v[i].HasValue)
+                        continue;
+
+                    var signal = v[i].Value;
+                    if (signal.type == Indicator.Signal.Type.Buy)
+                        buyFound = true;
+                    else if (signal.type == Indicator.Signal.Type.Sell)
+                        sellFound = true;
+                }
+
+                if (buyFound)
+                    result += signals.Key.Weight;
+                if (sellFound)
+                    result -= signals.Key.Weight;
+            }
+            
+            return result;
         }
 
         public void AddIndicator(Indicator indicator)
         {
             indicators.Add(indicator);
+            lastSignals.Add(indicator, new Indicator.Signal?[3]);
 
             indicator.AttachToChart(indicator.IsOscillator ?
                 AddOscillatorPlot().plot.Model.Series : model.Series);
@@ -463,6 +516,7 @@ namespace TradeBot
             foreach (var indicator in indicators)
                 indicator.DetachFromChart();
             indicators = new List<Indicator>();
+            lastSignals.Clear();
 
             if (oscillatorsPlots.Count > 0)
             {
@@ -613,7 +667,7 @@ namespace TradeBot
                     break;
             }
 
-            AddIndicator(new MovingAverage(dialog.Period, calculationMethod, candlesSeries.Items));
+            AddIndicator(new MovingAverage(dialog.Period, calculationMethod, candlesSeries.Items, dialog.Weight));
         }
         
         void MACD_Click(object sender, RoutedEventArgs e)

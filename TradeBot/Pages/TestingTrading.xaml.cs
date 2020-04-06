@@ -22,8 +22,6 @@ namespace TradeBot
             DataContext = this;
 
             IntervalComboBox.SelectedIndex = 4;
-            
-            SignalWeightTextBox.Text = "1,0";
         }
 
         void SetEverythingEnabled(bool value)
@@ -89,17 +87,6 @@ namespace TradeBot
         {
             TradingChart.candleInterval = CandleInterval.Month;
             TradingChart.ResetSeries();
-        }
-
-        void SignalWeightTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
-        {
-            var input = SignalWeightTextBox.Text.Replace('.', ',');
-            if (!float.TryParse(input, out var weight))
-                return;
-            if (weight < 0 || weight > 10)
-                return;
-            if (TradingChart != null)
-                TradingChart.valuableSignalWeight = weight;
         }
     }
 }

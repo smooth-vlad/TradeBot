@@ -28,13 +28,11 @@ namespace TradeBot
                 Sell
             }
 
-            public Type type;
-            public float weight;
+            public readonly Type type;
 
-            public Signal(Type type, float weight)
+            public Signal(Type type)
             {
                 this.type = type;
-                this.weight = weight;
             }
         }
     }

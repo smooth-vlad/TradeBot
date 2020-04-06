@@ -119,8 +119,8 @@ namespace TradeBot
             if ((macdSeries.Points[currentCandleIndex + 1].Y - signalSeries.Items[currentCandleIndex + 1].Value) *
                 (macdSeries.Points[currentCandleIndex].Y - signalSeries.Items[currentCandleIndex].Value) < 0)
                 return macdSeries.Points[currentCandleIndex].Y > signalSeries.Items[currentCandleIndex].Value
-                    ? new Signal(Signal.Type.Buy, Weight)
-                    : new Signal(Signal.Type.Sell, Weight);
+                    ? new Signal(Signal.Type.Buy)
+                    : new Signal(Signal.Type.Sell);
 
             return null;
         }
