@@ -29,7 +29,6 @@ namespace TradeBot
         
         readonly ScatterSeries buySeries;
         readonly ScatterSeries sellSeries;
-        readonly ScatterSeries stopLossSeries;
 
         readonly PlotModel model;
         readonly LinearAxis xAxis;
@@ -57,7 +56,10 @@ namespace TradeBot
         }
 
         State state = State.Empty;
-        double? stopLoss = null;
+        double? stopLoss;
+        public double Balance { get; private set; } = 10000;
+        double dealPrice;
+        int dealLots;
         
         public CandleInterval candleInterval = CandleInterval.Hour;
 
@@ -161,21 +163,10 @@ namespace TradeBot
                 MarkerStrokeThickness = 1,
                 MarkerSize = 6
             };
-            
-            stopLossSeries = new ScatterSeries
-            {
-                Title = "StopLoss",
-                MarkerType = MarkerType.Circle,
-                MarkerFill = OxyColor.FromRgb(40, 40, 40),
-                MarkerStroke = OxyColor.FromRgb(255, 255, 255),
-                MarkerStrokeThickness = 1,
-                MarkerSize = 6
-            };
 
             model.Series.Add(candlesSeries);
             model.Series.Add(buySeries);
             model.Series.Add(sellSeries);
-            model.Series.Add(stopLossSeries);
 
             xAxis.LabelFormatter = d =>
             {
@@ -352,7 +343,6 @@ namespace TradeBot
         {
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
-            stopLossSeries.Points.Clear();
 
             candlesSeries.Items.Clear();
             foreach (var v in lastSignals.Values)
@@ -409,9 +399,13 @@ namespace TradeBot
 
         public async Task UpdateTestingSignals()
         {
+            Balance = 10000;
+            dealLots = 0;
+            dealPrice = 0;
+            state = State.Empty;
+            
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
-            stopLossSeries.Points.Clear();
             foreach (var v in lastSignals.Values)
             {
                 for (var i = 0; i < v.Length; ++i)
@@ -425,6 +419,9 @@ namespace TradeBot
                 for (var i = candlesSeries.Items.Count - 1; i >= 0; --i) UpdateSignals(i);
             });
             PlotView.InvalidatePlot();
+
+            if (state != State.Empty)
+                Balance += dealLots * dealPrice;
         }
 
         public void UpdateRealTimeSignals()
@@ -456,25 +453,53 @@ namespace TradeBot
 
             if (state == State.Bought && candle.Close < stopLoss)
             { // stop loss to sell
-                stopLossSeries.Points.Add(new ScatterPoint(i, candle.Close, 5));
+                sellSeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
+
+                Balance += candle.Close * dealLots;
+
                 state = State.Empty;
             }
             if (state == State.Sold && candle.Close > stopLoss)
             { // stop loss to buy
-                stopLossSeries.Points.Add(new ScatterPoint(i, candle.Close, 5));
+                buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
+
+                Balance += candle.Close * dealLots;
+                
                 state = State.Empty;
             }
 
-            var value = CalculateSignalWeight();
-            if (value >= 1 && state != State.Bought)
+            var signalWeight = CalculateSignalWeight();
+            if (signalWeight >= 1 && state != State.Bought)
             { // buy signal
-                buySeries.Points.Add(new ScatterPoint(i, candle.Close, 8));
+                buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
+                
+                if (state != State.Empty)
+                {
+                    Balance += candle.Close * dealLots;
+                    buySeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
+                }
+                
+                dealPrice = candle.Close;
+                dealLots = (int) (Balance / dealPrice);
+                Balance -= dealLots * dealPrice;
+
                 state = State.Bought;
                 stopLoss = candle.Close - (double)activeInstrument.MinPriceIncrement * 200;
             }
-            else if (value <= -1 && state != State.Sold)
+            else if (signalWeight <= -1 && state != State.Sold)
             { // sell signal
-                sellSeries.Points.Add(new ScatterPoint(i, candle.Close, 8));
+                sellSeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
+
+                if (state != State.Empty)
+                {
+                    Balance += candle.Close * dealLots;
+                    sellSeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
+                }
+
+                dealPrice = candle.Close;
+                dealLots = (int) (Balance / dealPrice);
+                Balance -= dealLots * dealPrice;
+                
                 state = State.Sold;
                 stopLoss = candle.Close + (double)activeInstrument.MinPriceIncrement * 200;
             }
