@@ -13,7 +13,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="150"/>
             </Grid.RowDefinitions>
-
+            
             <oxy:PlotView Grid.Row="0" x:Name="PlotView" Model="{Binding Source=StaticResource Model}">
                 
                 <oxy:PlotView.DefaultTrackerTemplate>

@@ -29,6 +29,7 @@ namespace TradeBot
         
         readonly ScatterSeries buySeries;
         readonly ScatterSeries sellSeries;
+        readonly ScatterSeries stopLossSeries;
 
         readonly PlotModel model;
         readonly LinearAxis xAxis;
@@ -47,6 +48,16 @@ namespace TradeBot
                 candlesSeries.Title = value.Name;
             }
         }
+
+        public enum State
+        {
+            Bought,
+            Sold,
+            Empty,
+        }
+
+        State state = State.Empty;
+        double? stopLoss = null;
         
         public CandleInterval candleInterval = CandleInterval.Hour;
 
@@ -57,8 +68,6 @@ namespace TradeBot
         DateTime firstCandleDate; // on the left side
 
         public Task LoadingCandlesTask { get; private set; }
-
-        public float valuableSignalWeight = 1.0f;
 
         class Candle : HighLowItem
         {
@@ -152,10 +161,21 @@ namespace TradeBot
                 MarkerStrokeThickness = 1,
                 MarkerSize = 6
             };
+            
+            stopLossSeries = new ScatterSeries
+            {
+                Title = "StopLoss",
+                MarkerType = MarkerType.Circle,
+                MarkerFill = OxyColor.FromRgb(40, 40, 40),
+                MarkerStroke = OxyColor.FromRgb(255, 255, 255),
+                MarkerStrokeThickness = 1,
+                MarkerSize = 6
+            };
 
             model.Series.Add(candlesSeries);
             model.Series.Add(buySeries);
             model.Series.Add(sellSeries);
+            model.Series.Add(stopLossSeries);
 
             xAxis.LabelFormatter = d =>
             {
@@ -179,9 +199,9 @@ namespace TradeBot
                         return date.ToString("dd MMMM");
                     case CandleInterval.Month:
                         return date.ToString("yyyy");
+                    default:
+                        return "";
                 }
-
-                return "";
             };
             xAxis.AxisChanged += XAxis_AxisChanged;
 
@@ -332,6 +352,7 @@ namespace TradeBot
         {
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
+            stopLossSeries.Points.Clear();
 
             candlesSeries.Items.Clear();
             foreach (var v in lastSignals.Values)
@@ -390,6 +411,7 @@ namespace TradeBot
         {
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
+            stopLossSeries.Points.Clear();
             foreach (var v in lastSignals.Values)
             {
                 for (var i = 0; i < v.Length; ++i)
@@ -431,12 +453,31 @@ namespace TradeBot
                 
                 signals[signals.Length - 1] = indicator.GetSignal(i);
             }
-            
+
+            if (state == State.Bought && candle.Close < stopLoss)
+            { // stop loss to sell
+                stopLossSeries.Points.Add(new ScatterPoint(i, candle.Close, 5));
+                state = State.Empty;
+            }
+            if (state == State.Sold && candle.Close > stopLoss)
+            { // stop loss to buy
+                stopLossSeries.Points.Add(new ScatterPoint(i, candle.Close, 5));
+                state = State.Empty;
+            }
+
             var value = CalculateSignalWeight();
-            if (value >= valuableSignalWeight)
+            if (value >= 1 && state != State.Bought)
+            { // buy signal
                 buySeries.Points.Add(new ScatterPoint(i, candle.Close, 8));
-            else if (value <= -valuableSignalWeight)
+                state = State.Bought;
+                stopLoss = candle.Close - (double)activeInstrument.MinPriceIncrement * 200;
+            }
+            else if (value <= -1 && state != State.Sold)
+            { // sell signal
                 sellSeries.Points.Add(new ScatterPoint(i, candle.Close, 8));
+                state = State.Sold;
+                stopLoss = candle.Close + (double)activeInstrument.MinPriceIncrement * 200;
+            }
         }
         
         float CalculateSignalWeight()
