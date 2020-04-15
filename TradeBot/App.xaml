@@ -73,23 +73,20 @@
                             <Grid>
                                 <Border Name="Border"
                                         CornerRadius="4"
-                                        Padding="6 0"
                                         BorderThickness="{TemplateBinding BorderThickness}"
                                         Background="{TemplateBinding Background}"
-                                        BorderBrush="{TemplateBinding BorderBrush}">
-
-                                    <ScrollViewer Margin="0"
-                                                  x:Name="PART_ContentHost" />
-                                </Border>
+                                        BorderBrush="{TemplateBinding BorderBrush}" />
                                 <TextBlock Text="{TemplateBinding Tag}"
                                            IsHitTestVisible="False"
                                            VerticalAlignment="Center"
                                            Foreground="#aaa"
                                            Visibility="{Binding
-                        RelativeSource={RelativeSource Mode=TemplatedParent},
-                        Path=Text.IsEmpty,
-                        Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            RelativeSource={RelativeSource Mode=TemplatedParent},
+                                            Path=Text.IsEmpty,
+                                            Converter={StaticResource BooleanToVisibilityConverter}}"
                                            Padding="10 0" />
+                                <ScrollViewer Margin="10 0"
+                                              x:Name="PART_ContentHost" />
                             </Grid>
                         </ControlTemplate>
                     </Setter.Value>
@@ -283,13 +280,9 @@
                                                         <Grid>
                                                             <Border Name="Border"
                                                                 CornerRadius="4"
-                                                                Padding="6 0"
                                                                 BorderThickness="{TemplateBinding BorderThickness}"
                                                                 Background="{TemplateBinding Background}"
                                                                 BorderBrush="{TemplateBinding BorderBrush}">
-
-                                                                <ScrollViewer Margin="28 0 0 0"
-                                                                              x:Name="PART_ContentHost" />
                                                             </Border>
                                                             <Image Source="pack://application:,,,/Icons/SearchIcon.png"
                                                                    IsHitTestVisible="False"
@@ -309,6 +302,8 @@
                                                                             Path=Text.IsEmpty,
                                                                             Converter={StaticResource BooleanToVisibilityConverter}}"
                                                                        Padding="38 0" />
+                                                            <ScrollViewer Margin="36 0 0 0"
+                                                                              x:Name="PART_ContentHost" />
                                                         </Grid>
                                                     </ControlTemplate>
                                                 </Setter.Value>
