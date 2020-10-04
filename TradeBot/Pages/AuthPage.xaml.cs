@@ -21,7 +21,7 @@ namespace TradeBot
 
         public event ConnectionHandler Connect;
 
-        async void authButton_Click(object sender, RoutedEventArgs e)
+        private async void authButton_Click(object sender, RoutedEventArgs e)
         {
             TokenErrorTextBlock.Text = string.Empty;
             try
@@ -38,7 +38,7 @@ namespace TradeBot
             }
         }
 
-        void TokenTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        private void TokenTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             var tb = sender as TextBox;
             if (AuthButton != null)

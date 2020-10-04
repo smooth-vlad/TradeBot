@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using OxyPlot;
+﻿using OxyPlot;
 using OxyPlot.Series;
+using System.Collections.Generic;
 
 namespace TradeBot
 {
@@ -14,8 +14,11 @@ namespace TradeBot
         public abstract Signal? GetSignal(int currentCandleIndex);
 
         public abstract void UpdateSeries();
+
         public abstract void ResetSeries();
+
         public abstract void DetachFromChart();
+
         public abstract void AttachToChart(ElementCollection<Series> chart);
 
         public abstract void OnNewCandlesAdded(int count);

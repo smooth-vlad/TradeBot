@@ -44,6 +44,6 @@
         </StackPanel>
 
         <local:TradingChart Grid.Row="1" x:Name="TradingChart"
-                            Margin="10"/>
+                            Margin="10" />
     </Grid>
 </UserControl>

@@ -95,7 +95,6 @@
                         Click="Button_Click">
                 Select instrument
             </Button>
-
         </Grid>
     </Grid>
 </UserControl>

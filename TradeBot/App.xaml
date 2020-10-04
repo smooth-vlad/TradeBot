@@ -8,7 +8,7 @@
 
             <!-- Stuff -->
             <ItemsPanelTemplate x:Key="VSP">
-                <VirtualizingStackPanel/>
+                <VirtualizingStackPanel />
             </ItemsPanelTemplate>
 
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -119,8 +119,8 @@
                                     Padding="16 16">
                                     <Grid>
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="42"/>
-                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="42" />
+                                            <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
 
                                         <TextBlock Foreground="{TemplateBinding Foreground}"
@@ -137,7 +137,7 @@
                                         <ContentPresenter>
                                             <ContentPresenter.Resources>
                                                 <Style TargetType="TextBlock">
-                                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                                    <Setter Property="TextWrapping" Value="Wrap" />
                                                 </Style>
                                             </ContentPresenter.Resources>
                                         </ContentPresenter>
@@ -165,7 +165,6 @@
                                        Margin="8"
                                        Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                        Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
-
                                 </Image>
                             </Grid>
                         </ControlTemplate>
@@ -185,17 +184,17 @@
 
             <!-- RadioButton -->
             <Style TargetType="RadioButton">
-                <Setter Property="Background" Value="{StaticResource IntermediateColor}"/>
-                <Setter Property="Foreground" Value="Transparent"/>
-                <Setter Property="Height" Value="32"/>
+                <Setter Property="Background" Value="{StaticResource IntermediateColor}" />
+                <Setter Property="Foreground" Value="Transparent" />
+                <Setter Property="Height" Value="32" />
 
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="RadioButton">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
                                 <Border Width="{TemplateBinding Width}" Height="32"
                                         Grid.ColumnSpan="2"
@@ -205,17 +204,15 @@
 
                                 <Ellipse Width="16" Height="16" Margin="8 0" Fill="{TemplateBinding Background}"
                                          Grid.Column="0">
-
                                 </Ellipse>
                                 <Ellipse Width="10" Height="10" Margin="14 0" Fill="{StaticResource BackgroundColor}"
                                          Grid.Column="0">
-
                                 </Ellipse>
                                 <TextBlock Grid.Column="1"
                                            Margin="0 0 8 0"
                                            VerticalAlignment="Center"
                                            Foreground="{StaticResource ForegroundColor}">
-                                    <ContentPresenter/>
+                                    <ContentPresenter />
                                 </TextBlock>
                             </Grid>
                         </ControlTemplate>
@@ -223,15 +220,15 @@
                 </Setter>
                 <Style.Triggers>
                     <Trigger Property="IsChecked" Value="True">
-                        <Setter Property="Background" Value="{StaticResource MainColor}"/>
+                        <Setter Property="Background" Value="{StaticResource MainColor}" />
                     </Trigger>
                     <MultiTrigger>
                         <MultiTrigger.Conditions>
-                            <Condition Property="IsMouseOver" Value="True"/>
-                            <Condition Property="IsChecked" Value="False"/>
+                            <Condition Property="IsMouseOver" Value="True" />
+                            <Condition Property="IsChecked" Value="False" />
                         </MultiTrigger.Conditions>
                         <MultiTrigger.Setters>
-                            <Setter Property="Foreground" Value="{StaticResource IntermediateColor}"/>
+                            <Setter Property="Foreground" Value="{StaticResource IntermediateColor}" />
                         </MultiTrigger.Setters>
                     </MultiTrigger>
                 </Style.Triggers>
@@ -291,7 +288,6 @@
                                                                    Height="20"
                                                                    Width="20"
                                                                    Margin="8 0">
-
                                                             </Image>
                                                             <TextBlock Text="{TemplateBinding Tag}"
                                                                        IsHitTestVisible="False"
@@ -336,7 +332,7 @@
                                                 BorderBrush="{StaticResource IntermediateColor}">
                                             <Border.Effect>
                                                 <DropShadowEffect BlurRadius="8" ShadowDepth="1"
-                                                                  RenderingBias="Performance" Opacity=".2"/>
+                                                                  RenderingBias="Performance" Opacity=".2" />
                                             </Border.Effect>
                                         </Border>
                                         <ScrollViewer Margin="0 13 1 13" SnapsToDevicePixels="True">
@@ -348,7 +344,7 @@
                                                   HorizontalAlignment="Left" VerticalAlignment="Center"
                                                   Content="{TemplateBinding ComboBox.SelectionBoxItem}"
                                                   ContentTemplate="{TemplateBinding ComboBox.SelectionBoxItemTemplate}"
-                                                  ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"/>
+                                                  ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" />
                             </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="ItemsControl.HasItems" Value="False">
@@ -390,7 +386,7 @@
                    TargetType="{x:Type ComboBoxItem}">
                 <Setter Property="SnapsToDevicePixels"
                         Value="true" />
-                <Setter Property="FontWeight" Value="Regular"/>
+                <Setter Property="FontWeight" Value="Regular" />
 
                 <Setter Property="Template">
                     <Setter.Value>
@@ -400,7 +396,7 @@
                                     CornerRadius="4"
                                 SnapsToDevicePixels="true"
                                 Background="{TemplateBinding Background}">
-                                <ContentPresenter Margin="8 4"/>
+                                <ContentPresenter Margin="8 4" />
                             </Border>
                         </ControlTemplate>
                     </Setter.Value>
@@ -408,12 +404,12 @@
 
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{StaticResource IntermediateColor}"/>
+                        <Setter Property="Background" Value="{StaticResource IntermediateColor}" />
                     </Trigger>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="{StaticResource MainColor}"/>
-                        <Setter Property="Foreground" Value="{StaticResource BackgroundColor}"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Background" Value="{StaticResource MainColor}" />
+                        <Setter Property="Foreground" Value="{StaticResource BackgroundColor}" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -518,7 +514,7 @@
                                                 BorderBrush="{StaticResource IntermediateColor}">
                                             <Border.Effect>
                                                 <DropShadowEffect BlurRadius="8" ShadowDepth="1"
-                                                                  RenderingBias="Performance" Opacity=".2"/>
+                                                                  RenderingBias="Performance" Opacity=".2" />
                                             </Border.Effect>
                                         </Border>
                                         <ScrollViewer Margin="0 13 1 13" SnapsToDevicePixels="True">
@@ -558,7 +554,7 @@
                 <Setter Property="Margin" Value="-2"></Setter>
                 <Setter Property="Height" Value="34"></Setter>
             </Style>
-            
+
             <!-- PrimaryButton -->
             <Style x:Key="PrimaryButton" TargetType="{x:Type Button}">
                 <Setter Property="Background" Value="{StaticResource MainColor}" />
@@ -631,7 +627,6 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-
         </ResourceDictionary>
     </Application.Resources>
 </Application>

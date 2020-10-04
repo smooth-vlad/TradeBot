@@ -12,9 +12,9 @@ namespace TradeBot
     /// </summary>
     public partial class InstrumentSelection : UserControl
     {
-        readonly TabItem parent;
-        List<string> instrumentsLabels;
-        MarketInstrumentList instruments;
+        private readonly TabItem parent;
+        private List<string> instrumentsLabels;
+        private MarketInstrumentList instruments;
 
         public InstrumentSelection(TabItem parent)
         {
@@ -25,7 +25,7 @@ namespace TradeBot
             Dispatcher.Invoke(() => StockRadioButton.IsChecked = true);
         }
 
-        void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace TradeBot
             }
         }
 
-        void TickerComboBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        private void TickerComboBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             if (TickerComboBox.ItemsSource == null)
                 return;
@@ -71,7 +71,7 @@ namespace TradeBot
             tb.SelectionStart = tb.Text.Length;
         }
 
-        async void EtfRadioButton_OnChecked(object sender, RoutedEventArgs e)
+        private async void EtfRadioButton_OnChecked(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace TradeBot
             }
         }
 
-        async void StockRadioButton_OnChecked(object sender, RoutedEventArgs e)
+        private async void StockRadioButton_OnChecked(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace TradeBot
             }
         }
 
-        async void CurrencyRadioButton_OnChecked(object sender, RoutedEventArgs e)
+        private async void CurrencyRadioButton_OnChecked(object sender, RoutedEventArgs e)
         {
             try
             {

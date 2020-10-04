@@ -15,7 +15,7 @@ namespace TradeBot
             AddInstrumentSelectionTab();
         }
 
-        void AddInstrumentSelectionTab()
+        private void AddInstrumentSelectionTab()
         {
             var newItem = new TabItem();
             newItem.Content = new InstrumentSelection(newItem);
@@ -25,7 +25,7 @@ namespace TradeBot
             TabControl.Items.Insert(TabControl.Items.Count, newItem);
         }
 
-        void AddTabButton_Selected(object sender, RoutedEventArgs e)
+        private void AddTabButton_Selected(object sender, RoutedEventArgs e)
         {
             AddInstrumentSelectionTab();
         }

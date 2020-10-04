@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using OxyPlot;
+﻿using OxyPlot;
 using OxyPlot.Series;
+using System;
+using System.Collections.Generic;
 
 namespace TradeBot
 {
@@ -11,10 +11,10 @@ namespace TradeBot
 
         public int Period { get; }
 
-        LineSeries series;
+        private LineSeries series;
         public IReadOnlyList<DataPoint> Values => series.Points;
 
-        ElementCollection<Series> chart;
+        private ElementCollection<Series> chart;
 
         public override bool IsOscillator => false;
 
@@ -75,7 +75,7 @@ namespace TradeBot
                 return;
 
             this.chart = chart;
-            
+
             this.chart.Add(series);
             AreSeriesAttached = true;
         }

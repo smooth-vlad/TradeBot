@@ -28,7 +28,7 @@ namespace TradeBot
         public float Weight { get; private set; }
         public CalculationMethod Type { get; private set; }
 
-        void addButton_Click(object sender, RoutedEventArgs e)
+        private void addButton_Click(object sender, RoutedEventArgs e)
         {
             ShortPeriodErrorTextBlock.Text = string.Empty;
             LongPeriodErrorTextBlock.Text = string.Empty;
@@ -67,17 +67,17 @@ namespace TradeBot
                     LongPeriodTextBox.Focus();
                     return;
                 }
-                
+
                 if (longPeriod <= ShortPeriod)
                 {
                     LongPeriodErrorTextBlock.Text = "* Value should be > 'Short Period'";
                     LongPeriodTextBox.Focus();
                     return;
                 }
-                
+
                 LongPeriod = longPeriod;
             }
-            
+
             {
                 if (!int.TryParse(HistogramPeriodTextBox.Text.Trim(), out var histogramPeriod))
                 {
@@ -94,7 +94,7 @@ namespace TradeBot
                 }
                 HistogramPeriod = histogramPeriod;
             }
-            
+
             {
                 if (!float.TryParse(WeightTextBox.Text.Trim().Replace('.', ','), out var weight))
                 {
@@ -111,12 +111,12 @@ namespace TradeBot
                 }
                 Weight = weight;
             }
-            
-            Type = (CalculationMethod) TypeComboBox.SelectedIndex;
+
+            Type = (CalculationMethod)TypeComboBox.SelectedIndex;
             DialogResult = true;
         }
 
-        void cancelButton_Click(object sender, RoutedEventArgs e)
+        private void cancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
         }

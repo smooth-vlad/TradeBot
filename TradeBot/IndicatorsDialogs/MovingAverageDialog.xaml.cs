@@ -26,7 +26,7 @@ namespace TradeBot
         public CalculationMethod Type { get; private set; }
         public float Weight { get; private set; }
 
-        void addButton_Click(object sender, RoutedEventArgs e)
+        private void addButton_Click(object sender, RoutedEventArgs e)
         {
             PeriodErrorTextBlock.Text = string.Empty;
             WeightErrorTextBlock.Text = string.Empty;
@@ -43,7 +43,7 @@ namespace TradeBot
                 PeriodTextBox.Focus();
                 return;
             }
-            
+
             {
                 if (!float.TryParse(WeightTextBox.Text.Trim().Replace('.', ','), out var weight))
                 {
@@ -60,13 +60,13 @@ namespace TradeBot
                 }
                 Weight = weight;
             }
-            
+
             Period = period;
-            Type = (CalculationMethod) TypeComboBox.SelectedIndex;
+            Type = (CalculationMethod)TypeComboBox.SelectedIndex;
             DialogResult = true;
         }
 
-        void cancelButton_Click(object sender, RoutedEventArgs e)
+        private void cancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
         }

@@ -29,7 +29,7 @@
 
             <Separator Margin="8 6" Background="{StaticResource ForegroundLighterColor}" Width="1"
                        Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
-                       VerticalAlignment="Stretch"/>
+                       VerticalAlignment="Stretch" />
 
             <ComboBox
                 x:Name="IntervalComboBox"
@@ -48,7 +48,6 @@
                 <ComboBoxItem Selected="ListBoxItem1d_OnSelected">1 DAY</ComboBoxItem>
                 <ComboBoxItem Selected="ListBoxItem1w_OnSelected">1 WEEK</ComboBoxItem>
                 <ComboBoxItem Selected="ListBoxItem1mn_OnSelected">1 MONTH</ComboBoxItem>
-
             </ComboBox>
         </StackPanel>
 

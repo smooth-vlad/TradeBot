@@ -32,7 +32,7 @@
                     TinkoffAPI Token
                 </TextBlock>
                 <TextBlock x:Name="TokenErrorTextBlock"
-                           Style="{StaticResource ErrorText}"/>
+                           Style="{StaticResource ErrorText}" />
             </StackPanel>
 
             <TextBox x:Name="TokenTextBox"

@@ -17,7 +17,7 @@ namespace TradeBot
 
         public static Context Context { get; private set; }
 
-        void AuthPage_Connect(Context context)
+        private void AuthPage_Connect(Context context)
         {
             Context = context;
             Content = new MainPage();

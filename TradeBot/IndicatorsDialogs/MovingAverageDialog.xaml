@@ -35,7 +35,7 @@
                  Margin="0 8">
             12
         </TextBox>
-        
+
         <StackPanel Orientation="Horizontal"
                     Grid.Row="2">
             <TextBlock x:Name="WeightTextBlock"
@@ -63,7 +63,7 @@
         <ComboBox x:Name="TypeComboBox"
                   Grid.Row="5"
                   Margin="0 8"
-                  IsReadOnly="True"/>
+                  IsReadOnly="True" />
 
         <StackPanel Orientation="Horizontal"
                     Grid.Row="6"

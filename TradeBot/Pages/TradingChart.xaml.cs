@@ -1,13 +1,13 @@
-﻿using System;
+﻿using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.Series;
+using OxyPlot.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using OxyPlot;
-using OxyPlot.Axes;
-using OxyPlot.Series;
-using OxyPlot.Wpf;
 using Tinkoff.Trading.OpenApi.Models;
 using Axis = OxyPlot.Axes.Axis;
 using LinearAxis = OxyPlot.Axes.LinearAxis;
@@ -22,22 +22,23 @@ namespace TradeBot
     /// </summary>
     public partial class TradingChart : UserControl
     {
-        readonly CandleStickSeries candlesSeries;
+        private readonly CandleStickSeries candlesSeries;
 
-        List<Indicator> indicators = new List<Indicator>();
-        readonly Dictionary<Indicator, Indicator.Signal?[]> lastSignals = new Dictionary<Indicator, Indicator.Signal?[]>();
-        
-        readonly ScatterSeries buySeries;
-        readonly ScatterSeries sellSeries;
+        private List<Indicator> indicators = new List<Indicator>();
+        private readonly Dictionary<Indicator, Indicator.Signal?[]> lastSignals = new Dictionary<Indicator, Indicator.Signal?[]>();
 
-        readonly PlotModel model;
-        readonly LinearAxis xAxis;
-        readonly LinearAxis yAxis;
+        private readonly ScatterSeries buySeries;
+        private readonly ScatterSeries sellSeries;
 
-        List<(PlotView plot, LinearAxis x, LinearAxis y)> oscillatorsPlots
+        private readonly PlotModel model;
+        private readonly LinearAxis xAxis;
+        private readonly LinearAxis yAxis;
+
+        private List<(PlotView plot, LinearAxis x, LinearAxis y)> oscillatorsPlots
             = new List<(PlotView plot, LinearAxis x, LinearAxis y)>();
-        
-        MarketInstrument activeInstrument;
+
+        private MarketInstrument activeInstrument;
+
         public MarketInstrument ActiveInstrument
         {
             get => activeInstrument;
@@ -55,23 +56,23 @@ namespace TradeBot
             Empty,
         }
 
-        State state = State.Empty;
-        double? stopLoss;
+        private State state = State.Empty;
+        private double? stopLoss;
         public double Balance { get; private set; } = 10000;
-        double dealPrice;
-        int dealLots;
-        
+        private double dealPrice;
+        private int dealLots;
+
         public CandleInterval candleInterval = CandleInterval.Hour;
 
-        int candlesLoadsFailed;
-        int loadedCandles;
+        private int candlesLoadsFailed;
+        private int loadedCandles;
 
-        DateTime lastCandleDate; // on the right side
-        DateTime firstCandleDate; // on the left side
+        private DateTime lastCandleDate; // on the right side
+        private DateTime firstCandleDate; // on the left side
 
         public Task LoadingCandlesTask { get; private set; }
 
-        class Candle : HighLowItem
+        private class Candle : HighLowItem
         {
             public DateTime DateTime { get; }
 
@@ -85,7 +86,6 @@ namespace TradeBot
                 X = x;
             }
         }
-
 
         public TradingChart()
         {
@@ -170,7 +170,7 @@ namespace TradeBot
 
             xAxis.LabelFormatter = d =>
             {
-                if (candlesSeries.Items.Count <= (int) d || !(d >= 0)) return "";
+                if (candlesSeries.Items.Count <= (int)d || !(d >= 0)) return "";
                 var date = ((Candle)candlesSeries.Items[(int)d]).DateTime;
                 switch (candleInterval)
                 {
@@ -182,14 +182,17 @@ namespace TradeBot
                     case CandleInterval.QuarterHour:
                     case CandleInterval.HalfHour:
                         return date.ToString("HH:mm");
+
                     case CandleInterval.Hour:
                     case CandleInterval.TwoHours:
                     case CandleInterval.FourHours:
                     case CandleInterval.Day:
                     case CandleInterval.Week:
                         return date.ToString("dd MMMM");
+
                     case CandleInterval.Month:
                         return date.ToString("yyyy");
+
                     default:
                         return "";
                 }
@@ -206,11 +209,11 @@ namespace TradeBot
             DataContext = this;
         }
 
-        (PlotView plot, LinearAxis x, LinearAxis y) AddOscillatorPlot()
+        private (PlotView plot, LinearAxis x, LinearAxis y) AddOscillatorPlot()
         {
             var plot = new PlotView();
 
-            Grid.RowDefinitions.Add(new RowDefinition{Height = new GridLength(150)});
+            Grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
             Grid.Children.Add(plot);
             plot.SetValue(Grid.RowProperty, Grid.RowDefinitions.Count - 1);
 
@@ -251,12 +254,12 @@ namespace TradeBot
                 MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0)
             };
             x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
-            
+
             plot.ActualController.UnbindAll();
 
             plot.Model.Axes.Add(x);
             plot.Model.Axes.Add(y);
-            
+
             AdjustYExtent(x, y, plot.Model);
             plot.InvalidatePlot();
 
@@ -264,7 +267,7 @@ namespace TradeBot
             return oscillatorsPlots.Last();
         }
 
-        async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
+        private async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
         {
             if (LoadingCandlesTask == null || !LoadingCandlesTask.IsCompleted)
                 return;
@@ -281,12 +284,12 @@ namespace TradeBot
             }
         }
 
-        int CalculateMinSeriesLength()
+        private int CalculateMinSeriesLength()
         {
             var result = (int)xAxis.ActualMaximum;
             result = (from series in model.Series
-                where series.GetType() == typeof(LineSeries)
-                select ((LineSeries) series).Points.Count).Concat(new[] {result}).Min();
+                      where series.GetType() == typeof(LineSeries)
+                      select ((LineSeries)series).Points.Count).Concat(new[] { result }).Min();
 
             foreach (var series in oscillatorsPlots.SelectMany(plot => plot.plot.Model.Series))
             {
@@ -304,7 +307,7 @@ namespace TradeBot
             return result;
         }
 
-        async Task LoadMoreCandlesAndUpdateSeries()
+        private async Task LoadMoreCandlesAndUpdateSeries()
         {
             try
             {
@@ -333,7 +336,7 @@ namespace TradeBot
                 foreach (var plot in oscillatorsPlots)
                     plot.plot.InvalidatePlot();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 candlesLoadsFailed++;
             }
@@ -369,7 +372,7 @@ namespace TradeBot
                 plot.plot.InvalidatePlot();
         }
 
-        async Task LoadMoreCandles()
+        private async Task LoadMoreCandles()
         {
             if (ActiveInstrument == null || MainWindow.Context == null ||
                 candlesLoadsFailed >= 10 ||
@@ -377,7 +380,7 @@ namespace TradeBot
                 return;
 
             var period = GetPeriod(candleInterval);
-            var candles = await GetCandles(ActiveInstrument.Figi, firstCandleDate - period, 
+            var candles = await GetCandles(ActiveInstrument.Figi, firstCandleDate - period,
                 firstCandleDate, candleInterval);
             firstCandleDate -= period;
             if (candles.Count == 0)
@@ -403,7 +406,7 @@ namespace TradeBot
             dealLots = 0;
             dealPrice = 0;
             state = State.Empty;
-            
+
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
             foreach (var v in lastSignals.Values)
@@ -432,7 +435,7 @@ namespace TradeBot
                 plot.plot.InvalidatePlot();
         }
 
-        void UpdateSignals(int i)
+        private void UpdateSignals(int i)
         {
             var candle = candlesSeries.Items[i];
 
@@ -447,7 +450,7 @@ namespace TradeBot
             {
                 if (!lastSignals.TryGetValue(indicator, out var signals))
                     continue;
-                
+
                 signals[signals.Length - 1] = indicator.GetSignal(i);
             }
 
@@ -464,7 +467,7 @@ namespace TradeBot
                 buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
 
                 Balance += candle.Close * dealLots;
-                
+
                 state = State.Empty;
             }
 
@@ -472,15 +475,15 @@ namespace TradeBot
             if (signalWeight >= 1 && state != State.Bought)
             { // buy signal
                 buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
-                
+
                 if (state != State.Empty)
                 {
                     Balance += candle.Close * dealLots;
                     buySeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
                 }
-                
+
                 dealPrice = candle.Close;
-                dealLots = (int) (Balance / dealPrice);
+                dealLots = (int)(Balance / dealPrice);
                 Balance -= dealLots * dealPrice;
 
                 state = State.Bought;
@@ -497,15 +500,15 @@ namespace TradeBot
                 }
 
                 dealPrice = candle.Close;
-                dealLots = (int) (Balance / dealPrice);
+                dealLots = (int)(Balance / dealPrice);
                 Balance -= dealLots * dealPrice;
-                
+
                 state = State.Sold;
                 stopLoss = candle.Close + (double)activeInstrument.MinPriceIncrement * 200;
             }
         }
-        
-        float CalculateSignalWeight()
+
+        private float CalculateSignalWeight()
         {
             float result = 0;
             foreach (var signals in lastSignals)
@@ -517,6 +520,7 @@ namespace TradeBot
                     case Indicator.Signal.Type.Buy:
                         result += signals.Key.Weight;
                         break;
+
                     case Indicator.Signal.Type.Sell:
                         result -= signals.Key.Weight;
                         break;
@@ -538,6 +542,7 @@ namespace TradeBot
                         case Indicator.Signal.Type.Buy:
                             buyFound = true;
                             break;
+
                         case Indicator.Signal.Type.Sell:
                             sellFound = true;
                             break;
@@ -549,7 +554,7 @@ namespace TradeBot
                 if (sellFound)
                     result -= signals.Key.Weight;
             }
-            
+
             return result;
         }
 
@@ -604,7 +609,7 @@ namespace TradeBot
 
             if (candles.Count == 0)
                 return;
-            
+
             lastCandleDate = DateTime.Now;
 
             var c = candles.Select((candle, i) => new Candle(i, candle)).Cast<HighLowItem>().ToList();
@@ -639,38 +644,38 @@ namespace TradeBot
             UpdateRealTimeSignals();
 
             PlotView.InvalidatePlot();
-            
+
             foreach (var plot in oscillatorsPlots)
                 AdjustYExtent(plot.x, plot.y, plot.plot.Model);
             foreach (var plot in oscillatorsPlots)
                 plot.plot.InvalidatePlot();
         }
 
-        static void AdjustYExtent(Axis x, Axis y, PlotModel m)
+        private static void AdjustYExtent(Axis x, Axis y, PlotModel m)
         {
             var points = new List<float>();
 
             foreach (var series in m.Series)
                 if (series.GetType() == typeof(CandleStickSeries))
                 {
-                    points.AddRange(((CandleStickSeries) series).Items
+                    points.AddRange(((CandleStickSeries)series).Items
                         .FindAll(p => p.X >= x.ActualMinimum && p.X <= x.ActualMaximum)
-                        .ConvertAll(v => (float) v.High));
-                    points.AddRange(((CandleStickSeries) series).Items
+                        .ConvertAll(v => (float)v.High));
+                    points.AddRange(((CandleStickSeries)series).Items
                         .FindAll(p => p.X >= x.ActualMinimum && p.X <= x.ActualMaximum)
-                        .ConvertAll(v => (float) v.Low));
+                        .ConvertAll(v => (float)v.Low));
                 }
                 else if (series.GetType() == typeof(LineSeries))
                 {
-                    points.AddRange(((LineSeries) series).Points
+                    points.AddRange(((LineSeries)series).Points
                         .FindAll(p => p.X >= x.ActualMinimum && p.X <= x.ActualMaximum)
-                        .ConvertAll(v => (float) v.Y));
+                        .ConvertAll(v => (float)v.Y));
                 }
                 else if (series.GetType() == typeof(HistogramSeries))
                 {
-                    points.AddRange(((HistogramSeries) series).Items
+                    points.AddRange(((HistogramSeries)series).Items
                         .FindAll(p => p.RangeStart >= x.ActualMinimum && p.RangeStart <= x.ActualMaximum)
-                        .ConvertAll(v => (float) v.Value));
+                        .ConvertAll(v => (float)v.Value));
                 }
 
             var min = double.MaxValue;
@@ -709,7 +714,7 @@ namespace TradeBot
         // =========  Events ==============
         // ================================
 
-        void MovingAverage_Click(object sender, RoutedEventArgs e)
+        private void MovingAverage_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new MovingAverageDialog();
             if (dialog.ShowDialog() != true) return;
@@ -719,9 +724,11 @@ namespace TradeBot
                 case MovingAverageDialog.CalculationMethod.Simple:
                     calculationMethod = new SimpleMaCalculation();
                     break;
+
                 case MovingAverageDialog.CalculationMethod.Exponential:
                     calculationMethod = new ExponentialMaCalculation();
                     break;
+
                 default:
                     calculationMethod = new SimpleMaCalculation();
                     break;
@@ -729,8 +736,8 @@ namespace TradeBot
 
             AddIndicator(new MovingAverage(dialog.Period, calculationMethod, candlesSeries.Items, dialog.Weight));
         }
-        
-        void MACD_Click(object sender, RoutedEventArgs e)
+
+        private void MACD_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new MacdDialog();
             if (dialog.ShowDialog() != true) return;
@@ -740,9 +747,11 @@ namespace TradeBot
                 case MacdDialog.CalculationMethod.Simple:
                     calculationMethod = new SimpleMaCalculation();
                     break;
+
                 case MacdDialog.CalculationMethod.Exponential:
                     calculationMethod = new ExponentialMaCalculation();
                     break;
+
                 default:
                     calculationMethod = new SimpleMaCalculation();
                     break;
@@ -753,7 +762,7 @@ namespace TradeBot
                 candlesSeries.Items, dialog.Weight));
         }
 
-        void RemoveIndicators_Click(object sender, RoutedEventArgs e)
+        private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
         {
             RemoveIndicators();
         }
@@ -780,6 +789,6 @@ namespace TradeBot
             return result;
         }
 
-        #endregion
+        #endregion IntervalToMaxPeriod
     }
 }

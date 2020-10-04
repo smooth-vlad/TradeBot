@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using OxyPlot;
+﻿using OxyPlot;
 using OxyPlot.Series;
+using System;
+using System.Collections.Generic;
 
 namespace TradeBot
 {
@@ -12,12 +12,12 @@ namespace TradeBot
         public int ShortPeriod { get; }
         public IMaCalculation MovingAverageCalculation { get; }
 
-        MovingAverage longMovingAverage;
-        MovingAverage shortMovingAverage;
-        LineSeries macdSeries;
-        HistogramSeries signalSeries;
+        private MovingAverage longMovingAverage;
+        private MovingAverage shortMovingAverage;
+        private LineSeries macdSeries;
+        private HistogramSeries signalSeries;
 
-        ElementCollection<Series> chart;
+        private ElementCollection<Series> chart;
 
         public override bool IsOscillator => true;
 
