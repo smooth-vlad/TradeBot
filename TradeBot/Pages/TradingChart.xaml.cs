@@ -67,8 +67,8 @@ namespace TradeBot
         private int candlesLoadsFailed;
         private int loadedCandles;
 
-        private DateTime lastCandleDate; // on the right side
-        private DateTime firstCandleDate; // on the left side
+        private DateTime rightCandleDate; // newest
+        private DateTime leftCandleDate; // oldest
 
         public Task LoadingCandlesTask { get; private set; }
 
@@ -91,7 +91,7 @@ namespace TradeBot
         {
             InitializeComponent();
 
-            lastCandleDate = firstCandleDate = DateTime.Now;
+            rightCandleDate = leftCandleDate = DateTime.Now;
 
             model = new PlotModel
             {
@@ -287,10 +287,13 @@ namespace TradeBot
         private int CalculateMinSeriesLength()
         {
             var result = (int)xAxis.ActualMaximum;
+
+            // check series on the main plot
             result = (from series in model.Series
                       where series.GetType() == typeof(LineSeries)
                       select ((LineSeries)series).Points.Count).Concat(new[] { result }).Min();
 
+            // check other series outside of the main plot
             foreach (var series in oscillatorsPlots.SelectMany(plot => plot.plot.Model.Series))
             {
                 if (series.GetType() == typeof(LineSeries))
@@ -358,7 +361,7 @@ namespace TradeBot
 
             loadedCandles = 0;
             candlesLoadsFailed = 0;
-            firstCandleDate = lastCandleDate = DateTime.Now;
+            leftCandleDate = rightCandleDate = DateTime.Now;
 
             foreach (var indicator in indicators) indicator.ResetSeries();
 
@@ -380,9 +383,9 @@ namespace TradeBot
                 return;
 
             var period = GetPeriod(candleInterval);
-            var candles = await GetCandles(ActiveInstrument.Figi, firstCandleDate - period,
-                firstCandleDate, candleInterval);
-            firstCandleDate -= period;
+            var candles = await GetCandles(ActiveInstrument.Figi, leftCandleDate - period,
+                leftCandleDate, candleInterval);
+            leftCandleDate -= period;
             if (candles.Count == 0)
             {
                 candlesLoadsFailed += 1;
@@ -599,7 +602,7 @@ namespace TradeBot
             List<CandlePayload> candles;
             try
             {
-                candles = await GetCandles(ActiveInstrument.Figi, lastCandleDate,
+                candles = await GetCandles(ActiveInstrument.Figi, rightCandleDate,
                     DateTime.Now, candleInterval);
             }
             catch (Exception)
@@ -610,7 +613,7 @@ namespace TradeBot
             if (candles.Count == 0)
                 return;
 
-            lastCandleDate = DateTime.Now;
+            rightCandleDate = DateTime.Now;
 
             var c = candles.Select((candle, i) => new Candle(i, candle)).Cast<HighLowItem>().ToList();
 
