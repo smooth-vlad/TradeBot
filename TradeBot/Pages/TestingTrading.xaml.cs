@@ -21,7 +21,7 @@ namespace TradeBot
 
             DataContext = this;
 
-            IntervalComboBox.SelectedIndex = 4;
+            IntervalComboBox.SelectedIndex = 5;
         }
 
         private void SetEverythingEnabled(bool value)
