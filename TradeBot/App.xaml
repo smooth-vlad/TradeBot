@@ -602,7 +602,7 @@
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="Foreground" Value="{StaticResource MainColor}" />
                 <Setter Property="FontSize" Value="13" />
-                <Setter Property="BorderThickness" Value="2" />
+                <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="BorderBrush" Value="{StaticResource MainColor}" />
                 <Setter Property="Height" Value="32" />
                 <Setter Property="FontWeight" Value="Bold" />
