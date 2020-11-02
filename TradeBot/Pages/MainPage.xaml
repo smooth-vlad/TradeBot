@@ -53,6 +53,7 @@
                                                         </Grid>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Cursor" Value="Hand"/>
                                                                 <Setter TargetName="Ellipse" Property="Opacity"
                                                                         Value=".05" />
                                                             </Trigger>
@@ -112,6 +113,7 @@
                                                                 </Grid>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Cursor" Value="Hand"/>
                                                                         <Setter TargetName="Ellipse" Property="Opacity"
                                                                                 Value=".05" />
                                                                     </Trigger>

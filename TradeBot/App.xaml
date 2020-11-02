@@ -173,10 +173,12 @@
 
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Cursor" Value="Hand"/>
                         <Setter Property="Background" Value="{StaticResource IntermediateDarkerColor}" />
                     </Trigger>
                     <Trigger Property="IsChecked" Value="True">
                         <Setter Property="Background" Value="{StaticResource MainColor}" />
+                        <Setter Property="Cursor" Value="Arrow"/>
                         <Setter Property="Foreground" Value="{StaticResource BackgroundColor}" />
                     </Trigger>
                 </Style.Triggers>
@@ -228,6 +230,7 @@
                             <Condition Property="IsChecked" Value="False" />
                         </MultiTrigger.Conditions>
                         <MultiTrigger.Setters>
+                            <Setter Property="Cursor" Value="Hand"/>
                             <Setter Property="Foreground" Value="{StaticResource IntermediateColor}" />
                         </MultiTrigger.Setters>
                     </MultiTrigger>
@@ -440,6 +443,7 @@
                 </Grid>
                 <ControlTemplate.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Cursor" Value="Hand"/>
                         <Setter Property="Background" TargetName="ButtonBorder" Value="{StaticResource IntermediateColor}" />
                         <Setter Property="Background" TargetName="Border" Value="{StaticResource IntermediateLighterColor}" />
                     </Trigger>
@@ -580,6 +584,7 @@
 
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Cursor" Value="Hand"/>
                                     <Setter Property="Background" Value="{StaticResource MainLighterColor}" />
                                 </Trigger>
                                 <Trigger Property="IsEnabled" Value="False">
@@ -620,6 +625,7 @@
 
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Cursor" Value="Hand"/>
                                     <Setter Property="Background" Value="{StaticResource IntermediateLighterColor}" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
