@@ -15,11 +15,9 @@ namespace TradeBot
             AuthPage.Connect += AuthPage_Connect;
         }
 
-        public static Context Context { get; private set; }
-
         private void AuthPage_Connect(Context context)
         {
-            Context = context;
+            TinkoffInterface.Context = context;
             Content = new MainPage();
         }
     }

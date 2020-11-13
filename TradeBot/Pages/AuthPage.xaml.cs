@@ -11,6 +11,7 @@ namespace TradeBot
     public partial class AuthPage : Page
     {
         public delegate void ConnectionHandler(Context context);
+        public event ConnectionHandler Connect;
 
         public AuthPage()
         {
@@ -18,8 +19,6 @@ namespace TradeBot
 
             TokenTextBox.Focus();
         }
-
-        public event ConnectionHandler Connect;
 
         private async void authButton_Click(object sender, RoutedEventArgs e)
         {

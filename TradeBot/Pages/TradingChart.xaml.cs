@@ -377,7 +377,7 @@ namespace TradeBot
 
         private async Task LoadMoreCandles()
         {
-            if (ActiveInstrument == null || MainWindow.Context == null ||
+            if (ActiveInstrument == null || TinkoffInterface.Context == null ||
                 candlesLoadsFailed >= 10 ||
                 loadedCandles > xAxis.ActualMaximum + 100)
                 return;
@@ -705,7 +705,7 @@ namespace TradeBot
 
         public async Task<List<CandlePayload>> GetCandles(string figi, DateTime from, DateTime to, CandleInterval interval)
         {
-            var candles = await MainWindow.Context.MarketCandlesAsync(figi, from, to, interval);
+            var candles = await TinkoffInterface.Context.MarketCandlesAsync(figi, from, to, interval);
 
             var result = candles.Candles.ToList();
 

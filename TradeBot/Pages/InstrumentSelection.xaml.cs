@@ -75,7 +75,7 @@ namespace TradeBot
         {
             try
             {
-                instruments = await MainWindow.Context.MarketEtfsAsync();
+                instruments = await TinkoffInterface.Context.MarketEtfsAsync();
                 instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
                 TickerComboBox.ItemsSource = instrumentsLabels;
             }
@@ -89,7 +89,7 @@ namespace TradeBot
         {
             try
             {
-                instruments = await MainWindow.Context.MarketStocksAsync();
+                instruments = await TinkoffInterface.Context.MarketStocksAsync();
                 instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
                 TickerComboBox.ItemsSource = instrumentsLabels;
             }
@@ -103,7 +103,7 @@ namespace TradeBot
         {
             try
             {
-                instruments = await MainWindow.Context.MarketCurrenciesAsync();
+                instruments = await TinkoffInterface.Context.MarketCurrenciesAsync();
                 instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
                 TickerComboBox.ItemsSource = instrumentsLabels;
             }

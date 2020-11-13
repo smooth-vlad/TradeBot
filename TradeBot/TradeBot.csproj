@@ -100,6 +100,7 @@
     <Compile Include="Pages\TradingChart.xaml.cs">
       <DependentUpon>TradingChart.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TinkoffInterface.cs" />
     <Page Include="IndicatorsDialogs\MacdDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
