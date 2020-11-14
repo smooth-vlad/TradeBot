@@ -438,9 +438,31 @@ namespace TradeBot
                 plot.plot.InvalidatePlot();
         }
 
+        private (double max, double min) CalculateMaxMin(int startIndex, int period)
+        {
+            double maxPrice = double.MinValue;
+            double minPrice = double.MaxValue;
+            for (int j = startIndex; j < period + startIndex && j < candlesSeries.Items.Count; ++j)
+            {
+                var h = candlesSeries.Items[j].High;
+                var l = candlesSeries.Items[j].Low;
+                if (h > maxPrice)
+                    maxPrice = h;
+                if (l < minPrice)
+                    minPrice = l;
+            }
+            return (maxPrice, minPrice);
+        }
+
         private void UpdateSignals(int i)
         {
             var candle = candlesSeries.Items[i];
+            var resLong = CalculateMaxMin(i, 200);
+            var resShort = CalculateMaxMin(i, 50);
+            (double max, double min) res = ((resLong.max + resShort.max) / 2, (resLong.min + resShort.min) / 2);
+            double step = (res.max - res.min) / 1000;
+
+            double stopLossMultiplier = 300;
 
             foreach (var signals in lastSignals.Values)
             {
@@ -490,7 +512,7 @@ namespace TradeBot
                 Balance -= dealLots * dealPrice;
 
                 state = State.Bought;
-                stopLoss = candle.Close - (double)activeInstrument.MinPriceIncrement * 200;
+                stopLoss = candle.Close - step * stopLossMultiplier;
             }
             else if (signalWeight <= -1 && state != State.Sold)
             { // sell signal
@@ -507,7 +529,7 @@ namespace TradeBot
                 Balance -= dealLots * dealPrice;
 
                 state = State.Sold;
-                stopLoss = candle.Close + (double)activeInstrument.MinPriceIncrement * 200;
+                stopLoss = candle.Close + step * stopLossMultiplier;
             }
         }
 
