@@ -49,18 +49,7 @@ namespace TradeBot
             }
         }
 
-        public enum State
-        {
-            Bought,
-            Sold,
-            Empty,
-        }
-
-        public double Balance { get; private set; } = 10000;
-        private State state = State.Empty;
-        private double? stopLoss;
-        private double dealPrice;
-        private int dealLots;
+        public TradingInterface TradingInterface { get; private set; }
 
         public CandleInterval candleInterval = CandleInterval.Hour;
 
@@ -390,10 +379,7 @@ namespace TradeBot
 
         public async Task UpdateTestingSignals()
         {
-            Balance = 10000;
-            dealLots = 0;
-            dealPrice = 0;
-            state = State.Empty;
+            TradingInterface = new TradingInterface();
 
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
@@ -411,8 +397,8 @@ namespace TradeBot
             });
             PlotView.InvalidatePlot();
 
-            if (state != State.Empty)
-                Balance += dealLots * dealPrice;
+            if (TradingInterface.State != TradingInterface.States.Empty)
+                TradingInterface.Sell(TradingInterface.DealPrice);
         }
 
         public void UpdateRealTimeSignals()
@@ -464,57 +450,44 @@ namespace TradeBot
                 signals[signals.Length - 1] = indicator.GetSignal(i);
             }
 
-            if (state == State.Bought && candle.Close < stopLoss)
+            if (TradingInterface.State == TradingInterface.States.Bought && candle.Close < TradingInterface.StopLoss)
+                // не понятно, че за += -=
             { // stop loss to sell
                 sellSeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
-
-                Balance += candle.Close * dealLots;
-
-                state = State.Empty;
+                TradingInterface.Sell(candle.Close);
             }
-            if (state == State.Sold && candle.Close > stopLoss)
+            if (TradingInterface.State == TradingInterface.States.Sold && candle.Close > TradingInterface.StopLoss)
             { // stop loss to buy
                 buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
-
-                Balance += candle.Close * dealLots;
-
-                state = State.Empty;
+                TradingInterface.Sell(candle.Close);
             }
 
             var signalWeight = CalculateSignalWeight();
-            if (signalWeight >= 1 && state != State.Bought)
+            if (signalWeight >= 1 && TradingInterface.State != TradingInterface.States.Bought)
             { // buy signal
                 buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
 
-                if (state != State.Empty)
+                if (TradingInterface.State != TradingInterface.States.Empty)
                 {
-                    Balance += candle.Close * dealLots;
                     buySeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
+                    TradingInterface.Sell(candle.Close);
                 }
 
-                dealPrice = candle.Close;
-                dealLots = (int)(Balance / dealPrice);
-                Balance -= dealLots * dealPrice;
-
-                state = State.Bought;
-                stopLoss = candle.Close - step * stopLossMultiplier;
+                TradingInterface.Buy(candle.Close, false);
+                TradingInterface.StopLoss = candle.Close - step * stopLossMultiplier;
             }
-            else if (signalWeight <= -1 && state != State.Sold)
+            else if (signalWeight <= -1 && TradingInterface.State != TradingInterface.States.Sold)
             { // sell signal
                 sellSeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
 
-                if (state != State.Empty)
+                if (TradingInterface.State != TradingInterface.States.Empty)
                 {
-                    Balance += candle.Close * dealLots;
                     sellSeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
+                    TradingInterface.Sell(candle.Close);
                 }
 
-                dealPrice = candle.Close;
-                dealLots = (int)(Balance / dealPrice);
-                Balance -= dealLots * dealPrice;
-
-                state = State.Sold;
-                stopLoss = candle.Close + step * stopLossMultiplier;
+                TradingInterface.Buy(candle.Close, true);
+                TradingInterface.StopLoss = candle.Close + step * stopLossMultiplier;
             }
         }
 
