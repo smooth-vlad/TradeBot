@@ -379,7 +379,7 @@ namespace TradeBot
 
         public async Task UpdateTestingSignals()
         {
-            TradingInterface = new TradingInterface();
+            TradingInterface = new TradingInterface(1_000);
 
             buySeries.Points.Clear();
             sellSeries.Points.Clear();
