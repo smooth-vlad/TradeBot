@@ -56,9 +56,9 @@ namespace TradeBot
             Empty,
         }
 
+        public double Balance { get; private set; } = 10000;
         private State state = State.Empty;
         private double? stopLoss;
-        public double Balance { get; private set; } = 10000;
         private double dealPrice;
         private int dealLots;
 
@@ -361,7 +361,7 @@ namespace TradeBot
 
             loadedCandles = 0;
             candlesLoadsFailed = 0;
-            leftCandleDate = rightCandleDate = DateTime.Now;
+            leftCandleDate = rightCandleDate = DateTime.Now; 
 
             foreach (var indicator in indicators) indicator.ResetSeries();
 
