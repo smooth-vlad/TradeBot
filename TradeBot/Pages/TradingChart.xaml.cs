@@ -619,6 +619,14 @@ namespace TradeBot
             PlotView.InvalidatePlot();
         }
 
+        public void RemoveMarkers()
+        {
+            buySeries.Points.Clear();
+            sellSeries.Points.Clear();
+            AdjustYExtent(xAxis, yAxis, model);
+            PlotView.InvalidatePlot();
+        }
+
         public async Task LoadNewCandles()
         {
             List<CandlePayload> candles;
@@ -790,6 +798,11 @@ namespace TradeBot
         private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
         {
             RemoveIndicators();
+        }
+
+        private void RemoveMarkersButton_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveMarkers();
         }
 
         #region IntervalToMaxPeriod
