@@ -72,21 +72,6 @@ namespace TradeBot
 
         public Task LoadingCandlesTask { get; private set; }
 
-        private class Candle : HighLowItem
-        {
-            public DateTime DateTime { get; }
-
-            public Candle(int x, CandlePayload candle)
-            {
-                Close = (double)candle.Close;
-                Open = (double)candle.Open;
-                High = (double)candle.High;
-                Low = (double)candle.Low;
-                DateTime = candle.Time;
-                X = x;
-            }
-        }
-
         public TradingChart()
         {
             InitializeComponent();
