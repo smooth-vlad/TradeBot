@@ -74,6 +74,8 @@ namespace TradeBot
                     signalSeries.Items.Add(new HistogramItem(x - 0.2, x + 0.2, t, 1));
                 }
             }
+
+            SeriesUpdated?.Invoke();
         }
 
         public override void AttachToChart(ElementCollection<Series> chart)
@@ -104,11 +106,6 @@ namespace TradeBot
             longMovingAverage.ResetSeries();
             macdSeries.Points.Clear();
             signalSeries.Items.Clear();
-        }
-
-        public override void OnNewCandlesAdded(int count)
-        {
-            ResetSeries();
         }
 
         public override Signal? GetSignal(int currentCandleIndex)

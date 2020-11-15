@@ -21,7 +21,8 @@ namespace TradeBot
 
         public abstract void AttachToChart(ElementCollection<Series> chart);
 
-        public abstract void OnNewCandlesAdded(int count);
+        public delegate void SeriesUpdatedDelegate();
+        public SeriesUpdatedDelegate SeriesUpdated;
 
         public struct Signal
         {

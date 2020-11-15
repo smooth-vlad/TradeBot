@@ -17,7 +17,7 @@ namespace TradeBot
             if (activeInstrument == null)
                 throw new ArgumentNullException();
 
-            TradingChart.ActiveInstrument = activeInstrument;
+            TradingChart.instrument = new Instrument(activeInstrument);
 
             DataContext = this;
 
@@ -36,57 +36,57 @@ namespace TradeBot
         private async void simulateButton_Click(object sender, RoutedEventArgs e)
         {
             SetEverythingEnabled(false);
-            await TradingChart.UpdateTestingSignals();
+            await TradingChart.BeginTesting();
             SetEverythingEnabled(true);
-            MessageBox.Show($"Testing ended\nInitial balance = 10000\nBalance after testing = {TradingChart.TradingInterface.Balance}");
+            MessageBox.Show($"Testing ended\nInitial balance = 1000\nBalance after testing = {TradingChart.TradingInterface.Balance}");
         }
 
         private void ListBoxItem1m_OnSelected(object sender, RoutedEventArgs e)
         {
             TradingChart.candleInterval = CandleInterval.Minute;
-            TradingChart.ResetSeries();
+            TradingChart.RestartSeries();
         }
 
         private void ListBoxItem5m_OnSelected(object sender, RoutedEventArgs e)
         {
             TradingChart.candleInterval = CandleInterval.FiveMinutes;
-            TradingChart.ResetSeries();
+            TradingChart.RestartSeries();
         }
 
         private void ListBoxItem15m_OnSelected(object sender, RoutedEventArgs e)
         {
             TradingChart.candleInterval = CandleInterval.QuarterHour;
-            TradingChart.ResetSeries();
+            TradingChart.RestartSeries();
         }
 
         private void ListBoxItem30m_OnSelected(object sender, RoutedEventArgs e)
         {
             TradingChart.candleInterval = CandleInterval.HalfHour;
-            TradingChart.ResetSeries();
+            TradingChart.RestartSeries();
         }
 
         private void ListBoxItem1h_OnSelected(object sender, RoutedEventArgs e)
         {
             TradingChart.candleInterval = CandleInterval.Hour;
-            TradingChart.ResetSeries();
+            TradingChart.RestartSeries();
         }
 
         private void ListBoxItem1d_OnSelected(object sender, RoutedEventArgs e)
         {
             TradingChart.candleInterval = CandleInterval.Day;
-            TradingChart.ResetSeries();
+            TradingChart.RestartSeries();
         }
 
         private void ListBoxItem1w_OnSelected(object sender, RoutedEventArgs e)
         {
             TradingChart.candleInterval = CandleInterval.Week;
-            TradingChart.ResetSeries();
+            TradingChart.RestartSeries();
         }
 
         private void ListBoxItem1mn_OnSelected(object sender, RoutedEventArgs e)
         {
             TradingChart.candleInterval = CandleInterval.Month;
-            TradingChart.ResetSeries();
+            TradingChart.RestartSeries();
         }
     }
 }

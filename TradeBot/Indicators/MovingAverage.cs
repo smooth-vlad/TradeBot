@@ -67,6 +67,8 @@ namespace TradeBot
             {
                 series.Points.Add(new DataPoint(series.Points.Count, t));
             }
+
+            SeriesUpdated?.Invoke();
         }
 
         public override void AttachToChart(ElementCollection<Series> chart)
@@ -88,11 +90,6 @@ namespace TradeBot
         public override void ResetSeries()
         {
             series.Points.Clear();
-        }
-
-        public override void OnNewCandlesAdded(int count)
-        {
-            ResetSeries();
         }
     }
 }

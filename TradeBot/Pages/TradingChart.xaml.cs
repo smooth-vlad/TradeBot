@@ -38,14 +38,14 @@ namespace TradeBot
         private List<(PlotView plot, LinearAxis x, LinearAxis y)> oscillatorsPlots
             = new List<(PlotView plot, LinearAxis x, LinearAxis y)>();
 
-        private MarketInstrument activeInstrument;
-        public MarketInstrument ActiveInstrument
+        private Instrument _instrument;
+        public Instrument instrument
         {
-            get => activeInstrument;
+            get => _instrument;
             set
             {
-                activeInstrument = value;
-                candlesSeries.Title = value.Name;
+                _instrument = value;
+                candlesSeries.Title = value.ActiveInstrument.Name;
             }
         }
 
@@ -55,17 +55,35 @@ namespace TradeBot
 
         private int candlesLoadsFailed;
         private int loadedCandles;
+        private int LoadedCandles
+        {
+            get => loadedCandles;
+            set
+            {
+                loadedCandles = value;
+                CandlesAdded?.Invoke();
+            }
+        }
 
         private DateTime rightCandleDate; // newest
         private DateTime leftCandleDate; // oldest
+        public DateTime rightCandleDateAhead; // TO TEST 'REAL TIME TRADING'
 
         public Task LoadingCandlesTask { get; private set; }
+
+        public delegate void NewCandlesLoadedDelegate(int count);
+        public event NewCandlesLoadedDelegate NewCandlesLoaded;
+
+        public delegate void CandlesAddedDelegate();
+        public event CandlesAddedDelegate CandlesAdded;
 
         public TradingChart()
         {
             InitializeComponent();
 
             rightCandleDate = leftCandleDate = DateTime.Now;
+
+            TradingInterface = new TradingInterface(1_000);
 
             model = new PlotModel
             {
@@ -138,6 +156,23 @@ namespace TradeBot
                 MarkerSize = 6
             };
 
+            NewCandlesLoaded += (int count) =>
+            {
+                // move buy points by candles.Count
+                var s = new List<ScatterPoint>(buySeries.Points.Count);
+                s.AddRange(buySeries.Points.Select(
+                    point => new ScatterPoint(point.X + count, point.Y, point.Size, point.Value, point.Tag)));
+                buySeries.Points.Clear();
+                buySeries.Points.AddRange(s);
+
+                // move sell points by candles.Count
+                s = new List<ScatterPoint>(sellSeries.Points.Count);
+                s.AddRange(sellSeries.Points.Select(
+                    point => new ScatterPoint(point.X + count, point.Y, point.Size, point.Value, point.Tag)));
+                sellSeries.Points.Clear();
+                sellSeries.Points.AddRange(s);
+            };
+
             model.Series.Add(candlesSeries);
             model.Series.Add(buySeries);
             model.Series.Add(sellSeries);
@@ -171,14 +206,32 @@ namespace TradeBot
                         return "";
                 }
             };
-            xAxis.AxisChanged += XAxis_AxisChanged;
+            xAxis.AxisChanged += async (object sender, AxisChangedEventArgs e) =>
+            {
+                if (LoadingCandlesTask != null && LoadingCandlesTask.IsCompleted)
+                {
+                    LoadingCandlesTask = LoadMoreCandlesAndUpdateSeries();
+                    await LoadingCandlesTask;
+                }
+            };
 
-            yAxis.LabelFormatter = d => $"{d} {activeInstrument.Currency}";
+            xAxis.AxisChanged += (object sender, AxisChangedEventArgs e) =>
+            {
+                AdjustYExtent(xAxis, yAxis, model);
+            };
+
+            yAxis.LabelFormatter = d => $"{d} {instrument.ActiveInstrument.Currency}";
 
             PlotView.Model = model;
 
             PlotView.ActualController.BindMouseDown(OxyMouseButton.Left, PlotCommands.PanAt);
             PlotView.ActualController.BindMouseDown(OxyMouseButton.Right, PlotCommands.SnapTrack);
+
+            CandlesAdded += () =>
+            {
+                AdjustYExtent(xAxis, yAxis, model);
+                PlotView.InvalidatePlot();
+            };
 
             DataContext = this;
         }
@@ -227,53 +280,67 @@ namespace TradeBot
                 StartPosition = 1,
                 MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0)
             };
-            x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
+            x.AxisChanged += (object sender, AxisChangedEventArgs e) =>
+            {
+                AdjustYExtent(x, y, plot.Model);
+                plot.InvalidatePlot();
+            };
+            CandlesAdded += () =>
+            {
+                AdjustYExtent(x, y, plot.Model);
+                plot.InvalidatePlot();
+            };
 
             plot.ActualController.UnbindAll();
 
             plot.Model.Axes.Add(x);
             plot.Model.Axes.Add(y);
 
-            AdjustYExtent(x, y, plot.Model);
-            plot.InvalidatePlot();
+            x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
+
+            xAxis.AxisChanged += (object sender, AxisChangedEventArgs e) =>
+            {
+                x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
+            };
 
             oscillatorsPlots.Add((plot, x, y));
             return oscillatorsPlots.Last();
         }
 
-        private async void XAxis_AxisChanged(object sender, AxisChangedEventArgs e)
-        {
-            if (LoadingCandlesTask == null || !LoadingCandlesTask.IsCompleted)
-                return;
-
-            LoadingCandlesTask = LoadMoreCandlesAndUpdateSeries();
-            await LoadingCandlesTask;
-
-            AdjustYExtent(xAxis, yAxis, model);
-            foreach (var plot in oscillatorsPlots)
-            {
-                plot.x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
-                AdjustYExtent(plot.x, plot.y, plot.plot.Model);
-                plot.plot.InvalidatePlot();
-            }
-        }
-
         public void AddIndicator(Indicator indicator)
         {
             indicators.Add(indicator);
+
             lastSignalsForIndicator.Add(indicator, new Indicator.Signal?[3]);
 
-            indicator.AttachToChart(indicator.IsOscillator ?
-                AddOscillatorPlot().plot.Model.Series : model.Series);
+            NewCandlesLoaded += (int count) =>
+            {
+                indicator.ResetSeries();
+                indicator.UpdateSeries();
+            };
+
+            if (indicator.IsOscillator)
+            {
+                var (plot, x, y) = AddOscillatorPlot();
+                indicator.AttachToChart(plot.Model.Series);
+                indicator.SeriesUpdated += () => AdjustYExtent(x, y, plot.Model);
+            }
+            else
+            {
+                indicator.AttachToChart(model.Series);
+                indicator.SeriesUpdated += () => AdjustYExtent(xAxis, yAxis, model);
+            }
 
             indicator.UpdateSeries();
-            AdjustYExtent(xAxis, yAxis, model);
+
             foreach (var (plot, x, y) in oscillatorsPlots)
                 AdjustYExtent(x, y, plot.Model);
-
-            PlotView.InvalidatePlot();
             foreach (var plot in oscillatorsPlots)
                 plot.plot.InvalidatePlot();
+
+            AdjustYExtent(xAxis, yAxis, model);
+
+            PlotView.InvalidatePlot();
         }
 
         public void RemoveIndicators()
@@ -379,30 +446,17 @@ namespace TradeBot
         {
             try
             {
-                var loaded = false;
                 var minSeriesLength = CalculateMinSeriesLength();
 
-                while ((xAxis.ActualMaximum - 3 >= loadedCandles || xAxis.ActualMaximum - 3 >= minSeriesLength)
+                while ((xAxis.ActualMaximum - 3 >= LoadedCandles || xAxis.ActualMaximum - 3 >= minSeriesLength)
                     && candlesLoadsFailed < 10)
                 {
                     await LoadMoreCandles();
-                    loaded = true;
                     foreach (var indicator in indicators)
                         indicator.UpdateSeries();
 
                     minSeriesLength = CalculateMinSeriesLength();
                 }
-
-                if (loaded)
-                {
-                    AdjustYExtent(xAxis, yAxis, model);
-                    foreach (var (plot, x, y) in oscillatorsPlots)
-                        AdjustYExtent(x, y, plot.Model);
-                }
-
-                PlotView.InvalidatePlot();
-                foreach (var plot in oscillatorsPlots)
-                    plot.plot.InvalidatePlot();
             }
             catch (Exception)
             {
@@ -410,46 +464,14 @@ namespace TradeBot
             }
         }
 
-        private void ClearLastSignalsForEachIndicator()
-        {
-            foreach (var v in lastSignalsForIndicator.Values)
-                for (var i = 0; i < v.Length; ++i)
-                    v[i] = null;
-        }
-
-        public async void ResetSeries()
-        {
-            buySeries.Points.Clear();
-            sellSeries.Points.Clear();
-
-            candlesSeries.Items.Clear();
-            ClearLastSignalsForEachIndicator();
-
-            loadedCandles = 0;
-            candlesLoadsFailed = 0;
-            leftCandleDate = rightCandleDate = DateTime.Now; 
-
-            foreach (var indicator in indicators) indicator.ResetSeries();
-
-            LoadingCandlesTask = LoadMoreCandlesAndUpdateSeries();
-            await LoadingCandlesTask;
-
-            xAxis.Zoom(0, 75);
-
-            PlotView.InvalidatePlot();
-            foreach (var plot in oscillatorsPlots)
-                plot.plot.InvalidatePlot();
-        }
-
         private async Task LoadMoreCandles()
         {
-            if (ActiveInstrument == null || TinkoffInterface.Context == null ||
-                candlesLoadsFailed >= 10 ||
-                loadedCandles > xAxis.ActualMaximum + 100)
+            if (candlesLoadsFailed >= 10 ||
+                LoadedCandles > xAxis.ActualMaximum + 100)
                 return;
 
             var period = GetPeriod(candleInterval);
-            var candles = await GetCandles(ActiveInstrument.Figi, leftCandleDate - period,
+            var candles = await instrument.GetCandles(leftCandleDate - period,
                 leftCandleDate, candleInterval);
             leftCandleDate -= period;
             if (candles.Count == 0)
@@ -461,15 +483,44 @@ namespace TradeBot
             for (var i = 0; i < candles.Count; ++i)
             {
                 var candle = candles[i];
-                candlesSeries.Items.Add(new Candle(loadedCandles + i, candle));
+                candlesSeries.Items.Add(new Candle(LoadedCandles + i, candle));
             }
 
-            loadedCandles += candles.Count;
+            LoadedCandles += candles.Count;
 
             candlesLoadsFailed = 0;
         }
 
-        public async Task UpdateTestingSignals()
+        private void ClearLastSignalsForEachIndicator()
+        {
+            foreach (var v in lastSignalsForIndicator.Values)
+                for (var i = 0; i < v.Length; ++i)
+                    v[i] = null;
+        }
+
+        public async void RestartSeries()
+        {
+            buySeries.Points.Clear();
+            sellSeries.Points.Clear();
+
+            candlesSeries.Items.Clear();
+            ClearLastSignalsForEachIndicator();
+
+            LoadedCandles = 0;
+            candlesLoadsFailed = 0;
+            // TO TEST 'REAL TIME TRADING'
+            leftCandleDate = rightCandleDate = rightCandleDateAhead = DateTime.Now.AddDays(-55); 
+
+            foreach (var indicator in indicators)
+                indicator.ResetSeries();
+
+            LoadingCandlesTask = LoadMoreCandlesAndUpdateSeries();
+            await LoadingCandlesTask;
+
+            xAxis.Zoom(0, 75);
+        }
+
+        public async Task BeginTesting()
         {
             TradingInterface = new TradingInterface(1_000);
 
@@ -479,20 +530,13 @@ namespace TradeBot
 
             await Task.Factory.StartNew(() =>
             {
-                for (var i = candlesSeries.Items.Count - 1; i >= 0; --i) UpdateSignals(i);
+                for (var i = candlesSeries.Items.Count - 1; i >= 0; --i)
+                    UpdateSignals(i);
             });
             PlotView.InvalidatePlot();
 
             if (TradingInterface.State != TradingInterface.States.Empty)
                 TradingInterface.Sell(TradingInterface.DealPrice);
-        }
-
-        public void UpdateRealTimeSignals()
-        {
-            UpdateSignals(0);
-            PlotView.InvalidatePlot();
-            foreach (var plot in oscillatorsPlots)
-                plot.plot.InvalidatePlot();
         }
 
         private (double max, double min) CalculateMaxMinPrice(int startIndex, int period)
@@ -634,68 +678,24 @@ namespace TradeBot
         public async Task LoadNewCandles()
         {
             List<CandlePayload> candles;
-            try
-            {
-                candles = await GetCandles(ActiveInstrument.Figi, rightCandleDate,
-                    DateTime.Now, candleInterval);
-            }
-            catch (Exception)
-            {
-                return;
-            }
+            candles = await instrument.GetCandles(rightCandleDate,
+                    rightCandleDateAhead, candleInterval);
 
             if (candles.Count == 0)
                 return;
 
-            rightCandleDate = DateTime.Now;
+            rightCandleDate = rightCandleDateAhead;
 
             var c = candles.Select((candle, i) => new Candle(i, candle)).Cast<HighLowItem>().ToList();
 
             candlesSeries.Items.ForEach(v => v.X += candles.Count);
             candlesSeries.Items.InsertRange(0, c);
-            foreach (var indicator in indicators)
-            {
-                indicator.OnNewCandlesAdded(candles.Count);
-                indicator.UpdateSeries();
-            }
 
-            loadedCandles += candles.Count;
+            LoadedCandles += candles.Count;
 
-            AdjustYExtent(xAxis, yAxis, model);
-            PlotView.InvalidatePlot();
+            NewCandlesLoaded?.Invoke(candles.Count);
 
-            // move buy points by candles.Count
-            var s = new List<ScatterPoint>(buySeries.Points.Count);
-            s.AddRange(buySeries.Points.Select(
-                point => new ScatterPoint(point.X + candles.Count, point.Y, point.Size, point.Value, point.Tag)));
-            buySeries.Points.Clear();
-            buySeries.Points.AddRange(s);
-
-            // move sell points by candles.Count
-            s = new List<ScatterPoint>(sellSeries.Points.Count);
-            s.AddRange(sellSeries.Points.Select(
-                point => new ScatterPoint(point.X + candles.Count, point.Y, point.Size, point.Value, point.Tag)));
-            sellSeries.Points.Clear();
-            sellSeries.Points.AddRange(s);
-
-            UpdateRealTimeSignals();
-
-            PlotView.InvalidatePlot();
-
-            foreach (var plot in oscillatorsPlots)
-                AdjustYExtent(plot.x, plot.y, plot.plot.Model);
-            foreach (var plot in oscillatorsPlots)
-                plot.plot.InvalidatePlot();
-        }
-
-        public async Task<List<CandlePayload>> GetCandles(string figi, DateTime from, DateTime to, CandleInterval interval)
-        {
-            var candles = await TinkoffInterface.Context.MarketCandlesAsync(figi, from, to, interval);
-
-            var result = candles.Candles.ToList();
-
-            result.Reverse();
-            return result;
+            UpdateSignals(0);
         }
 
         // ================================
