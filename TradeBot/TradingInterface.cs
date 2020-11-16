@@ -44,7 +44,11 @@ namespace TradeBot
             if (price < 0) throw new ArgumentOutOfRangeException("price should be positive");
             if (State == States.Empty) throw new InvalidOperationException("can't sell because state is not bought");
 
-            Balance += price * DealLots;
+            var diff = price * DealLots;
+            if (State == States.Bought)
+                Balance += diff;
+            else
+                Balance -= diff;
             DealLots = 0;
             stopLoss = null;
             State = States.Empty;
@@ -59,8 +63,13 @@ namespace TradeBot
 
             DealPrice = price;
             DealLots = lots;
-            Balance -= DealLots * DealPrice;
             State = isShort ? States.Sold : States.Bought;
+
+            var diff = DealPrice * DealLots;
+            if (State == States.Bought)
+                Balance -= diff;
+            else
+                Balance += diff;
         }
 
         public void Buy(double price, bool isShort)
