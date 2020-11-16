@@ -23,6 +23,7 @@ namespace TradeBot
     public partial class TradingChart : UserControl
     {
         private readonly CandleStickSeries candlesSeries;
+        private readonly CandleStickSeries candlesSeriesSmall;
 
         private List<Indicator> indicators = new List<Indicator>();
         private readonly Dictionary<Indicator, Indicator.Signal?[]> lastSignalsForIndicator
@@ -136,6 +137,16 @@ namespace TradeBot
                                   + "Price: {4}",
             };
 
+            candlesSeriesSmall = new CandleStickSeries
+            {
+                Title = "Instrument",
+                DecreasingColor = OxyColor.FromRgb(214, 107, 107),
+                IncreasingColor = OxyColor.FromRgb(121, 229, 112),
+                StrokeThickness = 1,
+                TrackerFormatString = "Time: {DateTime:dd.MM.yyyy HH:mm}" + Environment.NewLine
+                      + "Price: {4}",
+            };
+
             buySeries = new ScatterSeries
             {
                 Title = "Buy",
@@ -156,24 +167,7 @@ namespace TradeBot
                 MarkerSize = 6
             };
 
-            NewCandlesLoaded += (int count) =>
-            {
-                // move buy points by candles.Count
-                var s = new List<ScatterPoint>(buySeries.Points.Count);
-                s.AddRange(buySeries.Points.Select(
-                    point => new ScatterPoint(point.X + count, point.Y, point.Size, point.Value, point.Tag)));
-                buySeries.Points.Clear();
-                buySeries.Points.AddRange(s);
-
-                // move sell points by candles.Count
-                s = new List<ScatterPoint>(sellSeries.Points.Count);
-                s.AddRange(sellSeries.Points.Select(
-                    point => new ScatterPoint(point.X + count, point.Y, point.Size, point.Value, point.Tag)));
-                sellSeries.Points.Clear();
-                sellSeries.Points.AddRange(s);
-            };
-
-            model.Series.Add(candlesSeries);
+            model.Series.Add(candlesSeriesSmall);
             model.Series.Add(buySeries);
             model.Series.Add(sellSeries);
 
@@ -217,6 +211,11 @@ namespace TradeBot
 
             xAxis.AxisChanged += (object sender, AxisChangedEventArgs e) =>
             {
+                UpdateCandlesSeriesSmall();
+            };
+
+            xAxis.AxisChanged += (object sender, AxisChangedEventArgs e) =>
+            {
                 AdjustYExtent(xAxis, yAxis, model);
             };
 
@@ -227,13 +226,54 @@ namespace TradeBot
             PlotView.ActualController.BindMouseDown(OxyMouseButton.Left, PlotCommands.PanAt);
             PlotView.ActualController.BindMouseDown(OxyMouseButton.Right, PlotCommands.SnapTrack);
 
+            NewCandlesLoaded += (int count) =>
+            {
+                UpdateCandlesSeriesSmall();
+                MoveBuyAndSellSeries(count);
+            };
+
             CandlesAdded += () =>
             {
+                UpdateCandlesSeriesSmall();
                 AdjustYExtent(xAxis, yAxis, model);
                 PlotView.InvalidatePlot();
             };
 
             DataContext = this;
+        }
+
+        private void MoveBuyAndSellSeries(int by)
+        {
+            // move buy points by candles.Count
+            var s = new List<ScatterPoint>(buySeries.Points.Count);
+            s.AddRange(buySeries.Points.Select(
+                point => new ScatterPoint(point.X + by, point.Y, point.Size, point.Value, point.Tag)));
+            buySeries.Points.Clear();
+            buySeries.Points.AddRange(s);
+
+            // move sell points by candles.Count
+            s = new List<ScatterPoint>(sellSeries.Points.Count);
+            s.AddRange(sellSeries.Points.Select(
+                point => new ScatterPoint(point.X + by, point.Y, point.Size, point.Value, point.Tag)));
+            sellSeries.Points.Clear();
+            sellSeries.Points.AddRange(s);
+        }
+
+        private void UpdateCandlesSeriesSmall()
+        {
+            var l = xAxis.ActualMinimum;
+            if (l < 0)
+                l = 0;
+            var r = xAxis.ActualMaximum;
+            Console.WriteLine($"{l}, {r},,, {candlesSeries.Items.Count}");
+
+            if (candlesSeries.Items.Count < (int)l)
+                return;
+            if (candlesSeries.Items.Count < (int)r)
+                r = candlesSeries.Items.Count;
+            var candlesSmall = candlesSeries.Items.GetRange((int)l, (int)r - (int)l);
+            candlesSeriesSmall.Items.Clear();
+            candlesSeriesSmall.Items.AddRange(candlesSmall);
         }
 
         private (PlotView plot, LinearAxis x, LinearAxis y) AddOscillatorPlot()
