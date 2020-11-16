@@ -49,10 +49,12 @@ namespace TradeBot
                 try
                 {
                     await TradingChart.LoadNewCandles();
+                    var ti = TradingChart.TradingInterface;
+                    BalanceTextBlock.Text = (ti.Balance + ti.DealPrice * ti.DealLots).ToString();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    //MessageBox.Show(ex.Message);
                 }
             });
         }

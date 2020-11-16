@@ -41,6 +41,10 @@
                     </Style>
                 </ComboBox.Resources>
             </ComboBox>
+
+            <TextBlock x:Name="BalanceTextBlock">
+                
+            </TextBlock>
         </StackPanel>
 
         <local:TradingChart Grid.Row="1" x:Name="TradingChart"
