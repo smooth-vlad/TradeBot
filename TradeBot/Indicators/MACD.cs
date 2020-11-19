@@ -23,8 +23,7 @@ namespace TradeBot
 
         public Macd(IMaCalculation calculationMethod,
             int shortPeriod, int longPeriod, int differencePeriod,
-            List<HighLowItem> candles,
-            float weight = 1f)
+            List<HighLowItem> candles)
         {
             if (shortPeriod < 1 || longPeriod < 1 || differencePeriod < 1 ||
                 shortPeriod >= longPeriod)
@@ -35,7 +34,6 @@ namespace TradeBot
             this.LongPeriod = longPeriod;
             this.DifferencePeriod = differencePeriod;
             this.candles = candles;
-            this.Weight = weight;
 
             shortMovingAverage = new MovingAverage(shortPeriod, MovingAverageCalculation, candles);
 
@@ -108,18 +106,18 @@ namespace TradeBot
             signalSeries.Items.Clear();
         }
 
-        public override Signal? GetSignal(int currentCandleIndex)
-        {
-            if (currentCandleIndex > macdSeries.Points.Count - 2 || currentCandleIndex > signalSeries.Items.Count - 2)
-                return null;
+        //public override Signal? GetSignal(int currentCandleIndex)
+        //{
+        //    if (currentCandleIndex > macdSeries.Points.Count - 2 || currentCandleIndex > signalSeries.Items.Count - 2)
+        //        return null;
 
-            if ((macdSeries.Points[currentCandleIndex + 1].Y - signalSeries.Items[currentCandleIndex + 1].Value) *
-                (macdSeries.Points[currentCandleIndex].Y - signalSeries.Items[currentCandleIndex].Value) < 0)
-                return macdSeries.Points[currentCandleIndex].Y > signalSeries.Items[currentCandleIndex].Value
-                    ? new Signal(Signal.Type.Buy)
-                    : new Signal(Signal.Type.Sell);
+        //    if ((macdSeries.Points[currentCandleIndex + 1].Y - signalSeries.Items[currentCandleIndex + 1].Value) *
+        //        (macdSeries.Points[currentCandleIndex].Y - signalSeries.Items[currentCandleIndex].Value) < 0)
+        //        return macdSeries.Points[currentCandleIndex].Y > signalSeries.Items[currentCandleIndex].Value
+        //            ? new Signal(Signal.Type.Buy)
+        //            : new Signal(Signal.Type.Sell);
 
-            return null;
-        }
+        //    return null;
+        //}
     }
 }

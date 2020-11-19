@@ -29,7 +29,6 @@ namespace TradeBot
         private void addButton_Click(object sender, RoutedEventArgs e)
         {
             PeriodErrorTextBlock.Text = string.Empty;
-            WeightErrorTextBlock.Text = string.Empty;
             if (!int.TryParse(PeriodTextBox.Text.Trim(), out var period))
             {
                 PeriodErrorTextBlock.Text = "* Not a number";
@@ -42,23 +41,6 @@ namespace TradeBot
                 PeriodErrorTextBlock.Text = "* Value should be >= 1";
                 PeriodTextBox.Focus();
                 return;
-            }
-
-            {
-                if (!float.TryParse(WeightTextBox.Text.Trim().Replace('.', ','), out var weight))
-                {
-                    WeightErrorTextBlock.Text = "* Not a number";
-                    WeightTextBox.Focus();
-                    return;
-                }
-
-                if (weight < 0 || weight > 10)
-                {
-                    WeightErrorTextBlock.Text = "* Value should be >= 0 and <= 10";
-                    WeightTextBox.Focus();
-                    return;
-                }
-                Weight = weight;
             }
 
             Period = period;

@@ -19,15 +19,13 @@ namespace TradeBot
         public override bool IsOscillator => false;
 
         public MovingAverage(int period, IMaCalculation calculationMethod,
-            List<HighLowItem> candles,
-            float weight = 1f)
+            List<HighLowItem> candles)
         {
             if (period < 1)
                 throw new ArgumentOutOfRangeException();
 
             this.Period = period;
             this.candles = candles;
-            this.Weight = weight;
             MovingAverageCalculation = calculationMethod ?? throw new ArgumentNullException();
 
             series = new LineSeries
@@ -36,21 +34,21 @@ namespace TradeBot
             };
         }
 
-        public override Signal? GetSignal(int currentCandleIndex)
-        {
-            if (currentCandleIndex > candles.Count - Period - 2)
-                return null;
+        //public override Signal? GetSignal(int currentCandleIndex)
+        //{
+        //    if (currentCandleIndex > candles.Count - Period - 2)
+        //        return null;
 
-            if ((candles[currentCandleIndex + 1].Close - series.Points[currentCandleIndex + 1].Y) *
-                (candles[currentCandleIndex].Close - series.Points[currentCandleIndex].Y) < 0)
-            {
-                return candles[currentCandleIndex].Close > series.Points[currentCandleIndex].Y
-                    ? new Signal(Signal.Type.Buy)
-                    : new Signal(Signal.Type.Sell);
-            }
+        //    if ((candles[currentCandleIndex + 1].Close - series.Points[currentCandleIndex + 1].Y) *
+        //        (candles[currentCandleIndex].Close - series.Points[currentCandleIndex].Y) < 0)
+        //    {
+        //        return candles[currentCandleIndex].Close > series.Points[currentCandleIndex].Y
+        //            ? new Signal(Signal.Type.Buy)
+        //            : new Signal(Signal.Type.Sell);
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         public override void UpdateSeries()
         {

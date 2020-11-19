@@ -7,11 +7,8 @@ namespace TradeBot
     public abstract class Indicator
     {
         protected List<HighLowItem> candles;
-        public float Weight { get; protected set; } = 1.0f;
         public abstract bool IsOscillator { get; }
         public bool AreSeriesAttached { get; protected set; }
-
-        public abstract Signal? GetSignal(int currentCandleIndex);
 
         public abstract void UpdateSeries();
 
@@ -23,21 +20,5 @@ namespace TradeBot
 
         public delegate void SeriesUpdatedDelegate();
         public SeriesUpdatedDelegate SeriesUpdated;
-
-        public struct Signal
-        {
-            public enum Type
-            {
-                Buy,
-                Sell
-            }
-
-            public readonly Type type;
-
-            public Signal(Type type)
-            {
-                this.type = type;
-            }
-        }
     }
 }

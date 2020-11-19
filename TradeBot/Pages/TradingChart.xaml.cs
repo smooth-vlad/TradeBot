@@ -26,11 +26,8 @@ namespace TradeBot
         private readonly CandleStickSeries candlesSeriesSmall;
 
         private List<Indicator> indicators = new List<Indicator>();
-        private readonly Dictionary<Indicator, Indicator.Signal?[]> lastSignalsForIndicator
-            = new Dictionary<Indicator, Indicator.Signal?[]>();
-
-        private readonly ScatterSeries buySeries;
-        private readonly ScatterSeries sellSeries;
+        //private readonly Dictionary<Indicator, Indicator.Signal?[]> lastSignalsForIndicator
+        //    = new Dictionary<Indicator, Indicator.Signal?[]>();
 
         private readonly PlotModel model;
         private readonly LinearAxis xAxis;
@@ -69,6 +66,8 @@ namespace TradeBot
         private DateTime rightCandleDate; // newest
         private DateTime leftCandleDate; // oldest
         public DateTime rightCandleDateAhead; // TO TEST 'REAL TIME TRADING'
+
+        private BuySellSeries buySellSeries;
 
         public Task LoadingCandlesTask { get; private set; }
 
@@ -147,29 +146,10 @@ namespace TradeBot
                       + "Price: {4}",
             };
 
-            buySeries = new ScatterSeries
-            {
-                Title = "Buy",
-                MarkerType = MarkerType.Circle,
-                MarkerFill = OxyColor.FromRgb(207, 105, 255),
-                MarkerStroke = OxyColor.FromRgb(55, 55, 55),
-                MarkerStrokeThickness = 1,
-                MarkerSize = 6
-            };
-
-            sellSeries = new ScatterSeries
-            {
-                Title = "Sell",
-                MarkerType = MarkerType.Circle,
-                MarkerFill = OxyColor.FromRgb(255, 248, 82),
-                MarkerStroke = OxyColor.FromRgb(55, 55, 55),
-                MarkerStrokeThickness = 1,
-                MarkerSize = 6
-            };
-
             model.Series.Add(candlesSeriesSmall);
-            model.Series.Add(buySeries);
-            model.Series.Add(sellSeries);
+
+            buySellSeries = new BuySellSeries();
+            buySellSeries.AttachToChart(model.Series);
 
             xAxis.LabelFormatter = d =>
             {
@@ -229,7 +209,7 @@ namespace TradeBot
             NewCandlesLoaded += (int count) =>
             {
                 UpdateCandlesSeriesSmall();
-                MoveBuyAndSellSeries(count);
+                buySellSeries.OffsetSeries(count);
             };
 
             CandlesAdded += () =>
@@ -240,23 +220,6 @@ namespace TradeBot
             };
 
             DataContext = this;
-        }
-
-        private void MoveBuyAndSellSeries(int by)
-        {
-            // move buy points by candles.Count
-            var s = new List<ScatterPoint>(buySeries.Points.Count);
-            s.AddRange(buySeries.Points.Select(
-                point => new ScatterPoint(point.X + by, point.Y, point.Size, point.Value, point.Tag)));
-            buySeries.Points.Clear();
-            buySeries.Points.AddRange(s);
-
-            // move sell points by candles.Count
-            s = new List<ScatterPoint>(sellSeries.Points.Count);
-            s.AddRange(sellSeries.Points.Select(
-                point => new ScatterPoint(point.X + by, point.Y, point.Size, point.Value, point.Tag)));
-            sellSeries.Points.Clear();
-            sellSeries.Points.AddRange(s);
         }
 
         private void UpdateCandlesSeriesSmall()
@@ -351,7 +314,7 @@ namespace TradeBot
         {
             indicators.Add(indicator);
 
-            lastSignalsForIndicator.Add(indicator, new Indicator.Signal?[3]);
+            //lastSignalsForIndicator.Add(indicator, new Indicator.Signal?[3]);
 
             NewCandlesLoaded += (int count) =>
             {
@@ -388,7 +351,7 @@ namespace TradeBot
             foreach (var indicator in indicators)
                 indicator.DetachFromChart();
             indicators = new List<Indicator>();
-            lastSignalsForIndicator.Clear();
+            //lastSignalsForIndicator.Clear();
 
             if (oscillatorsPlots.Count > 0)
             {
@@ -403,8 +366,7 @@ namespace TradeBot
 
         public void RemoveMarkers()
         {
-            buySeries.Points.Clear();
-            sellSeries.Points.Clear();
+            buySellSeries.ClearSeries();
             AdjustYExtent(xAxis, yAxis, model);
             PlotView.InvalidatePlot();
         }
@@ -412,12 +374,20 @@ namespace TradeBot
         private int CalculateMinSeriesLength()
         {
             var result = (int)xAxis.ActualMaximum;
+            IEnumerable<int> enumerable()
+            {
+                foreach (var series in model.Series)
+                {
+                    if (series.GetType() == typeof(LineSeries) && ((LineSeries)series).Title != "Operations")
+                    {
+                        yield return ((LineSeries)series).Points.Count;
+                    }
+                }
+            }
 
             // check series on the main plot
-            result = (from series in model.Series
-                      where series.GetType() == typeof(LineSeries)
-                      select ((LineSeries)series).Points.Count)
-                        .Concat(new[] { result }).Min();
+
+            result = enumerable().Concat(new[] { result }).Min();
 
             // check other series outside of the main plot
             foreach (var series in oscillatorsPlots.SelectMany(plot => plot.plot.Model.Series))
@@ -510,7 +480,7 @@ namespace TradeBot
                 LoadedCandles > xAxis.ActualMaximum + 100)
                 return;
 
-            var period = GetPeriod(candleInterval);
+            var period = Instrument.GetPeriod(candleInterval);
             var candles = await instrument.GetCandles(leftCandleDate - period,
                 leftCandleDate, candleInterval);
             leftCandleDate -= period;
@@ -531,25 +501,23 @@ namespace TradeBot
             candlesLoadsFailed = 0;
         }
 
-        private void ClearLastSignalsForEachIndicator()
-        {
-            foreach (var v in lastSignalsForIndicator.Values)
-                for (var i = 0; i < v.Length; ++i)
-                    v[i] = null;
-        }
+        //private void ClearLastSignalsForEachIndicator()
+        //{
+        //    foreach (var v in lastSignalsForIndicator.Values)
+        //        for (var i = 0; i < v.Length; ++i)
+        //            v[i] = null;
+        //}
 
         public async void RestartSeries()
         {
-            buySeries.Points.Clear();
-            sellSeries.Points.Clear();
-
+            buySellSeries.ClearSeries();
             candlesSeries.Items.Clear();
-            ClearLastSignalsForEachIndicator();
+            //ClearLastSignalsForEachIndicator();
 
             LoadedCandles = 0;
             candlesLoadsFailed = 0;
             // TO TEST 'REAL TIME TRADING'
-            leftCandleDate = rightCandleDate = rightCandleDateAhead = DateTime.Now.AddDays(-55); 
+            leftCandleDate = rightCandleDate = rightCandleDateAhead = DateTime.Now.AddDays(-120);
 
             foreach (var indicator in indicators)
                 indicator.ResetSeries();
@@ -562,21 +530,29 @@ namespace TradeBot
 
         public async Task BeginTesting()
         {
-            TradingInterface = new TradingInterface(1_000);
+            //TradingInterface = new TradingInterface(1_000);
+            TradingInterface.ResetState(1_000);
+            buySellSeries.ClearSeries();
 
-            buySeries.Points.Clear();
-            sellSeries.Points.Clear();
-            ClearLastSignalsForEachIndicator();
+            ITradingStrategy tradingStrategy = new MaTradingStrategy();
+
+            //buySeries.Points.Clear();
+            //sellSeries.Points.Clear();
+            //ClearLastSignalsForEachIndicator();
 
             await Task.Factory.StartNew(() =>
             {
                 for (var i = candlesSeries.Items.Count - 1; i >= 0; --i)
-                    UpdateSignals(i);
+                {
+                    UpdateSignals(i, tradingStrategy);
+
+                    //UpdateSignals(i);
+                }
             });
             PlotView.InvalidatePlot();
 
             if (TradingInterface.State != TradingInterface.States.Empty)
-                TradingInterface.Sell(TradingInterface.DealPrice);
+                TradingInterface.ClosePosition(TradingInterface.DealPrice);
         }
 
         private (double max, double min) CalculateMaxMinPrice(int startIndex, int period)
@@ -595,124 +571,157 @@ namespace TradeBot
             return (maxPrice, minPrice);
         }
 
-        private void UpdateSignals(int i)
+        private void UpdateSignals(int i, ITradingStrategy tradingStrategy)
         {
+            var signal = tradingStrategy.GetSignal();
             var candle = candlesSeries.Items[i];
-            var resLong = CalculateMaxMinPrice(i, 200);
-            var resShort = CalculateMaxMinPrice(i, 50);
-            (double max, double min) res = ((resLong.max + resShort.max) / 2, (resLong.min + resShort.min) / 2);
-            double step = (res.max - res.min) / 1000;
 
-            double stopLossMultiplier = 300;
-
-            OffsetLastSignalsBy1ForEachIndicator();
-
-            foreach (var indicator in indicators)
-            {
-                if (!lastSignalsForIndicator.TryGetValue(indicator, out var signals))
-                    continue;
-
-                signals[signals.Length - 1] = indicator.GetSignal(i);
-            }
-
-            if (TradingInterface.State == TradingInterface.States.Bought && candle.Close < TradingInterface.StopLoss)
-            { // stop loss to sell
-                sellSeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
-                TradingInterface.Sell(candle.Close);
-            }
-            if (TradingInterface.State == TradingInterface.States.Sold && candle.Close > TradingInterface.StopLoss)
-            { // stop loss to buy
-                buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
-                TradingInterface.Sell(candle.Close);
-            }
-
-            var signalWeight = CalculateSignalWeight();
-            if (signalWeight >= 1 && TradingInterface.State != TradingInterface.States.Bought)
+            if (signal != null && signal.Value.type == ITradingStrategy.Signal.Type.Buy
+                && TradingInterface.State != TradingInterface.States.Bought)
             { // buy signal
-                buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
-
                 if (TradingInterface.State != TradingInterface.States.Empty)
                 {
-                    buySeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
-                    TradingInterface.Sell(candle.Close);
+                    TradingInterface.ClosePosition(candle.Close);
+                    buySellSeries.ClosePosition(i, candle.Close);
                 }
-
-                TradingInterface.Buy(candle.Close, false);
-                TradingInterface.StopLoss = candle.Close - step * stopLossMultiplier;
+                else
+                {
+                    TradingInterface.OpenPosition(candle.Close, false);
+                    buySellSeries.OpenPosition(i, candle.Close, false);
+                }
             }
-            else if (signalWeight <= -1 && TradingInterface.State != TradingInterface.States.Sold)
+            else if (signal != null && signal.Value.type == ITradingStrategy.Signal.Type.Sell
+                && TradingInterface.State != TradingInterface.States.Sold)
             { // sell signal
-                sellSeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
-
                 if (TradingInterface.State != TradingInterface.States.Empty)
                 {
-                    sellSeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
-                    TradingInterface.Sell(candle.Close);
+                    TradingInterface.ClosePosition(candle.Close);
+                    buySellSeries.ClosePosition(i, candle.Close);
                 }
-
-                TradingInterface.Buy(candle.Close, true);
-                TradingInterface.StopLoss = candle.Close + step * stopLossMultiplier;
+                else
+                {
+                    TradingInterface.OpenPosition(candle.Close, true);
+                    buySellSeries.OpenPosition(i, candle.Close, true);
+                }
             }
+
+            //var candle = candlesSeries.Items[i];
+            //var resLong = CalculateMaxMinPrice(i, 200);
+            //var resShort = CalculateMaxMinPrice(i, 50);
+            //(double max, double min) res = ((resLong.max + resShort.max) / 2, (resLong.min + resShort.min) / 2);
+            //double step = (res.max - res.min) / 1000;
+
+            //double stopLossMultiplier = 300;
+
+            //OffsetLastSignalsBy1ForEachIndicator();
+
+            //foreach (var indicator in indicators)
+            //{
+            //    if (!lastSignalsForIndicator.TryGetValue(indicator, out var signals))
+            //        continue;
+
+            //    signals[signals.Length - 1] = indicator.GetSignal(i);
+            //}
+
+            //if (TradingInterface.State == TradingInterface.States.Bought && candle.Close < TradingInterface.StopLoss)
+            //{ // stop loss to sell
+            //    sellSeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
+            //    TradingInterface.Sell(candle.Close);
+            //}
+            //if (TradingInterface.State == TradingInterface.States.Sold && candle.Close > TradingInterface.StopLoss)
+            //{ // stop loss to buy
+            //    buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
+            //    TradingInterface.Sell(candle.Close);
+            //}
+
+            //var signalWeight = CalculateSignalWeight();
+            //if (signalWeight >= 1 && TradingInterface.State != TradingInterface.States.Bought)
+            //{ // buy signal
+            //    buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
+
+            //    if (TradingInterface.State != TradingInterface.States.Empty)
+            //    {
+            //        buySeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
+            //        TradingInterface.Sell(candle.Close);
+            //    }
+
+            //    TradingInterface.Buy(candle.Close, false);
+            //    TradingInterface.StopLoss = candle.Close - step * stopLossMultiplier;
+            //}
+            //else if (signalWeight <= -1 && TradingInterface.State != TradingInterface.States.Sold)
+            //{ // sell signal
+            //    sellSeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
+
+            //    if (TradingInterface.State != TradingInterface.States.Empty)
+            //    {
+            //        sellSeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
+            //        TradingInterface.Sell(candle.Close);
+            //    }
+
+            //    TradingInterface.Buy(candle.Close, true);
+            //    TradingInterface.StopLoss = candle.Close + step * stopLossMultiplier;
+            //}
         }
 
-        private void OffsetLastSignalsBy1ForEachIndicator()
-        {
-            foreach (var signals in lastSignalsForIndicator.Values)
-            {
-                for (var j = 1; j < signals.Length; ++j)
-                    signals[j - 1] = signals[j];
-                signals[signals.Length - 1] = null;
-            }
-        }
+        //private void OffsetLastSignalsBy1ForEachIndicator()
+        //{
+        //    foreach (var signals in lastSignalsForIndicator.Values)
+        //    {
+        //        for (var j = 1; j < signals.Length; ++j)
+        //            signals[j - 1] = signals[j];
+        //        signals[signals.Length - 1] = null;
+        //    }
+        //}
 
         private float CalculateSignalWeight()
         {
-            float result = 0;
-            foreach (var signals in lastSignalsForIndicator)
-            {
-                var v = signals.Value;
-                if (v[v.Length - 1] == null) continue;
-                switch (v[v.Length - 1].Value.type)
-                {
-                    case Indicator.Signal.Type.Buy:
-                        result += signals.Key.Weight;
-                        break;
+            //float result = 0;
+            //foreach (var signals in lastSignalsForIndicator)
+            //{
+            //    var v = signals.Value;
+            //    if (v[v.Length - 1] == null) continue;
+            //    switch (v[v.Length - 1].Value.type)
+            //    {
+            //        case Indicator.Signal.Type.Buy:
+            //            result += signals.Key.Weight;
+            //            break;
 
-                    case Indicator.Signal.Type.Sell:
-                        result -= signals.Key.Weight;
-                        break;
-                }
-            }
+            //        case Indicator.Signal.Type.Sell:
+            //            result -= signals.Key.Weight;
+            //            break;
+            //    }
+            //}
 
-            foreach (var signals in lastSignalsForIndicator)
-            {
-                var v = signals.Value;
-                bool buyFound = false, sellFound = false;
-                for (int i = 0; i < v.Length - 1; ++i)
-                {
-                    if (!v[i].HasValue)
-                        continue;
+            //foreach (var signals in lastSignalsForIndicator)
+            //{
+            //    var v = signals.Value;
+            //    bool buyFound = false, sellFound = false;
+            //    for (int i = 0; i < v.Length - 1; ++i)
+            //    {
+            //        if (!v[i].HasValue)
+            //            continue;
 
-                    var signal = v[i].Value;
-                    switch (signal.type)
-                    {
-                        case Indicator.Signal.Type.Buy:
-                            buyFound = true;
-                            break;
+            //        var signal = v[i].Value;
+            //        switch (signal.type)
+            //        {
+            //            case Indicator.Signal.Type.Buy:
+            //                buyFound = true;
+            //                break;
 
-                        case Indicator.Signal.Type.Sell:
-                            sellFound = true;
-                            break;
-                    }
-                }
+            //            case Indicator.Signal.Type.Sell:
+            //                sellFound = true;
+            //                break;
+            //        }
+            //    }
 
-                if (buyFound)
-                    result += signals.Key.Weight;
-                if (sellFound)
-                    result -= signals.Key.Weight;
-            }
+            //    if (buyFound)
+            //        result += signals.Key.Weight;
+            //    if (sellFound)
+            //        result -= signals.Key.Weight;
+            //}
 
-            return result;
+            //return result;
+            return 1;
         }
 
         public async Task LoadNewCandles()
@@ -735,7 +744,9 @@ namespace TradeBot
 
             NewCandlesLoaded?.Invoke(candles.Count);
 
-            UpdateSignals(0);
+            // TODO: extract from this method
+            ITradingStrategy tradingStrategy = new MaTradingStrategy();
+            UpdateSignals(0, tradingStrategy);
         }
 
         // ================================
@@ -752,7 +763,7 @@ namespace TradeBot
                 MovingAverageDialog.CalculationMethod.Exponential => new ExponentialMaCalculation(),
                 _ => new SimpleMaCalculation(),
             };
-            AddIndicator(new MovingAverage(dialog.Period, calculationMethod, candlesSeries.Items, dialog.Weight));
+            AddIndicator(new MovingAverage(dialog.Period, calculationMethod, candlesSeries.Items));
         }
 
         private void MACD_Click(object sender, RoutedEventArgs e)
@@ -767,7 +778,7 @@ namespace TradeBot
             };
             AddIndicator(new Macd(
                 calculationMethod, dialog.ShortPeriod, dialog.LongPeriod, dialog.HistogramPeriod,
-                candlesSeries.Items, dialog.Weight));
+                candlesSeries.Items));
         }
 
         private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
@@ -779,29 +790,5 @@ namespace TradeBot
         {
             RemoveMarkers();
         }
-
-        #region IntervalToMaxPeriod
-
-        public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
-            = new Dictionary<CandleInterval, TimeSpan>
-            {
-                {CandleInterval.Minute, TimeSpan.FromDays(1)},
-                {CandleInterval.FiveMinutes, TimeSpan.FromDays(1)},
-                {CandleInterval.QuarterHour, TimeSpan.FromDays(1)},
-                {CandleInterval.HalfHour, TimeSpan.FromDays(1)},
-                {CandleInterval.Hour, TimeSpan.FromDays(7).Add(TimeSpan.FromHours(-1))},
-                {CandleInterval.Day, TimeSpan.FromDays(364)},
-                {CandleInterval.Week, TimeSpan.FromDays(364 * 2)},
-                {CandleInterval.Month, TimeSpan.FromDays(364 * 10)}
-            };
-
-        public static TimeSpan GetPeriod(CandleInterval interval)
-        {
-            if (!intervalToMaxPeriod.TryGetValue(interval, out var result))
-                throw new KeyNotFoundException();
-            return result;
-        }
-
-        #endregion IntervalToMaxPeriod
     }
 }

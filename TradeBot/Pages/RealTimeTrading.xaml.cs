@@ -25,7 +25,8 @@ namespace TradeBot
             candlesTimer = new Timer(e => CandlesTimerElapsed(),
                 null,
                 TimeSpan.FromSeconds(5),
-                TimeSpan.FromSeconds(1));
+                TimeSpan.FromSeconds(0.3)
+            );
 
             DataContext = this;
 

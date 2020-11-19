@@ -1,17 +1,13 @@
-﻿using System;
+﻿using OxyPlot;
+using OxyPlot.Series;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TradeBot
 {
     public class TradingInterface
     {
-        public TradingInterface(double initialBalance)
-        {
-            Balance = initialBalance;
-            DealLots = 0;
-            DealPrice = 0;
-            State = States.Empty;
-        }
-
         public enum States
         {
             Bought, // long trade
@@ -39,7 +35,15 @@ namespace TradeBot
         public double DealPrice { get; private set; }
         public int DealLots { get; private set; }
 
-        public void Sell(double price)
+        public TradingInterface(double initialBalance)
+        {
+            Balance = initialBalance;
+            DealLots = 0;
+            DealPrice = 0;
+            State = States.Empty;
+        }
+
+        public void ClosePosition(double price)
         {
             if (price < 0) throw new ArgumentOutOfRangeException("price should be positive");
             if (State == States.Empty) throw new InvalidOperationException("can't sell because state is not bought");
@@ -49,6 +53,7 @@ namespace TradeBot
                 Balance += diff;
             else
                 Balance -= diff;
+
             DealLots = 0;
             stopLoss = null;
             State = States.Empty;
@@ -72,12 +77,19 @@ namespace TradeBot
                 Balance += diff;
         }
 
-        public void Buy(double price, bool isShort)
+        public void OpenPosition(double price, bool isShort)
         {            
             if (price < 0) throw new ArgumentOutOfRangeException("price should be positive");
 
             int maxLots = (int)(Balance / price);
             Buy(price, maxLots, isShort);
+        }
+
+        public void ResetState(double newBalance)
+        {
+            Balance = newBalance;
+            State = States.Empty;
+            stopLoss = null;
         }
     }
 }
