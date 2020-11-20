@@ -25,8 +25,6 @@ namespace TradeBot
         private readonly CandleStickSeries candlesSeriesSmall;
 
         private List<Indicator> indicators = new List<Indicator>();
-        //private readonly Dictionary<Indicator, Indicator.Signal?[]> lastSignalsForIndicator
-        //    = new Dictionary<Indicator, Indicator.Signal?[]>();
 
         private readonly PlotModel model;
         private readonly LinearAxis xAxis;
@@ -313,8 +311,6 @@ namespace TradeBot
         {
             indicators.Add(indicator);
 
-            //lastSignalsForIndicator.Add(indicator, new Indicator.Signal?[3]);
-
             NewCandlesLoaded += (int count) =>
             {
                 indicator.ResetSeries();
@@ -350,7 +346,6 @@ namespace TradeBot
             foreach (var indicator in indicators)
                 indicator.DetachFromChart();
             indicators = new List<Indicator>();
-            //lastSignalsForIndicator.Clear();
 
             if (oscillatorsPlots.Count > 0)
             {
@@ -377,6 +372,7 @@ namespace TradeBot
             {
                 foreach (var series in model.Series)
                 {
+                    // TODO: check by title is not good
                     if (series.GetType() == typeof(LineSeries) && ((LineSeries)series).Title != "Operations")
                     {
                         yield return ((LineSeries)series).Points.Count;

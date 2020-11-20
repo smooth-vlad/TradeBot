@@ -53,9 +53,8 @@ namespace TradeBot
                     var ti = TradingChart.TradingInterface;
                     BalanceTextBlock.Text = (ti.Balance + ti.DealPrice * ti.DealLots).ToString();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    //MessageBox.Show(ex.Message);
                 }
             });
         }

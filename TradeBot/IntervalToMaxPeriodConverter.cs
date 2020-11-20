@@ -4,7 +4,7 @@ using Tinkoff.Trading.OpenApi.Models;
 
 namespace TradeBot
 {
-    public class IntervalToMaxPeriodConverter
+    public static class IntervalToMaxPeriodConverter
     {
         public static TimeSpan GetMaxPeriod(CandleInterval interval)
         {

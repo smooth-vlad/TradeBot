@@ -7,7 +7,7 @@ using Tinkoff.Trading.OpenApi.Network;
 
 namespace TradeBot
 {
-    class TinkoffInterface
+    public static class TinkoffInterface
     {
         public static Context Context { get; set; }
     }
