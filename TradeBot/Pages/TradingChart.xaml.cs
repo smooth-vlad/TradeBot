@@ -579,13 +579,13 @@ namespace TradeBot
             { // buy signal
                 if (TradingInterface.State != TradingInterface.States.Empty)
                 {
-                    TradingInterface.ClosePosition(candle.Close);
                     buySellSeries.ClosePosition(i, candle.Close);
+                    TradingInterface.ClosePosition(candle.Close);
                 }
                 else
                 {
-                    TradingInterface.OpenPosition(candle.Close, false);
                     buySellSeries.OpenPosition(i, candle.Close, false);
+                    TradingInterface.OpenPosition(candle.Close, false);
                 }
             }
             else if (signal != null && signal.Value.type == ITradingStrategy.Signal.Type.Sell
@@ -593,13 +593,13 @@ namespace TradeBot
             { // sell signal
                 if (TradingInterface.State != TradingInterface.States.Empty)
                 {
-                    TradingInterface.ClosePosition(candle.Close);
                     buySellSeries.ClosePosition(i, candle.Close);
+                    TradingInterface.ClosePosition(candle.Close);
                 }
                 else
                 {
-                    TradingInterface.OpenPosition(candle.Close, true);
                     buySellSeries.OpenPosition(i, candle.Close, true);
+                    TradingInterface.OpenPosition(candle.Close, true);
                 }
             }
 
