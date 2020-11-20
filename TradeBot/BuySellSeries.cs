@@ -116,6 +116,8 @@ namespace TradeBot
             mainSeries.Points.Clear();
             foreach (var s in scatterSeries)
                 s.Points.Clear();
+            OpenPrice = null;
+            IsShort = false;
         }
 
         public void OffsetSeries(int offset)
@@ -159,8 +161,6 @@ namespace TradeBot
             if (!this.OpenPrice.HasValue)
                 throw new InvalidOperationException("can't close position because there is no opened position");
 
-            this.OpenPrice = null;
-
             var newPoint = new DataPoint(candleIndex + 0.25, closePrice);
             var newPointScatter = new ScatterPoint(candleIndex + 0.25, closePrice);
 
@@ -178,6 +178,8 @@ namespace TradeBot
                 closePositionsGreenCirclesSeries.Points.Add(newPointScatter);
                 closePositionsPlusShapesSeries.Points.Add(newPointScatter);
             }
+
+            this.OpenPrice = null;
         }
     }
 }
