@@ -21,8 +21,7 @@ namespace TradeBot
     /// </summary>
     public partial class TradingChart : UserControl
     {
-        private readonly CandleStickSeries candlesSeries;
-        private readonly CandleStickSeries candlesSeriesSmall;
+        private CandleStickSeries candlesSeries;
 
         private List<Indicator> indicators = new List<Indicator>();
 
@@ -41,6 +40,7 @@ namespace TradeBot
             {
                 _instrument = value;
                 candlesSeries.Title = value.ActiveInstrument.Name;
+                //candlesSeriesSmall.Title = value.ActiveInstrument.Name;
             }
         }
 
@@ -133,17 +133,7 @@ namespace TradeBot
                                   + "Price: {4}",
             };
 
-            candlesSeriesSmall = new CandleStickSeries
-            {
-                Title = "Instrument",
-                DecreasingColor = OxyColor.FromRgb(214, 107, 107),
-                IncreasingColor = OxyColor.FromRgb(121, 229, 112),
-                StrokeThickness = 1,
-                TrackerFormatString = "Time: {DateTime:dd.MM.yyyy HH:mm}" + Environment.NewLine
-                      + "Price: {4}",
-            };
-
-            model.Series.Add(candlesSeriesSmall);
+            model.Series.Add(candlesSeries);
 
             buySellSeries = new BuySellSeries();
             buySellSeries.AttachToChart(model.Series);
@@ -188,11 +178,6 @@ namespace TradeBot
 
             xAxis.AxisChanged += (object sender, AxisChangedEventArgs e) =>
             {
-                UpdateCandlesSeriesSmall();
-            };
-
-            xAxis.AxisChanged += (object sender, AxisChangedEventArgs e) =>
-            {
                 AdjustYExtent(xAxis, yAxis, model);
             };
 
@@ -205,35 +190,16 @@ namespace TradeBot
 
             NewCandlesLoaded += (int count) =>
             {
-                UpdateCandlesSeriesSmall();
                 buySellSeries.OffsetSeries(count);
             };
 
             CandlesAdded += () =>
             {
-                UpdateCandlesSeriesSmall();
                 AdjustYExtent(xAxis, yAxis, model);
                 PlotView.InvalidatePlot();
             };
 
             DataContext = this;
-        }
-
-        private void UpdateCandlesSeriesSmall()
-        {
-            var l = xAxis.ActualMinimum;
-            if (l < 0)
-                l = 0;
-            var r = xAxis.ActualMaximum;
-            Console.WriteLine($"{l}, {r},,, {candlesSeries.Items.Count}");
-
-            if (candlesSeries.Items.Count < (int)l)
-                return;
-            if (candlesSeries.Items.Count < (int)r)
-                r = candlesSeries.Items.Count;
-            var candlesSmall = candlesSeries.Items.GetRange((int)l, (int)r - (int)l);
-            candlesSeriesSmall.Items.Clear();
-            candlesSeriesSmall.Items.AddRange(candlesSmall);
         }
 
         private (PlotView plot, LinearAxis x, LinearAxis y) AddOscillatorPlot()
