@@ -479,7 +479,7 @@ namespace TradeBot
                 LoadedCandles > xAxis.ActualMaximum + 100)
                 return;
 
-            var period = Instrument.GetPeriod(candleInterval);
+            var period = IntervalToMaxPeriodConverter.GetMaxPeriod(candleInterval);
             var candles = await instrument.GetCandles(leftCandleDate - period,
                 leftCandleDate, candleInterval);
             leftCandleDate -= period;

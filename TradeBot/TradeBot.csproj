@@ -87,6 +87,7 @@
     <Compile Include="Indicators\MovingAverageCalculation\IMACalculation.cs" />
     <Compile Include="Indicators\MovingAverageCalculation\SimpleMACalculation.cs" />
     <Compile Include="Instrument.cs" />
+    <Compile Include="IntervalToMaxPeriodConverter.cs" />
     <Compile Include="Pages\AuthPage.xaml.cs">
       <DependentUpon>AuthPage.xaml</DependentUpon>
     </Compile>

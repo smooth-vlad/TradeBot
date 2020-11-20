@@ -24,25 +24,5 @@ namespace TradeBot
             result.Reverse();
             return result;
         }
-
-        public static readonly Dictionary<CandleInterval, TimeSpan> intervalToMaxPeriod
-            = new Dictionary<CandleInterval, TimeSpan>
-            {
-                {CandleInterval.Minute, TimeSpan.FromDays(1)},
-                {CandleInterval.FiveMinutes, TimeSpan.FromDays(1)},
-                {CandleInterval.QuarterHour, TimeSpan.FromDays(1)},
-                {CandleInterval.HalfHour, TimeSpan.FromDays(1)},
-                {CandleInterval.Hour, TimeSpan.FromDays(7).Add(TimeSpan.FromHours(-1))},
-                {CandleInterval.Day, TimeSpan.FromDays(364)},
-                {CandleInterval.Week, TimeSpan.FromDays(364 * 2)},
-                {CandleInterval.Month, TimeSpan.FromDays(364 * 10)}
-            };
-
-        public static TimeSpan GetPeriod(CandleInterval interval)
-        {
-            if (!intervalToMaxPeriod.TryGetValue(interval, out var result))
-                throw new KeyNotFoundException();
-            return result;
-        }
     }
 }
