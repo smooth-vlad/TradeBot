@@ -110,7 +110,7 @@
     </Compile>
     <Compile Include="TinkoffInterface.cs" />
     <Compile Include="TradingInterface.cs" />
-    <Compile Include="TradingStrategies\ITradingStrategy.cs" />
+    <Compile Include="TradingStrategies\TradingStrategy.cs" />
     <Page Include="IndicatorsDialogs\MacdDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
