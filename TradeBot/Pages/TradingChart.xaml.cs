@@ -13,7 +13,6 @@ using Axis = OxyPlot.Axes.Axis;
 using LinearAxis = OxyPlot.Axes.LinearAxis;
 using LineSeries = OxyPlot.Series.LineSeries;
 using PlotCommands = OxyPlot.PlotCommands;
-using ScatterSeries = OxyPlot.Series.ScatterSeries;
 
 namespace TradeBot
 {
@@ -501,18 +500,10 @@ namespace TradeBot
             candlesLoadsFailed = 0;
         }
 
-        //private void ClearLastSignalsForEachIndicator()
-        //{
-        //    foreach (var v in lastSignalsForIndicator.Values)
-        //        for (var i = 0; i < v.Length; ++i)
-        //            v[i] = null;
-        //}
-
         public async void RestartSeries()
         {
             buySellSeries.ClearSeries();
             candlesSeries.Items.Clear();
-            //ClearLastSignalsForEachIndicator();
 
             LoadedCandles = 0;
             candlesLoadsFailed = 0;
@@ -535,8 +526,6 @@ namespace TradeBot
 
             ITradingStrategy tradingStrategy = new MaTradingStrategy();
 
-            //ClearLastSignalsForEachIndicator();
-
             await Task.Factory.StartNew(() =>
             {
                 for (var i = candlesSeries.Items.Count - 1; i >= 0; --i)
@@ -551,22 +540,6 @@ namespace TradeBot
                 buySellSeries.ClosePosition(0, TradingInterface.DealPrice);
                 TradingInterface.ClosePosition(TradingInterface.DealPrice);
             }
-        }
-
-        private (double max, double min) CalculateMaxMinPrice(int startIndex, int period)
-        {
-            double maxPrice = double.MinValue;
-            double minPrice = double.MaxValue;
-            for (int j = startIndex; j < period + startIndex && j < candlesSeries.Items.Count; ++j)
-            {
-                var h = candlesSeries.Items[j].High;
-                var l = candlesSeries.Items[j].Low;
-                if (h > maxPrice)
-                    maxPrice = h;
-                if (l < minPrice)
-                    minPrice = l;
-            }
-            return (maxPrice, minPrice);
         }
 
         private void UpdateSignals(int i, ITradingStrategy tradingStrategy)
@@ -611,13 +584,8 @@ namespace TradeBot
 
             //double stopLossMultiplier = 300;
 
-            //OffsetLastSignalsBy1ForEachIndicator();
-
             //foreach (var indicator in indicators)
             //{
-            //    if (!lastSignalsForIndicator.TryGetValue(indicator, out var signals))
-            //        continue;
-
             //    signals[signals.Length - 1] = indicator.GetSignal(i);
             //}
 
@@ -633,66 +601,55 @@ namespace TradeBot
             //}
         }
 
-        //private void OffsetLastSignalsBy1ForEachIndicator()
+        //private float CalculateSignalWeight()
         //{
-        //    foreach (var signals in lastSignalsForIndicator.Values)
+        //    float result = 0;
+        //    foreach (var signals in lastSignalsForIndicator)
         //    {
-        //        for (var j = 1; j < signals.Length; ++j)
-        //            signals[j - 1] = signals[j];
-        //        signals[signals.Length - 1] = null;
+        //        var v = signals.Value;
+        //        if (v[v.Length - 1] == null) continue;
+        //        switch (v[v.Length - 1].Value.type)
+        //        {
+        //            case Indicator.Signal.Type.Buy:
+        //                result += signals.Key.Weight;
+        //                break;
+
+        //            case Indicator.Signal.Type.Sell:
+        //                result -= signals.Key.Weight;
+        //                break;
+        //        }
         //    }
+
+        //    foreach (var signals in lastSignalsForIndicator)
+        //    {
+        //        var v = signals.Value;
+        //        bool buyFound = false, sellFound = false;
+        //        for (int i = 0; i < v.Length - 1; ++i)
+        //        {
+        //            if (!v[i].HasValue)
+        //                continue;
+
+        //            var signal = v[i].Value;
+        //            switch (signal.type)
+        //            {
+        //                case Indicator.Signal.Type.Buy:
+        //                    buyFound = true;
+        //                    break;
+
+        //                case Indicator.Signal.Type.Sell:
+        //                    sellFound = true;
+        //                    break;
+        //            }
+        //        }
+
+        //        if (buyFound)
+        //            result += signals.Key.Weight;
+        //        if (sellFound)
+        //            result -= signals.Key.Weight;
+        //    }
+
+        //    return result;
         //}
-
-        private float CalculateSignalWeight()
-        {
-            //float result = 0;
-            //foreach (var signals in lastSignalsForIndicator)
-            //{
-            //    var v = signals.Value;
-            //    if (v[v.Length - 1] == null) continue;
-            //    switch (v[v.Length - 1].Value.type)
-            //    {
-            //        case Indicator.Signal.Type.Buy:
-            //            result += signals.Key.Weight;
-            //            break;
-
-            //        case Indicator.Signal.Type.Sell:
-            //            result -= signals.Key.Weight;
-            //            break;
-            //    }
-            //}
-
-            //foreach (var signals in lastSignalsForIndicator)
-            //{
-            //    var v = signals.Value;
-            //    bool buyFound = false, sellFound = false;
-            //    for (int i = 0; i < v.Length - 1; ++i)
-            //    {
-            //        if (!v[i].HasValue)
-            //            continue;
-
-            //        var signal = v[i].Value;
-            //        switch (signal.type)
-            //        {
-            //            case Indicator.Signal.Type.Buy:
-            //                buyFound = true;
-            //                break;
-
-            //            case Indicator.Signal.Type.Sell:
-            //                sellFound = true;
-            //                break;
-            //        }
-            //    }
-
-            //    if (buyFound)
-            //        result += signals.Key.Weight;
-            //    if (sellFound)
-            //        result -= signals.Key.Weight;
-            //}
-
-            //return result;
-            return 1;
-        }
 
         public async Task LoadNewCandles()
         {
