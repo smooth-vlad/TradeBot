@@ -547,7 +547,10 @@ namespace TradeBot
             PlotView.InvalidatePlot();
 
             if (TradingInterface.State != TradingInterface.States.Empty)
+            {
+                buySellSeries.ClosePosition(0, TradingInterface.DealPrice);
                 TradingInterface.ClosePosition(TradingInterface.DealPrice);
+            }
         }
 
         private (double max, double min) CalculateMaxMinPrice(int startIndex, int period)
