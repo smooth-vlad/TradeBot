@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace TradeBot
 {
-    public interface ITradingStrategy
+    public abstract class TradingStrategy
     {
-        Signal? GetSignal();
+        public abstract Signal? GetSignal();
 
         public struct Signal
         {

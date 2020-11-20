@@ -520,7 +520,7 @@ namespace TradeBot
             TradingInterface.ResetState(1_000);
             buySellSeries.ClearSeries();
 
-            ITradingStrategy tradingStrategy = new MaTradingStrategy();
+            TradingStrategy tradingStrategy = new MaTradingStrategy();
 
             await Task.Factory.StartNew(() =>
             {
@@ -538,12 +538,12 @@ namespace TradeBot
             }
         }
 
-        private void UpdateSignals(int i, ITradingStrategy tradingStrategy)
+        private void UpdateSignals(int i, TradingStrategy tradingStrategy)
         {
             var signal = tradingStrategy.GetSignal();
             var candle = candlesSeries.Items[i];
 
-            if (signal != null && signal.Value.type == ITradingStrategy.Signal.Type.Buy
+            if (signal != null && signal.Value.type == TradingStrategy.Signal.Type.Buy
                 && TradingInterface.State != TradingInterface.States.Bought)
             { // buy signal
                 if (TradingInterface.State != TradingInterface.States.Empty)
@@ -557,7 +557,7 @@ namespace TradeBot
                     TradingInterface.OpenPosition(candle.Close, false);
                 }
             }
-            else if (signal != null && signal.Value.type == ITradingStrategy.Signal.Type.Sell
+            else if (signal != null && signal.Value.type == TradingStrategy.Signal.Type.Sell
                 && TradingInterface.State != TradingInterface.States.Sold)
             { // sell signal
                 if (TradingInterface.State != TradingInterface.States.Empty)
@@ -668,7 +668,7 @@ namespace TradeBot
             NewCandlesLoaded?.Invoke(candles.Count);
 
             // TODO: extract from this method
-            ITradingStrategy tradingStrategy = new MaTradingStrategy();
+            TradingStrategy tradingStrategy = new MaTradingStrategy();
             UpdateSignals(0, tradingStrategy);
         }
 
