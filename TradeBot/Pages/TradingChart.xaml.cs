@@ -530,14 +530,11 @@ namespace TradeBot
 
         public async Task BeginTesting()
         {
-            //TradingInterface = new TradingInterface(1_000);
             TradingInterface.ResetState(1_000);
             buySellSeries.ClearSeries();
 
             ITradingStrategy tradingStrategy = new MaTradingStrategy();
 
-            //buySeries.Points.Clear();
-            //sellSeries.Points.Clear();
             //ClearLastSignalsForEachIndicator();
 
             await Task.Factory.StartNew(() =>
@@ -545,8 +542,6 @@ namespace TradeBot
                 for (var i = candlesSeries.Items.Count - 1; i >= 0; --i)
                 {
                     UpdateSignals(i, tradingStrategy);
-
-                    //UpdateSignals(i);
                 }
             });
             PlotView.InvalidatePlot();
@@ -632,34 +627,6 @@ namespace TradeBot
             //{ // stop loss to buy
             //    buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
             //    TradingInterface.Sell(candle.Close);
-            //}
-
-            //var signalWeight = CalculateSignalWeight();
-            //if (signalWeight >= 1 && TradingInterface.State != TradingInterface.States.Bought)
-            //{ // buy signal
-            //    buySeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
-
-            //    if (TradingInterface.State != TradingInterface.States.Empty)
-            //    {
-            //        buySeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
-            //        TradingInterface.Sell(candle.Close);
-            //    }
-
-            //    TradingInterface.Buy(candle.Close, false);
-            //    TradingInterface.StopLoss = candle.Close - step * stopLossMultiplier;
-            //}
-            //else if (signalWeight <= -1 && TradingInterface.State != TradingInterface.States.Sold)
-            //{ // sell signal
-            //    sellSeries.Points.Add(new ScatterPoint(i - 0.5, candle.Close, 8));
-
-            //    if (TradingInterface.State != TradingInterface.States.Empty)
-            //    {
-            //        sellSeries.Points.Add(new ScatterPoint(i + 0.5, candle.Close, 8));
-            //        TradingInterface.Sell(candle.Close);
-            //    }
-
-            //    TradingInterface.Buy(candle.Close, true);
-            //    TradingInterface.StopLoss = candle.Close + step * stopLossMultiplier;
             //}
         }
 
