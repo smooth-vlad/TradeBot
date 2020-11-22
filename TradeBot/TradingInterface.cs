@@ -17,21 +17,6 @@ namespace TradeBot
 
         public double Balance { get; private set; }
         public States State { get; private set; }
-        private double? stopLoss;
-        public double? StopLoss
-        {
-            get => stopLoss;
-            set
-            {
-                if (value != null)
-                {
-                    if (value <= 0) throw new ArgumentOutOfRangeException("stopLoss should be > 0");
-                    if (State == States.Empty) throw new InvalidOperationException("can't set stopLoss if state is 'empty' (buy first)");
-                }
-
-                stopLoss = value;
-            }
-        }
         public double DealPrice { get; private set; }
         public int DealLots { get; private set; }
 
@@ -55,7 +40,6 @@ namespace TradeBot
                 Balance -= diff;
 
             DealLots = 0;
-            stopLoss = null;
             State = States.Empty;
         }
 
@@ -89,7 +73,6 @@ namespace TradeBot
         {
             Balance = newBalance;
             State = States.Empty;
-            stopLoss = null;
         }
     }
 }

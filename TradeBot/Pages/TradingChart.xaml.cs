@@ -72,6 +72,8 @@ namespace TradeBot
         public delegate void CandlesAddedDelegate();
         public event CandlesAddedDelegate CandlesAdded;
 
+        TradingStrategy tradingStrategy;
+
         public TradingChart()
         {
             InitializeComponent();
@@ -198,6 +200,12 @@ namespace TradeBot
             };
 
             DataContext = this;
+        }
+        public void SetStrategy()
+        {
+            var ma = new MovingAverage(32, new ExponentialMaCalculation(), candlesSeries.Items);
+            AddIndicator(ma);
+            tradingStrategy = new MaTradingStrategy(ma, candlesSeries.Items);
         }
 
         private (PlotView plot, LinearAxis x, LinearAxis y) AddOscillatorPlot()
@@ -470,6 +478,8 @@ namespace TradeBot
             // TO TEST 'REAL TIME TRADING'
             leftCandleDate = rightCandleDate = rightCandleDateAhead = DateTime.Now.AddDays(-120);
 
+            SetStrategy();
+
             foreach (var indicator in indicators)
                 indicator.ResetSeries();
 
@@ -483,8 +493,7 @@ namespace TradeBot
         {
             TradingInterface.ResetState(1_000);
             buySellSeries.ClearSeries();
-
-            TradingStrategy tradingStrategy = new MaTradingStrategy();
+            tradingStrategy.Reset();
 
             await Task.Factory.StartNew(() =>
             {
@@ -504,7 +513,7 @@ namespace TradeBot
 
         private void UpdateSignals(int i, TradingStrategy tradingStrategy)
         {
-            var signal = tradingStrategy.GetSignal();
+            var signal = tradingStrategy.GetSignal(i);
             var candle = candlesSeries.Items[i];
 
             if (signal?.type == TradingStrategy.Signal.Type.Buy
@@ -520,6 +529,8 @@ namespace TradeBot
                     buySellSeries.OpenPosition(i, candle.Close, false);
                     TradingInterface.OpenPosition(candle.Close, false);
                 }
+
+                //tradingStrategy.PlaceStopLoss(i, candle.Close, 0.3);
             }
             else if (signal?.type == TradingStrategy.Signal.Type.Sell
                 && TradingInterface.State != TradingInterface.States.Sold)
@@ -534,6 +545,8 @@ namespace TradeBot
                     buySellSeries.OpenPosition(i, candle.Close, true);
                     TradingInterface.OpenPosition(candle.Close, true);
                 }
+
+                //tradingStrategy.PlaceStopLoss(i, candle.Close, 0.3);
             }
 
             //var candle = candlesSeries.Items[i];
@@ -631,8 +644,7 @@ namespace TradeBot
 
             NewCandlesLoaded?.Invoke(candles.Count);
 
-            // TODO: extract from this method
-            TradingStrategy tradingStrategy = new MaTradingStrategy();
+            tradingStrategy.Reset();
             UpdateSignals(0, tradingStrategy);
         }
 
