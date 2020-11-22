@@ -21,13 +21,14 @@ namespace TradeBot
     /// </summary>
     public partial class TradingChart : UserControl
     {
-        private CandleStickSeries candlesSeries;
-
-        private List<Indicator> indicators = new List<Indicator>();
-
         private readonly PlotModel model;
         private readonly LinearAxis xAxis;
         private readonly LinearAxis yAxis;
+
+        private CandleStickSeries candlesSeries;
+        private BuySellSeries buySellSeries;
+
+        private List<Indicator> indicators = new List<Indicator>();
 
         private List<(PlotView plot, LinearAxis x, LinearAxis y)> oscillatorsPlots
             = new List<(PlotView plot, LinearAxis x, LinearAxis y)>();
@@ -40,7 +41,6 @@ namespace TradeBot
             {
                 _instrument = value;
                 candlesSeries.Title = value.ActiveInstrument.Name;
-                //candlesSeriesSmall.Title = value.ActiveInstrument.Name;
             }
         }
 
@@ -63,8 +63,6 @@ namespace TradeBot
         private DateTime rightCandleDate; // newest
         private DateTime leftCandleDate; // oldest
         public DateTime rightCandleDateAhead; // TO TEST 'REAL TIME TRADING'
-
-        private BuySellSeries buySellSeries;
 
         public Task LoadingCandlesTask { get; private set; }
 
@@ -509,7 +507,7 @@ namespace TradeBot
             var signal = tradingStrategy.GetSignal();
             var candle = candlesSeries.Items[i];
 
-            if (signal != null && signal.Value.type == TradingStrategy.Signal.Type.Buy
+            if (signal?.type == TradingStrategy.Signal.Type.Buy
                 && TradingInterface.State != TradingInterface.States.Bought)
             { // buy signal
                 if (TradingInterface.State != TradingInterface.States.Empty)
@@ -523,7 +521,7 @@ namespace TradeBot
                     TradingInterface.OpenPosition(candle.Close, false);
                 }
             }
-            else if (signal != null && signal.Value.type == TradingStrategy.Signal.Type.Sell
+            else if (signal?.type == TradingStrategy.Signal.Type.Sell
                 && TradingInterface.State != TradingInterface.States.Sold)
             { // sell signal
                 if (TradingInterface.State != TradingInterface.States.Empty)

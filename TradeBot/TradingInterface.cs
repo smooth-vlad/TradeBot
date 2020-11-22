@@ -59,7 +59,7 @@ namespace TradeBot
             State = States.Empty;
         }
 
-        public void Buy(double price, int lots, bool isShort)
+        public void OpenPosition(double price, int lots, bool isShort)
         {
             if (State != States.Empty) throw new InvalidOperationException("can't buy because state is bought already (sell first)");
             int maxLots = (int)(Balance / price);
@@ -82,7 +82,7 @@ namespace TradeBot
             if (price < 0) throw new ArgumentOutOfRangeException("price should be positive");
 
             int maxLots = (int)(Balance / price);
-            Buy(price, maxLots, isShort);
+            OpenPosition(price, maxLots, isShort);
         }
 
         public void ResetState(double newBalance)
