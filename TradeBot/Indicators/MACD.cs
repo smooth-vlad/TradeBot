@@ -13,12 +13,14 @@ namespace TradeBot
         public IMaCalculation MovingAverageCalculation { get; }
 
         public IReadOnlyList<DataPoint> MacdValues => macdSeries.Points;
-        public IReadOnlyList<HistogramItem> SignalValues => signalSeries.Items;
+        public IReadOnlyList<DataPoint> SignalValues => signalSeries.Points;
+        public IReadOnlyList<HistogramItem> histogramValues => histogramSeries.Items;
 
         private MovingAverage longMovingAverage;
         private MovingAverage shortMovingAverage;
         private LineSeries macdSeries;
-        private HistogramSeries signalSeries;
+        private LineSeries signalSeries;
+        private HistogramSeries histogramSeries;
 
         private ElementCollection<Series> chart;
 
@@ -45,9 +47,15 @@ namespace TradeBot
             {
                 Title = "MACD"
             };
-            signalSeries = new HistogramSeries
+            signalSeries = new LineSeries
             {
                 Title = "MACD Signal Line"
+            };
+            histogramSeries = new HistogramSeries
+            {
+                Title = "MACD Histogram",
+                FillColor = OxyColors.Green,
+                NegativeFillColor = OxyColors.Red,
             };
         }
 
@@ -66,16 +74,26 @@ namespace TradeBot
 
             // signalSeries
             {
-                if (signalSeries.Items.Count > DifferencePeriod * 2)
-                    signalSeries.Items.RemoveRange(signalSeries.Items.Count - DifferencePeriod * 2, DifferencePeriod * 2);
+                if (signalSeries.Points.Count > DifferencePeriod * 2)
+                    signalSeries.Points.RemoveRange(signalSeries.Points.Count - DifferencePeriod * 2, DifferencePeriod * 2);
 
-                var movingAverage = MovingAverageCalculation.Calculate(index => macdSeries.Points[index].Y, signalSeries.Items.Count, macdSeries.Points.Count - DifferencePeriod, DifferencePeriod);
-                signalSeries.Items.Capacity += movingAverage.Count;
+                var movingAverage = MovingAverageCalculation.Calculate(index => macdSeries.Points[index].Y, signalSeries.Points.Count, macdSeries.Points.Count - DifferencePeriod, DifferencePeriod);
+                signalSeries.Points.Capacity += movingAverage.Count;
 
                 foreach (var t in movingAverage)
                 {
-                    var x = signalSeries.Items.Count;
-                    signalSeries.Items.Add(new HistogramItem(x - 0.2, x + 0.2, t, 1));
+                    var x = signalSeries.Points.Count;
+                    signalSeries.Points.Add(new DataPoint(x, t));
+                }
+            }
+
+            // macdHistogramSeries
+            {
+                histogramSeries.Items.Clear();
+                for (var i = 0; i < candles.Count - LongPeriod; ++i)
+                {
+                    var val = macdSeries.Points[i].Y - signalSeries.Points[i].Y;
+                    histogramSeries.Items.Add(new HistogramItem(i - 0.2, i + 0.2, val, 1));
                 }
             }
 
@@ -91,6 +109,7 @@ namespace TradeBot
 
             this.chart.Add(macdSeries);
             this.chart.Add(signalSeries);
+            this.chart.Add(histogramSeries);
 
             AreSeriesAttached = true;
         }
@@ -102,6 +121,7 @@ namespace TradeBot
 
             chart.Remove(macdSeries);
             chart.Remove(signalSeries);
+            chart.Remove(histogramSeries);
         }
 
         public override void ResetSeries()
@@ -109,7 +129,7 @@ namespace TradeBot
             shortMovingAverage.ResetSeries();
             longMovingAverage.ResetSeries();
             macdSeries.Points.Clear();
-            signalSeries.Items.Clear();
+            signalSeries.Points.Clear();
         }
     }
 }

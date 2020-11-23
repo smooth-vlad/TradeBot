@@ -22,9 +22,9 @@ namespace TradeBot
             if (candleIndex > macd.MacdValues.Count - 2 || candleIndex > macd.SignalValues.Count - 2)
                 return null;
 
-            if ((macd.MacdValues[candleIndex + 1].Y - macd.SignalValues[candleIndex + 1].Value) *
-                (macd.MacdValues[candleIndex].Y - macd.SignalValues[candleIndex].Value) < 0)
-                return macd.MacdValues[candleIndex].Y > macd.SignalValues[candleIndex].Value
+            if ((macd.MacdValues[candleIndex + 1].Y - macd.SignalValues[candleIndex + 1].Y) *
+                (macd.MacdValues[candleIndex].Y - macd.SignalValues[candleIndex].Y) < 0)
+                return macd.MacdValues[candleIndex].Y > macd.SignalValues[candleIndex].Y
                     ? new Signal(Signal.Type.Buy)
                     : new Signal(Signal.Type.Sell);
 
