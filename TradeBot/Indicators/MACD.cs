@@ -29,6 +29,7 @@ namespace TradeBot
         public Macd(IMaCalculation calculationMethod,
             int shortPeriod, int longPeriod, int differencePeriod,
             List<HighLowItem> candles)
+            : base(candles)
         {
             if (shortPeriod < 1 || longPeriod < 1 || differencePeriod < 1 ||
                 shortPeriod >= longPeriod)
@@ -38,7 +39,6 @@ namespace TradeBot
             this.ShortPeriod = shortPeriod;
             this.LongPeriod = longPeriod;
             this.DifferencePeriod = differencePeriod;
-            this.candles = candles;
 
             shortMovingAverage = new MovingAverage(shortPeriod, MovingAverageCalculation, candles);
             longMovingAverage = new MovingAverage(longPeriod, MovingAverageCalculation, candles);
@@ -94,7 +94,7 @@ namespace TradeBot
             // macdHistogramSeries
             {
                 histogramSeries.Items.Clear();
-                for (var i = 0; i < candles.Count - LongPeriod; ++i)
+                for (var i = 0; i < signalSeries.Points.Count && i < macdSeries.Points.Count; ++i)
                 {
                     var val = macdSeries.Points[i].Y - signalSeries.Points[i].Y;
                     histogramSeries.Items.Add(new HistogramItem(i - 0.2, i + 0.2, val, 1));
@@ -126,6 +126,9 @@ namespace TradeBot
             chart.Remove(histogramSeries);
             chart.Remove(macdSeries);
             chart.Remove(signalSeries);
+
+            chart = null;
+            AreSeriesAttached = false;
         }
 
         public override void ResetSeries()

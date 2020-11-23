@@ -211,6 +211,7 @@ namespace TradeBot
             //tradingStrategy = new MaTradingStrategy(candlesSeries.Items, ma);
             var macd = new Macd(new ExponentialMaCalculation(), 12, 26, 9, candlesSeries.Items);
             AddIndicator(macd);
+            AddIndicator(new Rsi(candlesSeries.Items, 14));
             tradingStrategy = new MacdTradingStrategy(candlesSeries.Items, macd);
         }
 
@@ -484,7 +485,9 @@ namespace TradeBot
             // TO TEST 'REAL TIME TRADING'
             leftCandleDate = rightCandleDate = rightCandleDateAhead = DateTime.Now.AddDays(-120);
 
-            SetStrategy();
+            if (tradingStrategy == null)
+                SetStrategy();
+            tradingStrategy?.Reset();
             StopLoss = null;
             instrument.ResetState();
 
@@ -582,7 +585,7 @@ namespace TradeBot
                 {
                     buySellSeries.OpenPosition(i, candle.Close, false);
                     TradingInterface.OpenPosition(instrument, candle.Close, false);
-                    PlaceStopLoss(i, candle.Close, false, 0.2);
+                    PlaceStopLoss(i, candle.Close, false, 0.15);
                 }
             }
             else if (signal?.type == TradingStrategy.Signal.Type.Sell
@@ -598,7 +601,7 @@ namespace TradeBot
                 {
                     buySellSeries.OpenPosition(i, candle.Close, true);
                     TradingInterface.OpenPosition(instrument, candle.Close, true);
-                    PlaceStopLoss(i, candle.Close, true, 0.2);
+                    PlaceStopLoss(i, candle.Close, true, 0.15);
                 }
             }
         }

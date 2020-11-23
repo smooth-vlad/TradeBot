@@ -1,5 +1,6 @@
 ﻿using OxyPlot;
 using OxyPlot.Series;
+using System;
 using System.Collections.Generic;
 
 namespace TradeBot
@@ -20,5 +21,10 @@ namespace TradeBot
 
         public delegate void SeriesUpdatedDelegate();
         public SeriesUpdatedDelegate SeriesUpdated;
+
+        protected Indicator(List<HighLowItem> candles)
+        {
+            this.candles = candles ?? throw new ArgumentNullException("candles should be set");
+        }
     }
 }

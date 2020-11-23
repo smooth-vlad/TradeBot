@@ -20,12 +20,12 @@ namespace TradeBot
 
         public MovingAverage(int period, IMaCalculation calculationMethod,
             List<HighLowItem> candles)
+            : base(candles)
         {
             if (period < 1)
                 throw new ArgumentOutOfRangeException();
 
             this.Period = period;
-            this.candles = candles;
             MovingAverageCalculation = calculationMethod ?? throw new ArgumentNullException();
 
             series = new LineSeries
@@ -46,7 +46,8 @@ namespace TradeBot
             var movingAverage = MovingAverageCalculation.Calculate(
                 index => candles[index].Close,
                 series.Points.Count,
-                candles.Count - Period, Period);
+                candles.Count - Period,
+                Period);
             series.Points.Capacity += movingAverage.Count;
             foreach (var t in movingAverage)
             {
@@ -70,6 +71,9 @@ namespace TradeBot
         public override void DetachFromChart()
         {
             chart?.Remove(series);
+
+            chart = null;
+            AreSeriesAttached = false;
         }
 
         public override void ResetSeries()
