@@ -36,12 +36,13 @@ namespace TradeBot
 
         public override void UpdateSeries()
         {
+            if (candles.Count < Period)
+                return;
+
             if (series.Points.Count > Period * 2)
             {
                 series.Points.RemoveRange(series.Points.Count - Period * 2, Period * 2);
             }
-            if (candles.Count < Period)
-                return;
             var movingAverage = MovingAverageCalculation.Calculate(
                 index => candles[index].Close,
                 series.Points.Count,

@@ -206,9 +206,12 @@ namespace TradeBot
         }
         public void SetStrategy()
         {
-            var ma = new MovingAverage(32, new ExponentialMaCalculation(), candlesSeries.Items);
-            AddIndicator(ma);
-            tradingStrategy = new MaTradingStrategy(candlesSeries.Items, ma);
+            //var ma = new MovingAverage(32, new ExponentialMaCalculation(), candlesSeries.Items);
+            //AddIndicator(ma);
+            //tradingStrategy = new MaTradingStrategy(candlesSeries.Items, ma);
+            var macd = new Macd(new ExponentialMaCalculation(), 12, 26, 9, candlesSeries.Items);
+            AddIndicator(macd);
+            tradingStrategy = new MacdTradingStrategy(candlesSeries.Items, macd);
         }
 
         private (PlotView plot, LinearAxis x, LinearAxis y) AddOscillatorPlot()

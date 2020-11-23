@@ -12,6 +12,9 @@ namespace TradeBot
         public int ShortPeriod { get; }
         public IMaCalculation MovingAverageCalculation { get; }
 
+        public IReadOnlyList<DataPoint> MacdValues => macdSeries.Points;
+        public IReadOnlyList<HistogramItem> SignalValues => signalSeries.Items;
+
         private MovingAverage longMovingAverage;
         private MovingAverage shortMovingAverage;
         private LineSeries macdSeries;
@@ -50,6 +53,9 @@ namespace TradeBot
 
         public override void UpdateSeries()
         {
+            if (candles.Count < Math.Max(LongPeriod, DifferencePeriod))
+                return;
+
             shortMovingAverage.UpdateSeries();
 
             longMovingAverage.UpdateSeries();
@@ -105,19 +111,5 @@ namespace TradeBot
             macdSeries.Points.Clear();
             signalSeries.Items.Clear();
         }
-
-        //public override Signal? GetSignal(int currentCandleIndex)
-        //{
-        //    if (currentCandleIndex > macdSeries.Points.Count - 2 || currentCandleIndex > signalSeries.Items.Count - 2)
-        //        return null;
-
-        //    if ((macdSeries.Points[currentCandleIndex + 1].Y - signalSeries.Items[currentCandleIndex + 1].Value) *
-        //        (macdSeries.Points[currentCandleIndex].Y - signalSeries.Items[currentCandleIndex].Value) < 0)
-        //        return macdSeries.Points[currentCandleIndex].Y > signalSeries.Items[currentCandleIndex].Value
-        //            ? new Signal(Signal.Type.Buy)
-        //            : new Signal(Signal.Type.Sell);
-
-        //    return null;
-        //}
     }
 }
