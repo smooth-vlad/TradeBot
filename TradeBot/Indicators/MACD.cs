@@ -41,8 +41,18 @@ namespace TradeBot
             this.candles = candles;
 
             shortMovingAverage = new MovingAverage(shortPeriod, MovingAverageCalculation, candles);
-
             longMovingAverage = new MovingAverage(longPeriod, MovingAverageCalculation, candles);
+
+            histogramSeries = new HistogramSeries
+            {
+                Title = "MACD Histogram",
+                ColorMapping = (hli) =>
+                {
+                    if (hli.Value < 0)
+                        return OxyColor.FromRgb(214, 107, 107);
+                    return OxyColor.FromRgb(121, 229, 112);
+                },
+            };
             macdSeries = new LineSeries
             {
                 Title = "MACD"
@@ -50,12 +60,6 @@ namespace TradeBot
             signalSeries = new LineSeries
             {
                 Title = "MACD Signal Line"
-            };
-            histogramSeries = new HistogramSeries
-            {
-                Title = "MACD Histogram",
-                FillColor = OxyColors.Green,
-                NegativeFillColor = OxyColors.Red,
             };
         }
 
@@ -107,9 +111,9 @@ namespace TradeBot
 
             this.chart = chart;
 
+            this.chart.Add(histogramSeries);
             this.chart.Add(macdSeries);
             this.chart.Add(signalSeries);
-            this.chart.Add(histogramSeries);
 
             AreSeriesAttached = true;
         }
@@ -119,9 +123,9 @@ namespace TradeBot
             if (chart == null)
                 return;
 
+            chart.Remove(histogramSeries);
             chart.Remove(macdSeries);
             chart.Remove(signalSeries);
-            chart.Remove(histogramSeries);
         }
 
         public override void ResetSeries()
