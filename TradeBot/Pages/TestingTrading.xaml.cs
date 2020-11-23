@@ -38,7 +38,7 @@ namespace TradeBot
             SetEverythingEnabled(false);
             await TradingChart.BeginTesting();
             SetEverythingEnabled(true);
-            MessageBox.Show($"Testing ended\nInitial balance = 1000\nBalance after testing = {TradingChart.TradingInterface.Balance}");
+            MessageBox.Show($"Testing ended\nInitial balance = 10000\nBalance after testing = {TradingChart.TradingInterface.Balance}");
         }
 
         private void ListBoxItem1m_OnSelected(object sender, RoutedEventArgs e)

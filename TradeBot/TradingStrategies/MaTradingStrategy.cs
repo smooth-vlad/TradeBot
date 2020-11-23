@@ -1,6 +1,7 @@
 ﻿using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
+using System.Windows;
 
 namespace TradeBot
 {
@@ -8,12 +9,10 @@ namespace TradeBot
     {
         private MovingAverage ma;
 
-        public MaTradingStrategy(MovingAverage movingAverage, List<HighLowItem> candles)
+        public MaTradingStrategy(List<HighLowItem> candles, MovingAverage movingAverage)
             : base(candles)
         {
-            if (movingAverage == null)
-                throw new ArgumentNullException("moving average is null");
-            ma = movingAverage;
+            ma = movingAverage ?? throw new ArgumentNullException("moving average is null");
         }
 
         public override Signal? GetSignal(int candleIndex)

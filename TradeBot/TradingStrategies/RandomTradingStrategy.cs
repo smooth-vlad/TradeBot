@@ -1,6 +1,7 @@
 ﻿using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
+using System.Windows;
 
 namespace TradeBot
 {
@@ -19,9 +20,9 @@ namespace TradeBot
 
             return n switch
             {
-                < 80 => null,
-                < 90 => new Signal(Signal.Type.Buy),
-                _ => new Signal(Signal.Type.Sell)
+                > 90 => new Signal(Signal.Type.Buy),
+                > 80 => new Signal(Signal.Type.Sell),
+                _ => null,
             };
         }
 

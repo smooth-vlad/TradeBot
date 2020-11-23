@@ -3,6 +3,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using Tinkoff.Trading.OpenApi.Models;
+using static TradeBot.Instrument;
 
 namespace TradeBot
 {
@@ -50,8 +51,7 @@ namespace TradeBot
                 try
                 {
                     await TradingChart.LoadNewCandles();
-                    var ti = TradingChart.TradingInterface;
-                    BalanceTextBlock.Text = (ti.Balance + ti.DealPrice * ti.DealLots).ToString();
+                    BalanceTextBlock.Text = (TradingChart.TradingInterface.Balance + TradingChart.instrument.TotalPrice).ToString();
                 }
                 catch (Exception)
                 {

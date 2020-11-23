@@ -34,22 +34,6 @@ namespace TradeBot
             };
         }
 
-        //public override Signal? GetSignal(int currentCandleIndex)
-        //{
-        //    if (currentCandleIndex > candles.Count - Period - 2)
-        //        return null;
-
-        //    if ((candles[currentCandleIndex + 1].Close - series.Points[currentCandleIndex + 1].Y) *
-        //        (candles[currentCandleIndex].Close - series.Points[currentCandleIndex].Y) < 0)
-        //    {
-        //        return candles[currentCandleIndex].Close > series.Points[currentCandleIndex].Y
-        //            ? new Signal(Signal.Type.Buy)
-        //            : new Signal(Signal.Type.Sell);
-        //    }
-
-        //    return null;
-        //}
-
         public override void UpdateSeries()
         {
             if (series.Points.Count > Period * 2)
