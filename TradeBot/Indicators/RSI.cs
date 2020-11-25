@@ -8,14 +8,17 @@ using System.Threading.Tasks;
 
 namespace TradeBot
 {
-    class Rsi : Indicator
+    class Rsi : OscillatorIndicator
     {
-        public override bool IsOscillator => true;
-
         public int Period { get; private set; }
 
         private LineSeries series;
         public IReadOnlyList<DataPoint> Values => series.Points;
+
+        public override (double min, double max)? YAxisRange => (0, 100);
+
+        public const double OverboughtLine = 70;
+        public const double OversoldLine = 30;
 
         private ElementCollection<Series> chart;
 
@@ -23,6 +26,14 @@ namespace TradeBot
             : base(candles)
         {
             this.Period = period;
+
+            Plot.y.ExtraGridlineStyle = LineStyle.LongDash;
+            Plot.y.ExtraGridlineColor = OxyColor.FromArgb(30, 0, 0, 0);
+            Plot.y.ExtraGridlines = new double[]
+            {
+                OverboughtLine,
+                OversoldLine,
+            };
 
             series = new LineSeries
             {
@@ -59,10 +70,10 @@ namespace TradeBot
             if (candles.Count < Period)
                 return;
 
-            //if (series.Points.Count > Period * 2)
-            //{
-            //    series.Points.RemoveRange(series.Points.Count - Period * 2, Period * 2);
-            //}
+            if (series.Points.Count > Period * 2)
+            {
+                series.Points.RemoveRange(series.Points.Count - Period * 2, Period * 2);
+            }
             for (int i = series.Points.Count; i < candles.Count - Period; ++i)
             {
                 double u = 0;

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace TradeBot
 {
-    internal class Macd : Indicator
+    internal class Macd : OscillatorIndicator
     {
         public int DifferencePeriod { get; }
         public int LongPeriod { get; }
@@ -16,6 +16,8 @@ namespace TradeBot
         public IReadOnlyList<DataPoint> SignalValues => signalSeries.Points;
         public IReadOnlyList<HistogramItem> histogramValues => histogramSeries.Items;
 
+        public override (double min, double max)? YAxisRange => null;
+
         private MovingAverage longMovingAverage;
         private MovingAverage shortMovingAverage;
         private LineSeries macdSeries;
@@ -23,8 +25,6 @@ namespace TradeBot
         private HistogramSeries histogramSeries;
 
         private ElementCollection<Series> chart;
-
-        public override bool IsOscillator => true;
 
         public Macd(IMaCalculation calculationMethod,
             int shortPeriod, int longPeriod, int differencePeriod,

@@ -211,79 +211,9 @@ namespace TradeBot
             //tradingStrategy = new MaTradingStrategy(candlesSeries.Items, ma);
             var macd = new Macd(new ExponentialMaCalculation(), 12, 26, 9, candlesSeries.Items);
             AddIndicator(macd);
+            //AddIndicator(new Macd(new ExponentialMaCalculation(), 12, 26, 9, candlesSeries.Items));
             AddIndicator(new Rsi(candlesSeries.Items, 14));
             tradingStrategy = new MacdTradingStrategy(candlesSeries.Items, macd);
-        }
-
-        private (PlotView plot, LinearAxis x, LinearAxis y) AddOscillatorPlot()
-        {
-            var plot = new PlotView();
-
-            Grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
-            Grid.Children.Add(plot);
-            plot.SetValue(Grid.RowProperty, Grid.RowDefinitions.Count - 1);
-
-            plot.Model = new PlotModel
-            {
-                TextColor = OxyColor.FromArgb(140, 0, 0, 0),
-                PlotAreaBorderThickness = new OxyThickness(0, 1, 0, 1),
-                PlotAreaBorderColor = OxyColor.FromArgb(10, 0, 0, 0),
-                LegendPosition = LegendPosition.LeftTop,
-                LegendBackground = OxyColor.FromRgb(245, 245, 245),
-            };
-
-            var y = new LinearAxis // y axis (left)
-            {
-                Position = AxisPosition.Left,
-                IsPanEnabled = false,
-                IsZoomEnabled = false,
-                MajorGridlineThickness = 0,
-                MinorGridlineThickness = 0,
-                MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0),
-                MajorGridlineStyle = LineStyle.Solid,
-                TicklineColor = OxyColor.FromArgb(10, 0, 0, 0),
-                TickStyle = TickStyle.Outside
-            };
-            y.Zoom(-1, 1);
-
-            var x = new LinearAxis // x axis (bottom)
-            {
-                Position = AxisPosition.Bottom,
-                MajorGridlineStyle = LineStyle.Solid,
-                MajorGridlineThickness = 2,
-                MinorGridlineStyle = LineStyle.None,
-                TicklineColor = OxyColor.FromArgb(10, 0, 0, 0),
-                TickStyle = TickStyle.None,
-                LabelFormatter = v => string.Empty,
-                EndPosition = 0,
-                StartPosition = 1,
-                MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0)
-            };
-            x.AxisChanged += (object sender, AxisChangedEventArgs e) =>
-            {
-                AdjustYExtent(x, y, plot.Model);
-                plot.InvalidatePlot();
-            };
-            CandlesAdded += () =>
-            {
-                AdjustYExtent(x, y, plot.Model);
-                plot.InvalidatePlot();
-            };
-
-            plot.ActualController.UnbindAll();
-
-            plot.Model.Axes.Add(x);
-            plot.Model.Axes.Add(y);
-
-            x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
-
-            xAxis.AxisChanged += (object sender, AxisChangedEventArgs e) =>
-            {
-                x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
-            };
-
-            oscillatorsPlots.Add((plot, x, y));
-            return oscillatorsPlots.Last();
         }
 
         public void AddIndicator(Indicator indicator)
@@ -296,28 +226,36 @@ namespace TradeBot
                 indicator.UpdateSeries();
             };
 
-            if (indicator.IsOscillator)
+            if (indicator is OscillatorIndicator oscillator)
             {
-                var (plot, x, y) = AddOscillatorPlot();
-                indicator.AttachToChart(plot.Model.Series);
-                indicator.SeriesUpdated += () => AdjustYExtent(x, y, plot.Model);
+                var (plot, x, y) = oscillator.Plot;
+
+                Grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
+                Grid.Children.Add(plot);
+                plot.SetValue(Grid.RowProperty, Grid.RowDefinitions.Count - 1);
+
+                x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
+
+                xAxis.AxisChanged += (object sender, AxisChangedEventArgs e) =>
+                {
+                    x.Zoom(xAxis.ActualMinimum, xAxis.ActualMaximum);
+                };
+
+                oscillatorsPlots.Add((plot, x, y));
+
+                oscillator.AttachToChart(plot.Model.Series);
             }
             else
             {
                 indicator.AttachToChart(model.Series);
-                indicator.SeriesUpdated += () => AdjustYExtent(xAxis, yAxis, model);
+                indicator.SeriesUpdated += () =>
+                {
+                    AdjustYExtent(xAxis, yAxis, model);
+                    PlotView.InvalidatePlot();
+                };
             }
 
             indicator.UpdateSeries();
-
-            foreach (var (plot, x, y) in oscillatorsPlots)
-                AdjustYExtent(x, y, plot.Model);
-            foreach (var plot in oscillatorsPlots)
-                plot.plot.InvalidatePlot();
-
-            AdjustYExtent(xAxis, yAxis, model);
-
-            PlotView.InvalidatePlot();
         }
 
         public void RemoveIndicators()
@@ -377,7 +315,7 @@ namespace TradeBot
             return result;
         }
 
-        private static void AdjustYExtent(Axis x, Axis y, PlotModel m)
+        public static void AdjustYExtent(Axis x, Axis y, PlotModel m)
         {
             var points = new List<float>();
 
@@ -442,8 +380,9 @@ namespace TradeBot
                     minSeriesLength = CalculateMinSeriesLength();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                //MessageBox.Show(ex.Message);
                 candlesLoadsFailed++;
             }
         }

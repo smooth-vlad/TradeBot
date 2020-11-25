@@ -8,7 +8,6 @@ namespace TradeBot
     public abstract class Indicator
     {
         protected List<HighLowItem> candles;
-        public abstract bool IsOscillator { get; }
         public bool AreSeriesAttached { get; protected set; }
 
         public abstract void UpdateSeries();

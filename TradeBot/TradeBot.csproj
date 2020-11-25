@@ -86,6 +86,7 @@
     <Compile Include="Indicators\MovingAverageCalculation\ExponentialMACalculation.cs" />
     <Compile Include="Indicators\MovingAverageCalculation\IMACalculation.cs" />
     <Compile Include="Indicators\MovingAverageCalculation\SimpleMACalculation.cs" />
+    <Compile Include="Indicators\OscillatorIndicator.cs" />
     <Compile Include="Indicators\RSI.cs" />
     <Compile Include="Instrument.cs" />
     <Compile Include="IntervalToMaxPeriodConverter.cs" />

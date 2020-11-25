@@ -16,8 +16,6 @@ namespace TradeBot
 
         private ElementCollection<Series> chart;
 
-        public override bool IsOscillator => false;
-
         public MovingAverage(int period, IMaCalculation calculationMethod,
             List<HighLowItem> candles)
             : base(candles)
