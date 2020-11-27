@@ -209,6 +209,7 @@ namespace TradeBot
             //var ma = new MovingAverage(32, new ExponentialMaCalculation(), candlesSeries.Items);
             //AddIndicator(ma);
             //tradingStrategy = new MaTradingStrategy(candlesSeries.Items, ma);
+            //AddIndicator(new Macd(new ExponentialMaCalculation(), 12, 26, 9, candlesSeries.Items));
             var macd = new Macd(new ExponentialMaCalculation(), 12, 26, 9, candlesSeries.Items);
             AddIndicator(macd);
             //AddIndicator(new Macd(new ExponentialMaCalculation(), 12, 26, 9, candlesSeries.Items));

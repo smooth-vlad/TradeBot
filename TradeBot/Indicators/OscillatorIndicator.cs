@@ -39,6 +39,7 @@ namespace TradeBot
                 Position = AxisPosition.Left,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
+                IntervalLength = 20,
                 MajorGridlineThickness = 0,
                 MinorGridlineThickness = 0,
                 MajorGridlineColor = OxyColor.FromArgb(10, 0, 0, 0),
