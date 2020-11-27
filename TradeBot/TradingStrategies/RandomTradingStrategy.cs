@@ -20,8 +20,8 @@ namespace TradeBot
 
             return n switch
             {
-                > 90 => new Signal(Signal.Type.Buy),
-                > 80 => new Signal(Signal.Type.Sell),
+                > 90 => Signal.Buy,
+                > 80 => Signal.Sell,
                 _ => null,
             };
         }

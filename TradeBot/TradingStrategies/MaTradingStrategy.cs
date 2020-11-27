@@ -24,8 +24,8 @@ namespace TradeBot
                 (candles[candleIndex].Close - ma.Values[candleIndex].Y) < 0)
             {
                 return candles[candleIndex].Close > ma.Values[candleIndex].Y
-                    ? new Signal(Signal.Type.Buy)
-                    : new Signal(Signal.Type.Sell);
+                    ? Signal.Buy
+                    : Signal.Sell;
             }
 
             return null;

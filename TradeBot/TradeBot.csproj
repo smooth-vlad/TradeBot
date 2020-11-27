@@ -94,6 +94,7 @@
       <DependentUpon>AuthPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ShapesPaths.cs" />
+    <Compile Include="TradingStrategies\MacdRsiTradingStrategy.cs" />
     <Compile Include="TradingStrategies\MacdTradingStrategy.cs" />
     <Compile Include="TradingStrategies\MaTradingStrategy.cs" />
     <Compile Include="TradingStrategies\RandomTradingStrategy.cs" />

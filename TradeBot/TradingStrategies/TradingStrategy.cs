@@ -18,20 +18,10 @@ namespace TradeBot
 
         public abstract Signal? GetSignal(int candleIndex);
 
-        public struct Signal
+        public enum Signal
         {
-            public enum Type
-            {
-                Buy,
-                Sell
-            }
-
-            public readonly Type type;
-
-            public Signal(Type type)
-            {
-                this.type = type;
-            }
+            Buy,
+            Sell,
         }
 
         public abstract void Reset();

@@ -511,7 +511,7 @@ namespace TradeBot
 
             var signal = tradingStrategy.GetSignal(i);
 
-            if (signal?.type == TradingStrategy.Signal.Type.Buy
+            if (signal == TradingStrategy.Signal.Buy
                 && instrument.State != States.Bought)
             { // buy signal
                 if (instrument.State != States.Empty)
@@ -527,7 +527,7 @@ namespace TradeBot
                     PlaceStopLoss(i, candle.Close, false, 0.15);
                 }
             }
-            else if (signal?.type == TradingStrategy.Signal.Type.Sell
+            else if (signal == TradingStrategy.Signal.Sell
                 && instrument.State != States.Sold)
             { // sell signal
                 if (instrument.State != States.Empty)
