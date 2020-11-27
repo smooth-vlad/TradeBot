@@ -94,7 +94,6 @@
       <DependentUpon>AuthPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ShapesPaths.cs" />
-    <Compile Include="TradingStrategies\MacdRsiTradingStrategy.cs" />
     <Compile Include="TradingStrategies\MacdTradingStrategy.cs" />
     <Compile Include="TradingStrategies\MaTradingStrategy.cs" />
     <Compile Include="TradingStrategies\RandomTradingStrategy.cs" />
@@ -205,6 +204,9 @@
   <ItemGroup>
     <Resource Include="Icons\AddIcon.png" />
     <Resource Include="Icons\CloseIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Dice.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

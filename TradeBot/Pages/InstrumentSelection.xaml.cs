@@ -118,5 +118,11 @@ namespace TradeBot
             var cv = (CollectionView)CollectionViewSource.GetDefaultView(TickerComboBox.ItemsSource);
             TickerComboBox.IsDropDownOpen = cv.Count > 0;
         }
+
+        private void RandomizeImage_Click(object sender, RoutedEventArgs e)
+        {
+            var rnd = new Random();
+            TickerComboBox.SelectedIndex = rnd.Next(TickerComboBox.Items.Count);
+        }
     }
 }
