@@ -157,8 +157,6 @@ namespace TradeBot
                         return date.ToString("HH:mm");
 
                     case CandleInterval.Hour:
-                    case CandleInterval.TwoHours:
-                    case CandleInterval.FourHours:
                     case CandleInterval.Day:
                     case CandleInterval.Week:
                         return date.ToString("dd MMMM");

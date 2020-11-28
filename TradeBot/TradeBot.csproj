@@ -63,7 +63,7 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="Tinkoff.Trading.OpenApi, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Tinkoff.Trading.OpenApi.1.2.0\lib\netstandard2.0\Tinkoff.Trading.OpenApi.dll</HintPath>
+      <HintPath>..\packages\Tinkoff.Trading.OpenApi.1.6.0\lib\netstandard2.0\Tinkoff.Trading.OpenApi.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
