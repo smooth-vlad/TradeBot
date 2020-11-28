@@ -19,11 +19,13 @@ namespace TradeBot
 
         public override Signal? GetSignal(int candleIndex)
         {
-            if (candleIndex > macd.MacdValues.Count - 2 || candleIndex > macd.SignalValues.Count - 2)
+            if (candleIndex > macd.MacdValues.Count - 2
+                || candleIndex > macd.SignalValues.Count - 2
+                || candleIndex > macd.histogramValues.Count - 2)
                 return null;
 
-            if (macd.histogramValues[candleIndex + 1].Value * macd.histogramValues[candleIndex].Value < 0)
-                return macd.histogramValues[candleIndex].Value > 0
+            if (macd.MacdValues[candleIndex + 1].Y * macd.MacdValues[candleIndex].Y < 0)
+                return macd.MacdValues[candleIndex].Y > 0
                     ? Signal.Buy
                     : Signal.Sell;
 
@@ -33,7 +35,7 @@ namespace TradeBot
 
         public override void Reset()
         {
-            //throw new NotImplementedException();
+
         }
     }
 }
