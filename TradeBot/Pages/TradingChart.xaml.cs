@@ -397,6 +397,8 @@ namespace TradeBot
             var period = IntervalToMaxPeriodConverter.GetMaxPeriod(candleInterval);
             var candles = await instrument.GetCandles(leftCandleDate - period,
                 leftCandleDate, candleInterval);
+            if (candles == null)
+                return;
             leftCandleDate -= period;
             if (candles.Count == 0)
             {
@@ -548,11 +550,10 @@ namespace TradeBot
 
         public async Task LoadNewCandles()
         {
-            List<CandlePayload> candles;
-            candles = await instrument.GetCandles(rightCandleDate,
+            List<CandlePayload> candles = await instrument.GetCandles(rightCandleDate,
                     rightCandleDateAhead, candleInterval);
 
-            if (candles.Count == 0)
+            if (candles == null || candles.Count == 0)
                 return;
 
             rightCandleDate = rightCandleDateAhead;

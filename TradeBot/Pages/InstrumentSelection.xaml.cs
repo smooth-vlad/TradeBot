@@ -20,7 +20,7 @@ namespace TradeBot
         {
             InitializeComponent();
 
-            this.parent = parent;
+            this.parent = parent; 
 
             Dispatcher.Invoke(() => StockRadioButton.IsChecked = true);
         }
@@ -45,8 +45,9 @@ namespace TradeBot
                     parent.Content = new TestingTrading(activeInstrument);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -73,54 +74,53 @@ namespace TradeBot
 
         private async void EtfRadioButton_OnChecked(object sender, RoutedEventArgs e)
         {
-            try
+            instruments = await TinkoffInterface.Context.MarketEtfsAsync();
+            if (instruments == null)
             {
-                instruments = await TinkoffInterface.Context.MarketEtfsAsync();
-                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
-                TickerComboBox.ItemsSource = instrumentsLabels;
+                MessageBox.Show("Failed to get list of ETFs");
+                return;
             }
-            catch (Exception)
-            {
-                // ignored
-            }
+            instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
+            TickerComboBox.ItemsSource = instrumentsLabels;
+
         }
 
         private async void StockRadioButton_OnChecked(object sender, RoutedEventArgs e)
         {
-            try
+            instruments = await TinkoffInterface.Context.MarketStocksAsync();
+            if (instruments == null)
             {
-                instruments = await TinkoffInterface.Context.MarketStocksAsync();
-                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
-                TickerComboBox.ItemsSource = instrumentsLabels;
+                MessageBox.Show("Failed to get list of stocks");
+                return;
             }
-            catch (Exception)
-            {
-                // ignored
-            }
+            instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
+            TickerComboBox.ItemsSource = instrumentsLabels;
         }
 
         private async void CurrencyRadioButton_OnChecked(object sender, RoutedEventArgs e)
         {
-            try
+            instruments = await TinkoffInterface.Context.MarketCurrenciesAsync();
+            if (instruments == null)
             {
-                instruments = await TinkoffInterface.Context.MarketCurrenciesAsync();
-                instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
-                TickerComboBox.ItemsSource = instrumentsLabels;
+                MessageBox.Show("Failed to get list of currencies");
+                return;
             }
-            catch (Exception)
-            {
-                // ignored
-            }
+            instrumentsLabels = instruments.Instruments.ConvertAll(v => $"{v.Ticker} - {v.Name}");
+            TickerComboBox.ItemsSource = instrumentsLabels;
         }
 
         private void TickerComboBox_GotFocus(object sender, RoutedEventArgs e)
         {
+            if (TickerComboBox.ItemsSource == null)
+                return;
             var cv = (CollectionView)CollectionViewSource.GetDefaultView(TickerComboBox.ItemsSource);
             TickerComboBox.IsDropDownOpen = cv.Count > 0;
         }
 
         private void RandomizeImage_Click(object sender, RoutedEventArgs e)
         {
+            if (TickerComboBox.ItemsSource == null)
+                return;
             var rnd = new Random();
             TickerComboBox.SelectedIndex = rnd.Next(TickerComboBox.Items.Count);
         }

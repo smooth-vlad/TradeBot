@@ -48,7 +48,8 @@ namespace TradeBot
         public async Task<List<CandlePayload>> GetCandles(DateTime from, DateTime to, CandleInterval interval)
         {
             var candles = await TinkoffInterface.Context.MarketCandlesAsync(ActiveInstrument.Figi, from, to, interval);
-
+            if (candles == null)
+                return null;
             var result = candles.Candles.ToList();
 
             result.Reverse();

@@ -48,14 +48,8 @@ namespace TradeBot
             TradingChart.rightCandleDateAhead = TradingChart.rightCandleDateAhead.AddDays(1);
 
             await Dispatcher.InvokeAsync(async () => {
-                try
-                {
-                    await TradingChart.LoadNewCandles();
-                    BalanceTextBlock.Text = (TradingChart.TradingInterface.Balance + TradingChart.instrument.TotalPrice).ToString();
-                }
-                catch (Exception)
-                {
-                }
+                await TradingChart.LoadNewCandles();
+                BalanceTextBlock.Text = (TradingChart.TradingInterface.Balance + TradingChart.instrument.TotalPrice).ToString();
             });
         }
 
