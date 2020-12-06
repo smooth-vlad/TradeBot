@@ -202,17 +202,10 @@ namespace TradeBot
 
             DataContext = this;
         }
-        public void SetStrategy()
+
+        public void SetStrategy(TradingStrategy ts)
         {
-            //var ma = new MovingAverage(32, new ExponentialMaCalculation(), candlesSeries.Items);
-            //AddIndicator(ma);
-            //tradingStrategy = new MaTradingStrategy(candlesSeries.Items, ma);
-            //AddIndicator(new Macd(new ExponentialMaCalculation(), 12, 26, 9, candlesSeries.Items));
-            var macd = new Macd(new ExponentialMaCalculation(), 12, 26, 9, candlesSeries.Items);
-            AddIndicator(macd);
-            //AddIndicator(new Macd(new ExponentialMaCalculation(), 12, 26, 9, candlesSeries.Items));
-            AddIndicator(new Rsi(candlesSeries.Items, 14));
-            tradingStrategy = new MacdTradingStrategy(candlesSeries.Items, macd);
+            tradingStrategy = ts;
         }
 
         public void AddIndicator(Indicator indicator)
@@ -425,8 +418,6 @@ namespace TradeBot
             // TO TEST 'REAL TIME TRADING'
             leftCandleDate = rightCandleDate = rightCandleDateAhead = DateTime.Now.AddDays(-120);
 
-            if (tradingStrategy == null)
-                SetStrategy();
             tradingStrategy?.Reset();
             StopLoss = null;
             instrument.ResetState();

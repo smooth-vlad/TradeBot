@@ -32,11 +32,32 @@ namespace TradeBot
             DataContext = this;
 
             IntervalComboBox.SelectedIndex = 5;
+            StrategyComboBox.SelectedIndex = 0;
         }
 
         // ==================================================
         // events
         // ==================================================
+
+        private void MA_OnSelected(object sender, RoutedEventArgs e)
+        {
+            TradingChart.RemoveIndicators();
+
+            var ma = new MovingAverage(50, new ExponentialMaCalculation(), TradingChart.Candles);
+            TradingChart.AddIndicator(ma);
+            var strategy = new MaTradingStrategy(TradingChart.Candles, ma);
+            TradingChart.SetStrategy(strategy);
+        }
+
+        private void MACD_OnSelected(object sender, RoutedEventArgs e)
+        {
+            TradingChart.RemoveIndicators();
+
+            var macd = new Macd(new ExponentialMaCalculation(), 12, 26, 9, TradingChart.Candles);
+            TradingChart.AddIndicator(macd);
+            var strategy = new MacdTradingStrategy(TradingChart.Candles, macd);
+            TradingChart.SetStrategy(strategy);
+        }
 
         private async void CandlesTimerElapsed()
         {
