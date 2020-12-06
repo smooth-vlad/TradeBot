@@ -76,6 +76,15 @@ namespace TradeBot
             TradingChart.SetStrategy(strategy);
         }
 
+        private void RSI_OnSelected(object sender, RoutedEventArgs e)
+        {
+            ResetState();
+
+            var rsi = new Rsi(TradingChart.Candles, 12, 70, 30);
+            TradingChart.AddIndicator(rsi);
+            var strategy = new RsiTradingStrategy(TradingChart.Candles, rsi);
+            TradingChart.SetStrategy(strategy);
+        }
         private async void simulateButton_Click(object sender, RoutedEventArgs e)
         {
             SetEverythingEnabled(false);
