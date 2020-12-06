@@ -46,7 +46,6 @@ namespace TradeBot
             }
         }
 
-        public Portfolio Portfolio { get; private set; }
         public TradingInterface TradingInterface { get; private set; }
 
         public CandleInterval candleInterval = CandleInterval.Hour;
