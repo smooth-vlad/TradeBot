@@ -37,6 +37,7 @@
                         <MenuItem Header="Add indicator">
                             <MenuItem x:Name="MovingAverage" Header="Moving Average" Click="MovingAverage_Click" />
                             <MenuItem x:Name="Macd" Header="MACD" Click="MACD_Click" />
+                            <MenuItem x:Name="Rsi" Header="RSI" Click="Rsi_Click"/>
                         </MenuItem>
                         <MenuItem x:Name="RemoveIndicatorsButton" Header="Remove indicators" Click="RemoveIndicators_Click" />
                         <MenuItem x:Name="RemoveMarkersButton" Header="Remove markers" Click="RemoveMarkersButton_Click" />

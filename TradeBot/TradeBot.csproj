@@ -76,6 +76,9 @@
     </ApplicationDefinition>
     <Compile Include="BuySellSeries.cs" />
     <Compile Include="Candle.cs" />
+    <Compile Include="IndicatorsDialogs\RsiDialog.xaml.cs">
+      <DependentUpon>RsiDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="IndicatorsDialogs\MacdDialog.xaml.cs">
       <DependentUpon>MacdDialog.xaml</DependentUpon>
     </Compile>
@@ -115,6 +118,10 @@
     <Compile Include="TinkoffInterface.cs" />
     <Compile Include="TradingInterface.cs" />
     <Compile Include="TradingStrategies\TradingStrategy.cs" />
+    <Page Include="IndicatorsDialogs\RsiDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="IndicatorsDialogs\MacdDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

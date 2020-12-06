@@ -588,6 +588,13 @@ namespace TradeBot
                 Candles));
         }
 
+        private void Rsi_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new RsiDialog();
+            if (dialog.ShowDialog() != true) return;
+            AddIndicator(new Rsi(Candles, dialog.Period, dialog.OverboughtLine, dialog.OversoldLine));
+        }
+
         private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
         {
             RemoveIndicators();
