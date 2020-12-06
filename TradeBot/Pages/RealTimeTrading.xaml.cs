@@ -31,8 +31,16 @@ namespace TradeBot
 
             DataContext = this;
 
+            ShowBalance();
+
             IntervalComboBox.SelectedIndex = 5;
             StrategyComboBox.SelectedIndex = 0;
+        }
+
+        private void ShowBalance()
+        {
+            var balance = TradingChart.TradingInterface.Balance + TradingChart.instrument.TotalPrice;
+            BalanceTextBlock.Text = $"Balance: {Math.Round(balance)}";
         }
 
         // ==================================================
@@ -68,9 +76,10 @@ namespace TradeBot
             // TO TEST 'REAL TIME TRADING'
             TradingChart.rightCandleDateAhead = TradingChart.rightCandleDateAhead.AddDays(1);
 
-            await Dispatcher.InvokeAsync(async () => {
+            await Dispatcher.InvokeAsync(async () =>
+            {
                 await TradingChart.LoadNewCandles();
-                BalanceTextBlock.Text = (TradingChart.TradingInterface.Balance + TradingChart.instrument.TotalPrice).ToString();
+                ShowBalance();
             });
         }
 

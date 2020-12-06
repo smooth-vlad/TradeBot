@@ -30,6 +30,20 @@ namespace TradeBot
             SimulateButton.IsEnabled = value;
         }
 
+        private void ShowBalance()
+        {
+            var balance = TradingChart.TradingInterface.Balance + TradingChart.instrument.TotalPrice;
+            BalanceTextBlock.Text = $"Balance: {Math.Round(balance)}";
+            BalanceTextBlock.Visibility = Visibility.Visible;
+        }
+
+        private void ResetState()
+        {
+            TradingChart.RemoveIndicators();
+            TradingChart.RemoveMarkers();
+            BalanceTextBlock.Visibility = Visibility.Collapsed;
+        }
+
         // ==================================================
         // events
         // ==================================================
@@ -59,7 +73,7 @@ namespace TradeBot
             SetEverythingEnabled(false);
             await TradingChart.BeginTesting();
             SetEverythingEnabled(true);
-            MessageBox.Show($"Testing ended\nInitial balance = 10000\nBalance after testing = {TradingChart.TradingInterface.Balance}");
+            ShowBalance();
         }
 
         private void ListBoxItem1m_OnSelected(object sender, RoutedEventArgs e)

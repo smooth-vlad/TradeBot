@@ -17,6 +17,16 @@
         <StackPanel x:Name="ControlBar"
                     Grid.Row="0"
                     Style="{StaticResource ControlBar}">
+
+            <TextBlock x:Name="BalanceTextBlock"
+                       Margin="8 6"
+                       Height="Auto"
+                       FontSize="12"
+                       VerticalAlignment="Center"
+                       ToolTip="Total Balance (Initial - 10000)">
+                Balance: 10000
+            </TextBlock>
+
             <ComboBox
                 x:Name="StrategyComboBox"
                 Margin="8 6"
@@ -67,9 +77,6 @@
                 </ComboBox.Resources>
             </ComboBox>
 
-            <TextBlock x:Name="BalanceTextBlock">
-                
-            </TextBlock>
         </StackPanel>
 
         <local:TradingChart Grid.Row="1" x:Name="TradingChart"

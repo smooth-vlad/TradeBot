@@ -27,6 +27,16 @@
                 BEGIN TESTING
             </Button>
 
+            <TextBlock x:Name="BalanceTextBlock"
+                       Margin="8 6"
+                       Height="Auto"
+                       FontSize="12"
+                       VerticalAlignment="Center"
+                       Visibility="Collapsed"
+                       ToolTip="Balance After Testing (Initial - 10000)">
+                Balance: 10000
+            </TextBlock>
+
             <ComboBox
                 x:Name="StrategyComboBox"
                 Margin="8 6"
