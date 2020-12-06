@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TradeBot
 {
-    class Rsi : OscillatorIndicator
+    public class Rsi : OscillatorIndicator
     {
         public int Period { get; private set; }
 

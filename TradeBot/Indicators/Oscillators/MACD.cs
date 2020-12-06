@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace TradeBot
 {
-    internal class Macd : OscillatorIndicator
+    public class Macd : OscillatorIndicator
     {
         public int DifferencePeriod { get; }
         public int LongPeriod { get; }
