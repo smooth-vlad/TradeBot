@@ -82,12 +82,12 @@
     <Compile Include="IndicatorsDialogs\MovingAverageDialog.xaml.cs">
       <DependentUpon>MovingAverageDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Indicators\MACD.cs" />
+    <Compile Include="Indicators\Oscillators\MACD.cs" />
     <Compile Include="Indicators\MovingAverageCalculation\ExponentialMACalculation.cs" />
     <Compile Include="Indicators\MovingAverageCalculation\IMACalculation.cs" />
     <Compile Include="Indicators\MovingAverageCalculation\SimpleMACalculation.cs" />
     <Compile Include="Indicators\OscillatorIndicator.cs" />
-    <Compile Include="Indicators\RSI.cs" />
+    <Compile Include="Indicators\Oscillators\RSI.cs" />
     <Compile Include="Instrument.cs" />
     <Compile Include="IntervalToMaxPeriodConverter.cs" />
     <Compile Include="Pages\AuthPage.xaml.cs">
