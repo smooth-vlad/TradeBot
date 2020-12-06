@@ -117,6 +117,7 @@
     </Compile>
     <Compile Include="TinkoffInterface.cs" />
     <Compile Include="TradingInterface.cs" />
+    <Compile Include="TradingStrategies\MaCrossRsiTradingStrategy.cs" />
     <Compile Include="TradingStrategies\RsiTradingStrategy.cs" />
     <Compile Include="TradingStrategies\TradingStrategy.cs" />
     <Page Include="IndicatorsDialogs\RsiDialog.xaml">

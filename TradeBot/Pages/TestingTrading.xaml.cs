@@ -85,6 +85,21 @@ namespace TradeBot
             var strategy = new RsiTradingStrategy(TradingChart.Candles, rsi);
             TradingChart.SetStrategy(strategy);
         }
+
+        private void MACrossRSI_OnSelected(object sender, RoutedEventArgs e)
+        {
+            ResetState();
+
+            var rsi = new Rsi(TradingChart.Candles, 14, 66, 33);
+            TradingChart.AddIndicator(rsi);
+            var ma = new MovingAverage(13, new ExponentialMaCalculation(), TradingChart.Candles);
+            TradingChart.AddIndicator(ma);
+            var ma2 = new MovingAverage(4, new ExponentialMaCalculation(), TradingChart.Candles);
+            TradingChart.AddIndicator(ma2);
+            var strategy = new MaCrossRsiTradingStrategy(TradingChart.Candles, rsi, ma2, ma);
+            TradingChart.SetStrategy(strategy);
+        }
+
         private async void simulateButton_Click(object sender, RoutedEventArgs e)
         {
             SetEverythingEnabled(false);

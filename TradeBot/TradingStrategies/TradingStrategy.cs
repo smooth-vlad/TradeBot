@@ -22,6 +22,7 @@ namespace TradeBot
         {
             Buy,
             Sell,
+            Close,
         }
 
         public abstract void Reset();

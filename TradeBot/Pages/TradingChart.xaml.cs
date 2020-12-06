@@ -535,6 +535,15 @@ namespace TradeBot
                     PlaceStopLoss(i, candle.Close, true, 0.15);
                 }
             }
+            else if (signal == TradingStrategy.Signal.Close)
+            {
+                if (instrument.State != States.Empty)
+                {
+                    buySellSeries.ClosePosition(i, candle.Close);
+                    TradingInterface.ClosePosition(instrument, candle.Close);
+                    StopLoss = null;
+                }
+            }
         }
 
         public async Task LoadNewCandles()
