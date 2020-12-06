@@ -24,8 +24,8 @@ namespace TradeBot
                 || candleIndex > macd.histogramValues.Count - 2)
                 return null;
 
-            if (macd.MacdValues[candleIndex + 1].Y * macd.MacdValues[candleIndex].Y < 0)
-                return macd.MacdValues[candleIndex].Y > 0
+            if (macd.histogramValues[candleIndex + 1].Value * macd.histogramValues[candleIndex].Value < 0)
+                return macd.histogramValues[candleIndex].Value > 0
                     ? Signal.Buy
                     : Signal.Sell;
 
