@@ -11,21 +11,26 @@ namespace TradeBot
     public class Rsi : OscillatorIndicator
     {
         public int Period { get; private set; }
+        public double OverboughtLine{ get; private set; }
+        public double OversoldLine { get; private set; }
 
         private LineSeries series;
         public IReadOnlyList<DataPoint> Values => series.Points;
 
         public override (double min, double max)? YAxisRange => (0, 100);
 
-        public const double OverboughtLine = 70;
-        public const double OversoldLine = 30;
-
         private ElementCollection<Series> chart;
 
-        public Rsi(List<HighLowItem> candles, int period)
+        public Rsi(List<HighLowItem> candles, int period, double overboughtLine, double oversoldLine)
             : base(candles)
         {
-            this.Period = period;
+            if (period < 1 || overboughtLine <= oversoldLine ||
+                oversoldLine >= 100 || oversoldLine <= 0)
+                throw new ArgumentOutOfRangeException();
+
+            Period = period;
+            OverboughtLine = overboughtLine;
+            OversoldLine = oversoldLine;
 
             Plot.y.ExtraGridlineStyle = LineStyle.LongDash;
             Plot.y.ExtraGridlineColor = OxyColor.FromArgb(30, 0, 0, 0);
