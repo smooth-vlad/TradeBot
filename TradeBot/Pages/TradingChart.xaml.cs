@@ -604,11 +604,6 @@ namespace TradeBot
             AddIndicator(new Rsi(Candles, dialog.Period, dialog.OverboughtLine, dialog.OversoldLine));
         }
 
-        private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
-        {
-            RemoveIndicators();
-        }
-
         private void RemoveMarkersButton_Click(object sender, RoutedEventArgs e)
         {
             RemoveMarkers();
