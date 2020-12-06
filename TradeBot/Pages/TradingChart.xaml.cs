@@ -27,6 +27,7 @@ namespace TradeBot
         private readonly LinearAxis yAxis;
 
         private CandleStickSeries candlesSeries;
+        public List<HighLowItem> Candles => candlesSeries.Items;
         private BuySellSeries buySellSeries;
 
         private List<Indicator> indicators = new List<Indicator>();
@@ -143,8 +144,8 @@ namespace TradeBot
 
             xAxis.LabelFormatter = d =>
             {
-                if (candlesSeries.Items.Count <= (int)d || !(d >= 0)) return "";
-                var date = ((Candle)candlesSeries.Items[(int)d]).DateTime;
+                if (Candles.Count <= (int)d || !(d >= 0)) return "";
+                var date = ((Candle)Candles[(int)d]).DateTime;
                 switch (candleInterval)
                 {
                     case CandleInterval.Minute:
@@ -407,7 +408,7 @@ namespace TradeBot
             for (var i = 0; i < candles.Count; ++i)
             {
                 var candle = candles[i];
-                candlesSeries.Items.Add(new Candle(LoadedCandles + i, candle));
+                Candles.Add(new Candle(LoadedCandles + i, candle));
             }
 
             LoadedCandles += candles.Count;
@@ -418,7 +419,7 @@ namespace TradeBot
         public async void RestartSeries()
         {
             buySellSeries.ClearSeries();
-            candlesSeries.Items.Clear();
+            Candles.Clear();
 
             LoadedCandles = 0;
             candlesLoadsFailed = 0;
@@ -448,7 +449,7 @@ namespace TradeBot
 
             await Task.Factory.StartNew(() =>
             {
-                for (var i = candlesSeries.Items.Count - 1; i >= 0; --i)
+                for (var i = Candles.Count - 1; i >= 0; --i)
                 {
                     UpdateSignals(i, tradingStrategy);
                 }
@@ -487,10 +488,10 @@ namespace TradeBot
         {
             double maxPrice = double.MinValue;
             double minPrice = double.MaxValue;
-            for (int j = startIndex; j < period + startIndex && j < candlesSeries.Items.Count; ++j)
+            for (int j = startIndex; j < period + startIndex && j < Candles.Count; ++j)
             {
-                var h = candlesSeries.Items[j].High;
-                var l = candlesSeries.Items[j].Low;
+                var h = Candles[j].High;
+                var l = Candles[j].Low;
                 if (h > maxPrice)
                     maxPrice = h;
                 if (l < minPrice)
@@ -501,9 +502,9 @@ namespace TradeBot
 
         private void UpdateSignals(int i, TradingStrategy tradingStrategy)
         {
-            var candle = candlesSeries.Items[i];
+            var candle = Candles[i];
 
-            if (HasCrossedStopLoss(candlesSeries.Items[i].Close))
+            if (HasCrossedStopLoss(Candles[i].Close))
             {
                 buySellSeries.ClosePosition(i, candle.Close);
                 TradingInterface.ClosePosition(instrument, candle.Close);
@@ -557,8 +558,8 @@ namespace TradeBot
             rightCandleDate = rightCandleDateAhead;
 
             var c = candles.Select((candle, i) => new Candle(i, candle)).Cast<HighLowItem>().ToList();
-            candlesSeries.Items.ForEach(v => v.X += candles.Count);
-            candlesSeries.Items.InsertRange(0, c);
+            Candles.ForEach(v => v.X += candles.Count);
+            Candles.InsertRange(0, c);
 
             LoadedCandles += candles.Count;
             NewCandlesLoaded?.Invoke(candles.Count);
@@ -579,7 +580,7 @@ namespace TradeBot
                 MovingAverageDialog.CalculationMethod.Exponential => new ExponentialMaCalculation(),
                 _ => new SimpleMaCalculation(),
             };
-            AddIndicator(new MovingAverage(dialog.Period, calculationMethod, candlesSeries.Items));
+            AddIndicator(new MovingAverage(dialog.Period, calculationMethod, Candles));
         }
 
         private void MACD_Click(object sender, RoutedEventArgs e)
@@ -594,7 +595,7 @@ namespace TradeBot
             };
             AddIndicator(new Macd(
                 calculationMethod, dialog.ShortPeriod, dialog.LongPeriod, dialog.HistogramPeriod,
-                candlesSeries.Items));
+                Candles));
         }
 
         private void RemoveIndicators_Click(object sender, RoutedEventArgs e)
