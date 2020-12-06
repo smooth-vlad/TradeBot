@@ -35,7 +35,8 @@
                                                   ContentSource="Header"
                                                   Margin="26 0" />
                                 <Button x:Name="CloseTabButton" Content="-" Click="CloseTabButton_Selected"
-                                        Background="White">
+                                        Background="White"
+                                        ToolTip="Close Tab">
                                     <Button.Resources>
                                         <Style TargetType="Button">
                                             <Setter Property="HorizontalAlignment" Value="Right" />
@@ -98,7 +99,8 @@
                                         <TabPanel x:Name="headerPanel" Background="Transparent" IsItemsHost="true"
                                                   Margin="0" Grid.Row="0" KeyboardNavigation.TabIndex="1"
                                                   Panel.ZIndex="1" />
-                                        <Button Content="+" Click="AddTabButton_Selected">
+                                        <Button Content="+" Click="AddTabButton_Selected"
+                                                ToolTip="Add Tab">
                                             <Button.Resources>
                                                 <Style TargetType="Button">
                                                     <Setter Property="Template">
