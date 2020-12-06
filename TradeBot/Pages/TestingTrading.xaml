@@ -48,6 +48,7 @@
 
                 <ComboBoxItem Selected="MA_OnSelected">Moving Average</ComboBoxItem>
                 <ComboBoxItem Selected="MACD_OnSelected">MACD</ComboBoxItem>
+                <ComboBoxItem Selected="Random_OnSelected">Random</ComboBoxItem>
                 <ComboBoxItem IsEnabled="False">RSI</ComboBoxItem>
                 <ComboBoxItem IsEnabled="False">MACD + RSI</ComboBoxItem>
 

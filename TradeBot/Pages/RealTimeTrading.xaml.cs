@@ -67,6 +67,14 @@ namespace TradeBot
             TradingChart.SetStrategy(strategy);
         }
 
+        private void Random_OnSelected(object sender, RoutedEventArgs e)
+        {
+            TradingChart.RemoveIndicators();
+
+            var strategy = new RandomTradingStrategy(TradingChart.Candles);
+            TradingChart.SetStrategy(strategy);
+        }
+
         private async void CandlesTimerElapsed()
         {
             if (TradingChart.LoadingCandlesTask == null)
